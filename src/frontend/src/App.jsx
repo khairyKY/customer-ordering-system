@@ -1,13 +1,1 @@
-﻿import React from 'react'
-import CartWidget from './components/CartWidget'
-
-function App() {
-  return (
-    <div className="app-container">
-      <h1>CSE323 Customer Ordering System</h1>
-      <CartWidget />
-    </div>
-  )
-}
-
-export default App
+﻿import React, { useState } from 'react'; import ProductGrid from './components/ProductGrid'; import CartWidget from './components/CartWidget'; function App() { const [cart, setCart] = useState(null); const handleCartUpdate = (updatedCart) => { setCart(updatedCart); }; return ( <div className='app-container' style={{ fontFamily: 'sans-serif', padding: '2rem' }}> <h1>CSE323 Customer Ordering System</h1> <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start' }}> <div style={{ flex: 2 }}> <h2>Product Catalog</h2> <ProductGrid onCartUpdate={handleCartUpdate} /> </div> <div style={{ flex: 1 }}> <CartWidget cart={cart} onCartUpdate={handleCartUpdate} /> </div> </div> </div> ); } export default App;

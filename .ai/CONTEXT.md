@@ -42,3 +42,33 @@
 - [x] Frontend can fetch and display empty cart state.
 - [x] "Add Item" button triggers backend calculation and UI refresh.
 - [x] Tax calculation (8%) verified in controller logic.
+
+## Sprint 2 Execution Log
+**Date:** 2026-05-10
+**Status:** Complete
+
+### Files Created/Updated:
+- **Database:** `src/database/schema.sql` updated with `products` table.
+- **Backend:**
+  - `src/backend/controllers/productController.js` (Mock catalog data and retrieval).
+  - `src/backend/routes/productRoutes.js` (Endpoint: `GET /`).
+  - `src/backend/controllers/cartController.js` (Updated to handle stock validation, quantity updates, and removals).
+  - `src/backend/routes/cartRoutes.js` (Added `PUT /update` and `DELETE /remove`).
+  - `src/backend/server.js` (Integrated product routes).
+- **Frontend:**
+  - `src/frontend/src/api/productApi.js` (Client for catalog).
+  - `src/frontend/src/api/cartApi.js` (Added update/remove methods).
+  - `src/frontend/src/components/ProductGrid.jsx` (Responsive grid display for products).
+  - `src/frontend/src/components/CartWidget.jsx` (Upgraded with quantity controls and remove actions).
+  - `src/frontend/src/App.jsx` (Layout for Catalog and Cart side-by-side).
+
+### API Routes Established:
+- `GET http://localhost:3001/api/products` - Returns 6 mock products.
+- `PUT http://localhost:3001/api/cart/update` - Modifies item quantity with stock check.
+- `DELETE http://localhost:3001/api/cart/remove` - Removes item from session cart.
+
+### Success Criteria Confirmation:
+- [x] Product catalog fetchable from backend.
+- [x] Stock validation enforced during add/update.
+- [x] Cart subtotal and tax (10%) recalculated on every change.
+- [x] UI allows full catalog-to-cart lifecycle (Add -> Update -> Remove).
