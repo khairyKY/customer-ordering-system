@@ -17,6 +17,15 @@
 - **Member C:** Product Catalog.
 - **Member D:** Admin & Order Fulfillment.
 
+## 4. FEATURE SLICE STATUS
+
+| Slice | Owner | Status | Last Completed Task | Blockers |
+|---|---|---|---|---|
+| checkout | Member A | 🟢 Complete | Sprint 2 + Checkout Button | None |
+| auth | Member B | 🔴 Not Started | — | — |
+| catalog | Member C | 🔴 Not Started | — | — |
+| orders | Member D | 🟡 In Progress | Phase 1: Requirements & Edge Cases | Needs orders/order_items schema from Member A |
+
 ## Sprint 1 Execution Log
 **Date:** 2026-05-10
 **Status:** Initialized & Complete
@@ -82,3 +91,50 @@
   - Validates if cart is empty before enabling.
   - Triggers a simulated routing alert.
   - Clears local cart state upon click to reset the UI loop.
+
+---
+
+## Member D — Admin & Order Fulfillment: Phase 1 Log
+**Date:** 2026-05-10
+**Status:** Phase 1 Complete — Requirements & Edge Cases
+
+### Slice Boundaries
+- **Backend:** `src/backend/features/orders/`
+- **Frontend:** `src/frontend/src/features/orders/`
+- **Database:** Migrations scoped to `orders` table (coordinate schema with Member A)
+- **Slice Token:** `orders`
+
+### API Contract (Planned — Not Yet Implemented)
+| Method | Endpoint | Description | Status |
+|---|---|---|---|
+| GET | `/api/orders` | Paginated admin order list | ❌ Not Started |
+| GET | `/api/orders/:id` | Single order detail | ❌ Not Started |
+| PATCH | `/api/orders/:id/status` | Update fulfillment status | ❌ Not Started |
+| GET | `/api/inventory` | Product stock list | ❌ Not Started |
+| PATCH | `/api/inventory/:id` | Update product stock quantity | ❌ Not Started |
+
+### Actors Defined
+- **Admin** — Primary actor. JWT with `role === "admin"` claim required on all endpoints.
+- **System** — Consumes `orders` + `order_items` records created by Member A's `placeOrder` transaction.
+- **Customer** — Out-of-scope boundary actor.
+
+### Phase 1 Deliverables
+- 5 user stories written in Gherkin (D-1 through D-5).
+- Ambiguity audit complete — all vague terms replaced with measurable constraints.
+- 7 negative acceptance test scenarios identified (NEG-1 through NEG-7).
+- Full requirements document: `docs/requirements/member_d_phase1_requirements.md`
+
+### Key Design Constraints
+- "Low-stock" threshold: `stock_quantity < 5`
+- Tax rate: 10% (consistent with Member A's cart logic)
+- Status transition guard: `DELIVERED` → `PENDING` is an illegal regression (HTTP 422)
+- All admin endpoints require `Authorization: Bearer <token>` with `role === "admin"`
+- UI updates must reflect within 500ms of API response (React Query cache invalidation)
+
+### Blockers
+- Requires Member A to expose the `orders` + `order_items` DB schema before migrations can be written.
+
+### Next 3 Tasks (Phase 2 — TDP begins)
+1. Write failing test for `GET /api/orders` — returns paginated list, admin-only.
+2. Write failing test for `PATCH /api/orders/:id/status` — valid transition + illegal regression guard.
+3. Write failing test for `PATCH /api/inventory/:id` — valid update, negative quantity, decimal guard.
