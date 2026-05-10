@@ -1,23 +1,23 @@
 {
-  "hash": "db8f3d69",
-  "browserHash": "40c309fc",
+  "hash": "852de7b7",
+  "browserHash": "19157599",
   "optimized": {
     "axios": {
       "src": "../../node_modules/axios/index.js",
       "file": "axios.js",
-      "fileHash": "e0f7c018",
+      "fileHash": "f8b9ebc5",
       "needsInterop": false
     },
     "react": {
       "src": "../../node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "512034f5",
+      "fileHash": "eecc93bb",
       "needsInterop": true
     },
     "react-dom/client": {
       "src": "../../node_modules/react-dom/client.js",
       "file": "react-dom_client.js",
-      "fileHash": "700dcb45",
+      "fileHash": "a8053092",
       "needsInterop": true
     }
   },

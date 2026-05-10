@@ -72,3 +72,13 @@
 - [x] Stock validation enforced during add/update.
 - [x] Cart subtotal and tax (10%) recalculated on every change.
 - [x] UI allows full catalog-to-cart lifecycle (Add -> Update -> Remove).
+
+### Feature Log: Checkout Button (feat/checkout-button)
+**Date:** 2026-05-10
+**Status:** Feature Initialized
+
+- **Component:** `CartWidget.jsx` updated with a "Proceed to Checkout" button.
+- **Functionality:** 
+  - Validates if cart is empty before enabling.
+  - Triggers a simulated routing alert.
+  - Clears local cart state upon click to reset the UI loop.
