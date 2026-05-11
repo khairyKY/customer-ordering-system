@@ -24,7 +24,7 @@
 | checkout | Member A | 🟢 Complete | Sprint 2 + Checkout Button | None |
 | auth | Member B | 🔴 Not Started | — | — |
 | catalog | Member C | 🔴 Not Started | — | — |
-| orders | Member D | 🟡 In Progress | Phase 1: Requirements & Edge Cases | Needs orders/order_items schema from Member A |
+| orders | Member D | 🟡 In Progress | Phase 2: Design Refinement & SSDs | RFC-D001: needs written approval from Member C for inventory stock writes |
 
 ## Sprint 1 Execution Log
 **Date:** 2026-05-10
@@ -132,9 +132,20 @@
 - UI updates must reflect within 500ms of API response (React Query cache invalidation)
 
 ### Blockers
-- Requires Member A to expose the `orders` + `order_items` DB schema before migrations can be written.
+- **RFC-D001** — `PATCH /api/v1/inventory/:id` writes `Product.stock` (Member C's domain). Needs written approval from Member C before implementation.
+- Tax rate ambiguity: schema doc says 8%, CONTEXT.md Sprint 2 says 10%. Needs confirmation from Member A.
 
-### Next 3 Tasks (Phase 2 — TDP begins)
-1. Write failing test for `GET /api/orders` — returns paginated list, admin-only.
-2. Write failing test for `PATCH /api/orders/:id/status` — valid transition + illegal regression guard.
-3. Write failing test for `PATCH /api/inventory/:id` — valid update, negative quantity, decimal guard.
+### Phase 2 Deliverables (Complete)
+- Refined Gherkin for all 5 stories (D-1 through D-5) with schema-accurate field names.
+- System Sequence Diagrams for all 5 endpoints (happy paths + guard paths).
+- OrderStatus transition machine — 7×7 valid/invalid matrix.
+- Zod schemas: `updateOrderStatusSchema`, `orderListQuerySchema`, `updateStockSchema`.
+- Formal API contract with error codes.
+- Full document: `docs/requirements/member_d_phase2_design.md`
+
+### Next 5 Tasks (Phase 3 — TDP: failing tests first)
+1. `test/orders-get-list` — paginated list + 401/403 guards.
+2. `test/orders-update-status` — valid transition + DELIVERED→PENDING regression (422).
+3. `test/orders-update-status-invalid` — `status:"HACKED"` returns 400.
+4. `test/inventory-update-stock` — valid, negative, decimal quantity guards.
+5. `test/orders-get-detail-not-found` — 404 on missing order.
