@@ -1,0 +1,497 @@
+openapi: 3.0.3
+
+info:
+  title: Ticket System API — CSE323
+  description: |
+    Vertical slice API for a sentiment-aware customer support ticketing system.
+    Built for the CSE323 Customer Ordering System (COS) project.
+
+    **Architectural Notes:**
+    - **Auth:** All endpoints require a Bearer JWT (HS256).
+      ⚠️ PENDING confirmation from Member D regarding JWT claim structure.
+      Expected structure: `{ "sub": "userId", "role": "customer|agent", "exp": timestamp }`
+    - **AI Integration:** Sentiment analysis is performed synchronously during ticket creation.
+      Failures trigger neutral fallbacks — the ticket is always persisted.
+    - **Resilience:** The system prioritises availability.
+      `201 Created` is returned even on AI timeouts (HuggingFace fallback).
+      A `502 Bad Gateway` is only surfaced when the internal database is unreachable.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3001/api/v1
+    description: Local development server
+
+# ------------------------------------------------------------------------------
+# SECURITY
+# ------------------------------------------------------------------------------
+security:
+  - BearerAuth: []
+
+components:
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        ⚠️ PENDING Member D's confirmed JWT payload structure.
+        Expected claims: sub (userId), role ("customer" | "agent"), exp (Unix timestamp).
+        All protected routes validate token signature and expiry before processing.
+
+  # ----------------------------------------------------------------------------
+  # REUSABLE SCHEMAS
+  # ----------------------------------------------------------------------------
+  schemas:
+
+    TicketStatus:
+      type: string
+      enum: [OPEN, IN_PROGRESS, RESOLVED]
+      example: OPEN
+      description: >
+        Lifecycle state of a ticket.
+        Valid forward transitions only: OPEN → IN_PROGRESS → RESOLVED.
+        Reverse transitions are rejected with 422.
+
+    PriorityLevel:
+      type: string
+      enum: [CRITICAL, HIGH, MEDIUM, LOW]
+      example: HIGH
+      description: |
+        Determined by HuggingFace sentiment scoring (positivity float 0.0–1.0).
+        Mapping:
+          score < 0.25  → CRITICAL
+          score < 0.50  → HIGH
+          score < 0.75  → MEDIUM
+          score >= 0.75 → LOW
+        Fallback value is MEDIUM when AI is unavailable or returns an invalid score.
+
+    SentimentSource:
+      type: string
+      enum: [hf_model, fallback, score_invalid, low_content]
+      example: hf_model
+      description: |
+        Indicates how the priority was determined:
+          "hf_model"      — Score received and mapped successfully from HuggingFace.
+          "fallback"      — HuggingFace timed out (> 5000ms) or returned 502; MEDIUM assigned.
+          "score_invalid" — HuggingFace returned NaN or null score; MEDIUM assigned.
+          "low_content"   — Body had fewer than 5 alphanumeric chars after stripping emojis;
+                            flagged for manual agent review.
+
+    Ticket:
+      type: object
+      description: A support ticket as stored and returned by the system.
+      required:
+        - id
+        - userId
+        - subject
+        - body
+        - status
+        - priority
+        - sentimentSource
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          example: tkt_abc123
+          description: Unique ticket identifier assigned by the system.
+        userId:
+          type: string
+          example: usr_88d92
+          description: >
+            The customer who submitted the ticket.
+            Bound to the JWT sub claim — never accepted from the request body.
+        subject:
+          type: string
+          minLength: 5
+          maxLength: 120
+          example: Missing Order Item
+        body:
+          type: string
+          minLength: 10
+          maxLength: 2000
+          example: My order #12345 arrived without the wireless mouse.
+        status:
+          $ref: '#/components/schemas/TicketStatus'
+        priority:
+          $ref: '#/components/schemas/PriorityLevel'
+        sentimentScore:
+          type: number
+          format: float
+          nullable: true
+          example: 0.15
+          description: Raw float score returned by HuggingFace. Null on fallback or error.
+        sentimentSource:
+          $ref: '#/components/schemas/SentimentSource'
+        dedupHash:
+          type: string
+          example: a3f5c9d1...
+          description: >
+            SHA-256 hash of (userId + subject + body).
+            Returned for audit purposes only — never accepted as input.
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-05-10T14:32:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2026-05-10T15:10:00Z"
+
+    TicketCreateRequest:
+      type: object
+      description: Request body for submitting a new support ticket.
+      required:
+        - subject
+        - body
+      properties:
+        subject:
+          type: string
+          minLength: 5
+          maxLength: 120
+          example: Missing Order Item
+        body:
+          type: string
+          minLength: 10
+          maxLength: 2000
+          example: My order #12345 arrived without the wireless mouse.
+
+    StatusUpdateRequest:
+      type: object
+      description: Request body for advancing a ticket through the status lifecycle.
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [IN_PROGRESS, RESOLVED]
+          example: IN_PROGRESS
+          description: >
+            Only forward transitions are accepted.
+            OPEN → IN_PROGRESS → RESOLVED.
+            Attempting RESOLVED → OPEN or RESOLVED → IN_PROGRESS returns 422.
+
+    PaginatedTicketList:
+      type: object
+      description: Paginated list of tickets with metadata.
+      required:
+        - tickets
+        - pagination
+      properties:
+        tickets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ticket'
+        pagination:
+          type: object
+          required:
+            - currentPage
+            - itemsPerPage
+            - totalTickets
+            - totalPages
+          properties:
+            currentPage:
+              type: integer
+              example: 1
+            itemsPerPage:
+              type: integer
+              example: 10
+            totalTickets:
+              type: integer
+              example: 35
+            totalPages:
+              type: integer
+              example: 4
+
+    ErrorResponse:
+      type: object
+      description: Standard error envelope returned by all failure responses.
+      required:
+        - error
+        - code
+      properties:
+        error:
+          type: string
+          description: Human-readable error message.
+          example: Duplicate ticket detected within 10-minute window
+        code:
+          type: string
+          description: Machine-readable error code for client-side handling.
+          example: DUPLICATE_TICKET
+
+  # ----------------------------------------------------------------------------
+  # REUSABLE RESPONSES
+  # ----------------------------------------------------------------------------
+  responses:
+
+    Unauthorized:
+      description: 401 — JWT is missing, malformed, or expired.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Unauthorized: JWT missing or expired"
+            code: JWT_INVALID
+
+    Forbidden:
+      description: 403 — Authenticated user lacks the required role for this endpoint.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Forbidden: Agent role required"
+            code: ROLE_INSUFFICIENT
+
+    UnprocessableEntity:
+      description: >
+        422 — Request body is valid JSON but violates business-rule constraints.
+        The HuggingFace API is never called when this response is returned.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Validation failed: body must be between 10 and 2000 characters"
+            code: VALIDATION_ERROR
+
+    InternalError:
+      description: 500 — Unexpected server-side error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: Internal server error
+            code: INTERNAL_ERROR
+
+# ------------------------------------------------------------------------------
+# PATHS
+# ------------------------------------------------------------------------------
+paths:
+
+  /tickets:
+
+    post:
+      summary: Create a support ticket (Customer)
+      operationId: createTicket
+      tags: [Tickets]
+      description: |
+        Submits a new support ticket on behalf of the authenticated customer.
+        The `userId` is extracted from the JWT `sub` claim and is never accepted
+        from the request body.
+
+        **409 Conflict vs 429 Too Many Requests:**
+        - `409` is returned for *semantic duplicates* — an identical ticket (same
+          `userId + subject + body` hash) submitted within a 600-second window.
+          This is a business deduplication rule targeting accidental double-clicks.
+        - `429` would apply to *volume-based throttling* (e.g. > N requests per
+          minute regardless of content). That is a separate infrastructure concern
+          and is not implemented in this version.
+
+        **201 Created vs 502 Bad Gateway — HuggingFace Fallback:**
+        - The system always returns `201 Created` regardless of HuggingFace availability.
+          If HuggingFace times out (> 5000ms) or returns an upstream error, the ticket
+          is persisted with `priority: MEDIUM` and `sentimentSource: "fallback"`.
+        - `502 Bad Gateway` is only surfaced when the internal database is unreachable —
+          not when the external AI service fails.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketCreateRequest'
+            example:
+              subject: Missing Order Item
+              body: My order #12345 arrived without the wireless mouse.
+      responses:
+        '201':
+          description: >
+            Ticket created successfully.
+            Priority is AI-assigned or defaulted to MEDIUM on HuggingFace failure.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+              example:
+                id: tkt_abc123
+                userId: usr_88d92
+                subject: Missing Order Item
+                body: My order #12345 arrived without the wireless mouse.
+                status: OPEN
+                priority: HIGH
+                sentimentScore: 0.32
+                sentimentSource: hf_model
+                dedupHash: a3f5c9d1...
+                createdAt: "2026-05-10T14:32:00Z"
+                updatedAt: "2026-05-10T14:32:00Z"
+        '400':
+          description: 400 — Malformed JSON or missing Content-Type header.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Bad request: invalid JSON body"
+                code: BAD_REQUEST
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: >
+            409 Conflict — Identical ticket submitted within the 600-second
+            deduplication window. See description for 409 vs 429 distinction.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Duplicate ticket detected within 10-minute window"
+                code: DUPLICATE_TICKET
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '502':
+          description: >
+            502 Bad Gateway — The internal database is unreachable.
+            Note: HuggingFace unavailability does NOT produce 502 — it triggers
+            the fallback path and returns 201 with sentimentSource "fallback".
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Service unavailable: database unreachable"
+                code: DATABASE_UNREACHABLE
+
+    get:
+      summary: List own tickets (Customer)
+      operationId: getMyTickets
+      tags: [Tickets]
+      description: >
+        Returns a paginated list of tickets belonging to the authenticated customer.
+        The userId filter is applied server-side from the JWT sub claim.
+        A customer cannot retrieve another customer's tickets.
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number (1-indexed).
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+          description: Number of tickets per page. Maximum 50.
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/TicketStatus'
+          description: Optional filter by ticket status.
+      responses:
+        '200':
+          description: Paginated list of the authenticated customer's own tickets.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTicketList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tickets/queue:
+
+    get:
+      summary: Retrieve agent triage queue (Agent only)
+      operationId: getTriageQueue
+      tags: [Triage]
+      description: >
+        Returns all OPEN and IN_PROGRESS tickets sorted by priority descending
+        (CRITICAL first), then by createdAt ascending (oldest first).
+        Requires role: "agent" in the JWT. Customer JWTs receive 403.
+      responses:
+        '200':
+          description: >
+            Sorted list of open tickets for agent triage.
+            Order: CRITICAL → HIGH → MEDIUM → LOW, then oldest first within each band.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tickets/{id}/status:
+
+    patch:
+      summary: Update ticket status (Agent only)
+      operationId: updateTicketStatus
+      tags: [Triage]
+      description: |
+        Advances a ticket through the defined status lifecycle.
+        Valid transitions: `OPEN → IN_PROGRESS`, `IN_PROGRESS → RESOLVED`.
+        Reverse or skip transitions (e.g. `RESOLVED → OPEN`, `OPEN → RESOLVED`) return 422.
+        Requires role: "agent" in the JWT. Customer JWTs receive 403.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique ticket ID to update.
+          example: tkt_abc123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusUpdateRequest'
+            example:
+              status: IN_PROGRESS
+      responses:
+        '200':
+          description: Ticket status updated successfully. Returns the full updated ticket.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: 404 — No ticket found with the provided ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Ticket not found"
+                code: TICKET_NOT_FOUND
+        '422':
+          description: >
+            422 — Illegal status transition (e.g. RESOLVED → OPEN).
+            Also returned if the status value is not a valid enum member.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Illegal status regression: RESOLVED to OPEN"
+                code: INVALID_TRANSITION
+        '500':
+          $ref: '#/components/responses/InternalError'
