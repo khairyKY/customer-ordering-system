@@ -22,8 +22,9 @@
 | Slice | Owner | Status | Last Completed Task | Blockers |
 |---|---|---|---|---|
 | checkout | Member A | 🟢 Complete | Sprint 2 + Checkout Button | None |
-| auth | Member B | 🔴 Not Started | — | — |
+| auth | Member B | 🟡 In Progress | Phase 1: Requirement Discovery | None |
 | catalog | Member C | 🔴 Not Started | — | — |
+| payment | Member B | 🟡 In Progress | Phase 3: Implementation (TDP) | None |
 | orders | Member D | 🟡 In Progress | Phase 1: Requirements & Edge Cases | Needs orders/order_items schema from Member A |
 
 ## Sprint 1 Execution Log
