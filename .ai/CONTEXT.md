@@ -24,12 +24,8 @@
 | checkout | Member A | 🟢 Complete | Sprint 2 + Checkout Button | None |
 | auth | Member B | 🟡 In Progress | Phase 1: Requirement Discovery | None |
 | catalog | Member C | 🔴 Not Started | — | — |
-<<<<<<< HEAD
 | payment | Member B | 🟡 In Progress | Phase 3: Implementation (TDP) | None |
-| orders | Member D | 🟡 In Progress | Phase 1: Requirements & Edge Cases | Needs orders/order_items schema from Member A |
-=======
 | orders | Member D | 🟡 In Progress | Phase 2: Design Refinement & SSDs | RFC-D001: needs written approval from Member C for inventory stock writes |
->>>>>>> 597daad3fa65f0fb8bedfa4c838071a925a59eef
 
 ## Sprint 1 Execution Log
 **Date:** 2026-05-10
