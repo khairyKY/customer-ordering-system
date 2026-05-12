@@ -1,4 +1,4 @@
-﻿# SYSTEM CONTEXT: CSE323 Customer Ordering System (COS)
+# SYSTEM CONTEXT: CSE323 Customer Ordering System (COS)
 
 ## 1. MANDATE: AI-NATIVE VERTICAL SLICING
 - **Architecture:** Feature-Based Vertical Slicing (Mandated by CSE322/323 Curriculum).
@@ -24,7 +24,7 @@
 | checkout | Member A | 🟢 Complete | Sprint 2 + Checkout Button | None |
 | auth | Member B | 🟡 In Progress | Phase 1: Requirement Discovery | None |
 | catalog | Member C | 🔴 Not Started | — | — |
-| payment | Member B | 🟡 In Progress | Phase 3: Implementation (TDP) | None |
+| payment | Member B | 🟢 Phase 1 Complete | Phase 1: Advanced Requirements & Edge Cases | None |
 | orders | Member D | 🟡 In Progress | Phase 2: Design Refinement & SSDs | RFC-D001: needs written approval from Member C for inventory stock writes |
 
 ## Sprint 1 Execution Log
@@ -150,3 +150,35 @@
 3. `test/orders-update-status-invalid` — `status:"HACKED"` returns 400.
 4. `test/inventory-update-stock` — valid, negative, decimal quantity guards.
 5. `test/orders-get-detail-not-found` — 404 on missing order.
+
+---
+
+## Member B — Payment Features: Phase 1 Log
+**Date:** 2026-05-12
+**Status:** Phase 1 Complete — Advanced Requirements & Edge Case Discovery
+
+### Slice Boundaries
+- **Backend:** `src/backend/features/payment/`
+- **Frontend:** `src/frontend/src/features/payment/`
+- **Database:** `payments` table + `order_logs` (coordinate with Member A for Order table foreign keys)
+- **Slice Token:** `payment`
+
+### Actors Defined
+- **Customer** — Primary. Initiates checkout and provides payment credentials.
+- **Payment Gateway (Stripe/Mock)** — Supporting. Authorizes transactions and provides status webhooks.
+- **Finance System** — Offstage. Consumes payment logs for reconciliation.
+
+### Phase 1 Deliverables: Advanced "Padlock" Requirements
+The following Edge Case Requirements (REQ_EC) were discovered using an adversarial AI persona (Student 'Z') to ensure a secure perimeter:
+
+1. **REQ_EC_1 (Negative Amount):** Server-side rejection of `amount <= 0`.
+2. **REQ_EC_2 (Idempotency):** 300s window for duplicate request suppression via session key.
+3. **REQ_EC_3 (Race Condition):** Final server-side cart re-calculation at moment of payment.
+4. **REQ_EC_4 (Negative Floor):** Subtotal constraint `Max(0, Subtotal - Discount)` before tax.
+5. **REQ_EC_5 (Zombie Recovery):** 15-minute auto-cancellation for orders stuck in `PAYMENT_PENDING`.
+
+### Key Technical Constants
+- **Tax Rate:** 10% (Global mandate)
+- **Currency:** USD (Fixed)
+- **Gateway Timeout:** 30 seconds
+- **Session Expiry:** 24 hours (Inherited from Auth slice)
