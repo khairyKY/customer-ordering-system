@@ -1,0 +1,24 @@
+// Payment & PromoCode Models for Member B Slice
+
+model Payment {
+  id              String   @id @default(uuid())
+  orderId         String   @unique
+  amount          Float
+  tax             Float
+  discount        Float
+  total           Float
+  paymentMethod   String   // 'CARD' | 'COD'
+  idempotencyKey  String   @unique
+  status          String   // 'SUCCESS' | 'FAILED' | 'PENDING'
+  createdAt       DateTime @default(now())
+}
+
+model PromoCode {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  discount    Float
+  usageLimit  Int
+  usageCount  Int      @default(0)
+  expiryDate  DateTime
+  isActive    Boolean  @default(true)
+}

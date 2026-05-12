@@ -24,7 +24,7 @@
 | checkout | Member A | 🟢 Complete | Sprint 2 + Checkout Button | None |
 | auth | Member B | 🟡 In Progress | Phase 1: Requirement Discovery | None |
 | catalog | Member C | 🔴 Not Started | — | — |
-| payment | Member B | 🟢 Phase 1 Complete | Phase 1: Advanced Requirements & Edge Cases | None |
+| payment | Member B | 🟢 Phase 3 Complete | Phase 3: TDP Implementation | None |
 | orders | Member D | 🟡 In Progress | Phase 2: Design Refinement & SSDs | RFC-D001: needs written approval from Member C for inventory stock writes |
 
 ## Sprint 1 Execution Log
@@ -182,3 +182,31 @@ The following Edge Case Requirements (REQ_EC) were discovered using an adversari
 - **Currency:** USD (Fixed)
 - **Gateway Timeout:** 30 seconds
 - **Session Expiry:** 24 hours (Inherited from Auth slice)
+
+---
+
+## Member B — Payment Features: Phase 3 Log
+**Date:** 2026-05-12
+**Status:** Phase 3 Complete — TDP Vertical Slice
+
+### API Contract (Implemented)
+| Method | Endpoint | Description | Request Body | Response |
+|---|---|---|---|---|
+| POST | `/api/payment/process` | Atomic payment execution | `{ amount, promoCode, idempotencyKey, cartTotal }` | `{ status: 'SUCCESS', total }` |
+
+### Prisma Models Added
+- **Payment:** Stores transaction logs, tax, discount, and idempotency key.
+- **PromoCode:** Stores validation logic, usage limits, and counts.
+
+### Key Padlocks (payment.schema.js)
+- **Amount Padlock:** `z.number().positive().multipleOf(0.01)`
+- **Idempotency Padlock:** `z.string().uuid()`
+- **Logic Floor:** `Math.max(0, subtotal - discount)` enforced in `payment.logic.js`.
+
+### UI Integration
+- **Zustand Store:** `usePaymentStore.js` manages client-side idempotency key and loading states.
+- **Component:** `PaymentForm.jsx` implements double-click prevention and live calculation.
+
+### Assumptions
+- Member D's `protectRoute` middleware expects an `Authorization: Bearer <token>` header.
+- Cart data is passed from Member A's slice as the `amount` field.
