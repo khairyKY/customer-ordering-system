@@ -25,7 +25,7 @@
 | auth | Member B | 🟡 In Progress | Phase 1: Requirement Discovery | None |
 | catalog | Member C | 🔴 Not Started | — | — |
 | payment | Member B | 🟢 Phase 3 Complete | Phase 3: TDP Implementation | None |
-| orders | Member D | 🟡 In Progress | Phase 2: Design Refinement & SSDs | RFC-D001: needs written approval from Member C for inventory stock writes |
+| orders | Member D | 🟡 In Progress | Phase 1 v2.1 + Phase 2 v2.1 (PDF-aligned + cross-slice integrated with Member A & B) | RFC-D001 (catalog write); awaiting Member B's `protectRoute` middleware (auth Phase 1 in progress) |
 
 ## Sprint 1 Execution Log
 **Date:** 2026-05-10
@@ -134,7 +134,8 @@
 
 ### Blockers
 - **RFC-D001** — `PATCH /api/v1/inventory/:id` writes `Product.stock` (Member C's domain). Needs written approval from Member C before implementation.
-- Tax rate ambiguity: schema doc says 8%, CONTEXT.md Sprint 2 says 10%. Needs confirmation from Member A.
+- **Auth middleware** — Member B's `protectRoute` ships with their auth slice (currently Phase 1). Until then, our routes mount a mock `x-mock-role` guard.
+- ~~Tax rate ambiguity~~ — **CLOSED 2026-05-13**. 10% confirmed as Global Mandate per Member B Phase 1 Log L181.
 
 ### Phase 2 Deliverables (Complete)
 - Refined Gherkin for all 5 stories (D-1 through D-5) with schema-accurate field names.
@@ -150,6 +151,14 @@
 3. `test/orders-update-status-invalid` — `status:"HACKED"` returns 400.
 4. `test/inventory-update-stock` — valid, negative, decimal quantity guards.
 5. `test/orders-get-detail-not-found` — 404 on missing order.
+
+### Phase 1 v2.1 + Phase 2 v2.1 — Cross-Slice Integration Complete (2026-05-13)
+- Phases redone against authoritative `CSE323_Project_Overview.pdf`.
+- v1 docs archived as `*_v1.md` with deprecation banners.
+- Sprint 1.4 (Phase 1 logbook) + Sprint 2.5 (Phase 2 logbook) added — integrate Member A's checkout artifacts and Member B's payment+auth slice publications.
+- New requirements absorbed: FR-D6 (15-min stale-pending auto-cancel per Member B REQ_EC_5), FR-D6.b (sweep checks Payment.SUCCESS first), NFR-D5 (idempotent advancement), HR-8 (paid-but-cancelled cross-slice failure mode).
+- New cross-slice contracts: Story D-6 Gherkin, SSD-D6 cron flow, §3.1 Initiator dimension on transition matrix, §5.4 `payment.success` Event Contract.
+- Cross-Slice Coordination Map locked down in Phase 1 §1.4.
 
 ---
 

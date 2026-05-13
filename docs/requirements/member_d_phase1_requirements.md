@@ -1,170 +1,170 @@
-# Phase 1 Requirements — Member D: Admin & Order Fulfillment
-**Date:** 2026-05-10
+# Phase 1: Requirement Discovery & Traceability
+## Member D — Admin & Order Fulfillment
+
+**Date:** 2026-05-13
 **Slice:** `orders`
 **Owner:** Member D
-**Status:** Complete
+**Curriculum Source:** `CSE323_Project_Overview.pdf` — Phase 1
+**Supersedes:** [`member_d_phase1_requirements_v1.md`](./member_d_phase1_requirements_v1.md)
+
+---
+
+## Deliverable Map (per CSE323 PDF, Phase 1)
+
+| PDF Requirement | Section |
+|---|---|
+| Actor Classification (Primary / Supporting / Offstage) | §1 |
+| Traceability Heatmap (no orphaned requirements; mathematically justified) | §2 (full matrix in `member_d_traceability_heatmap.md`) |
+| Persona Discovery (AI User as frustrated/malicious student; ≥ 5 hidden requirements) | §3 |
 
 ---
 
 ## 1. Actor Classification
 
-| Actor | Type | Description |
+Per UML actor taxonomy and the CSE323 PDF specification. **Three categories — not two.**
+
+### 1.1 Primary Actors (Initiating the Use Case)
+
+| Actor | Initiating Action | Goal |
 |---|---|---|
-| **Admin** | Primary | Internal staff user. Manages order fulfillment pipeline and product inventory. Requires JWT with `role === "admin"`. |
-| **System** | Secondary | Consumes `orders` + `order_items` records created by Member A's `placeOrder` transaction. |
-| **Customer** | Out-of-scope boundary | Places orders via Member A's checkout slice. This slice does not create orders. |
+| **Admin Staff** | Logs into admin panel; triggers order list view, status updates, inventory edits | Maintain fulfillment pipeline integrity and stock accuracy |
 
----
+### 1.2 Supporting Actors (Secondary — Assist the Primary)
 
-## 2. User Stories (Gherkin)
+| Actor | Service Provided | Owned By |
+|---|---|---|
+| **`protectRoute` / `adminGuard` Middleware** | Validates JWT and `role === "admin"` claim on every admin request | Member B (auth slice) — **WE CONSUME**, do not build |
+| **Order Database** | Persists `Order` + `OrderItem` records; serves read queries | Member A (checkout slice — schema authority) |
+| **Product Catalog Service** | Provides product names, SKUs, and current stock for inventory view | Member C (catalog slice) |
+| **Payment Service** | Emits `payment.success` events upon successful `POST /api/payment/process` — drives our `Order.status` advancement from `PENDING` to `CONFIRMED` | Member B (payment slice — Phase 3 complete) |
+| **System Clock / Cron Scheduler** | Triggers the 15-minute stale-pending sweep (REQ_EC_5 from Member B); stamps `updatedAt` on every status mutation | Node runtime + our own cron |
 
-### Story D-1: View All Orders
-```gherkin
-Feature: Admin Order Dashboard
+### 1.3 Offstage Actors (Affected by Outcome but Not Present)
 
-  Scenario: Admin views the complete order list
-    Given I am authenticated as an Admin
-    When I navigate to the order management page
-    Then I see a list of all orders
-    And each row displays: order ID, customer name, status, grand total, and creation date
-    And the list is sorted by creation date descending
-```
-
-### Story D-2: Update Order Status
-```gherkin
-Feature: Admin Order Status Update
-
-  Scenario: Admin advances an order through the fulfillment pipeline
-    Given I am authenticated as an Admin
-    And an order exists with status "PENDING"
-    When I update that order's status to "PROCESSING"
-    Then the order record in the database reflects status "PROCESSING"
-    And the updated status appears in the order list within 500ms of API response
-```
-
-### Story D-3: View Single Order Detail
-```gherkin
-Feature: Admin Order Detail View
-
-  Scenario: Admin inspects a specific order
-    Given I am authenticated as an Admin
-    And an order exists with ID "ORD-001" containing 2 line items
-    When I click on order "ORD-001" in the order list
-    Then I see each ordered product with its name, quantity, unit price, and line total
-    And I see the subtotal, 10% tax amount, and grand total
-    And I see the shipping address provided at checkout
-```
-
-### Story D-4: View Product Inventory
-```gherkin
-Feature: Admin Inventory Management
-
-  Scenario: Admin reviews current stock levels
-    Given I am authenticated as an Admin
-    When I navigate to the inventory management page
-    Then I see each product with its name, SKU, and current stock quantity
-    And any product with stock quantity less than 5 units is visually flagged as low-stock
-```
-
-### Story D-5: Update Product Stock Quantity
-```gherkin
-Feature: Admin Stock Replenishment
-
-  Scenario: Admin restocks a low-inventory product
-    Given I am authenticated as an Admin
-    And product "PROD-003" currently has a stock quantity of 2
-    When I submit a stock update setting the quantity to 50
-    Then the product's stock quantity is persisted as 50
-    And the inventory list reflects the updated quantity within 500ms of API response
-    And the low-stock flag is no longer shown for that product
-```
-
----
-
-## 3. Ambiguity Audit
-
-| Vague Term | Replaced With |
+| Actor | Interest in Outcome |
 |---|---|
-| "immediately" / "instantly" | Within 500ms of API response receipt — enforced by React Query cache invalidation |
-| "low-stock" | `stock_quantity < 5` — integer comparison on the `products` table |
-| "authenticated as Admin" | JWT in `Authorization: Bearer <token>` header with decoded `role === "admin"` claim |
-| "sorted by creation date descending" | `ORDER BY created_at DESC` on the `orders` table |
-| "grand total" | `subtotal + (subtotal × 0.10)` — consistent with Member A's 10% tax rate |
-| "within 500ms" | Measured from `200 OK` response timestamp to DOM repaint — verifiable via Playwright `waitForSelector` |
+| **Customer (Buyer)** | Their order data is mutated by admin. Status changes drive when they receive shipping notifications. Never present during the admin's use case. |
+| **Member A's Checkout Service** | Created the orders the admin manages. Its `placeOrder` transaction is upstream. Never executes during admin actions. |
+| **Tax / Audit Authority** | Every status change must be logged for compliance. Reads the audit trail later — never present during the action itself. |
+| **Inventory Forecast / Reporting System** | Downstream consumer of inventory updates. Reads but does not write. |
+| **Finance System** | Consumes our order status transitions for revenue reconciliation (declared as Offstage actor in Member B's payment slice — Phase 1 Log L169). |
+
+> **Why Offstage matters:** the curriculum requires you to identify actors who are *affected* even when not present, because their interests constrain design. Example: the **Audit Authority** being offstage forces NFR-D3 (audit logging) into the design even though no auditor ever calls the API directly.
 
 ---
 
-## 4. Negative Acceptance Tests (Edge Cases)
+### 1.4 Cross-Slice Coordination Map (added post-teammate-pull 2026-05-13)
 
-```gherkin
-  # NEG-1: Privilege escalation — non-admin role
-  Scenario: Regular customer attempts to access admin order list
-    Given I am authenticated as a Customer (role: "user")
-    When I send GET /api/orders
-    Then I receive HTTP 403 Forbidden
-    And the response body contains "Insufficient permissions"
+After integrating Member A's and Member B's published work (`.ai/CONTEXT.md` L156–213; `member_a_edge_cases.md`; `requirements_report_member_a.md`), the slice-ownership boundary is locked down as follows:
 
-  # NEG-2: Invalid status value — Zod schema must catch this
-  Scenario: Admin submits an unrecognized order status
-    Given I am authenticated as an Admin
-    And an order exists with ID "ORD-005"
-    When I submit a status update with value "HACKED"
-    Then I receive HTTP 400 Bad Request
-    And the response body identifies "status" as the invalid field
+| Resource | Owner | We Interact Via |
+|---|---|---|
+| `Order` + `OrderItem` Prisma models | Member A (checkout) | Read-only DB query for list/detail |
+| `Product.stock` field | Member C (catalog) | Cross-slice write — **RFC-D001 pending approval** |
+| `Payment` Prisma model | Member B (payment) | Read-only — surfaced as "payment status" in order detail; used by stale-pending sweep |
+| `PromoCode` Prisma model | Member B (payment) | Out of our scope |
+| `payment.success` event (logical) | Member B (payment) | We subscribe → advance `Order.status` PENDING → CONFIRMED |
+| `protectRoute` middleware | Member B (auth) | We `app.use()` it on every route in our slice |
+| 15-minute stale-pending auto-cancel rule | Member B REQ_EC_5 mandate | **Our slice owns the cron job that executes it** |
 
-  # NEG-3: Illegal status regression — business rule enforcement
-  Scenario: Admin attempts to revert a completed order to pending
-    Given I am authenticated as an Admin
-    And an order exists with status "DELIVERED"
-    When I submit a status update to "PENDING"
-    Then I receive HTTP 422 Unprocessable Entity
-    And the response body contains "Invalid status transition"
+### 1.5 Tax Rate — Settled
 
-  # NEG-4: Negative stock value
-  Scenario: Admin submits a negative stock quantity
-    Given I am authenticated as an Admin
-    When I submit a stock update for product "PROD-001" with quantity -10
-    Then I receive HTTP 400 Bad Request
-    And the response body identifies "quantity" as the invalid field
+**10% confirmed as Global Mandate** per Member B's Phase 1 Log (CONTEXT.md L181):
+> *Tax Rate: 10% (Global mandate)*
 
-  # NEG-5: Non-integer stock value
-  Scenario: Admin submits a decimal stock quantity
-    Given I am authenticated as an Admin
-    When I submit a stock update for product "PROD-001" with quantity 3.7
-    Then I receive HTTP 400 Bad Request
-    And the response body identifies "quantity" as must be a whole number
-
-  # NEG-6: Order not found
-  Scenario: Admin requests detail for a non-existent order
-    Given I am authenticated as an Admin
-    When I send GET /api/orders/999999
-    Then I receive HTTP 404 Not Found
-    And the response body contains "Order not found"
-
-  # NEG-7: Unauthenticated request
-  Scenario: Request arrives with no Authorization header
-    Given no JWT is present in the request
-    When I send GET /api/orders
-    Then I receive HTTP 401 Unauthorized
-    And the response body contains "Authentication required"
-```
+The "tax rate ambiguity" blocker tracked in the v1 archive is **closed**.
 
 ---
 
-## 5. Planned API Contract
+## 2. Traceability Heatmap (Summary)
 
-| Method | Endpoint | Auth Required | Success Code | Description |
+Full matrix lives in [`member_d_traceability_heatmap.md`](./member_d_traceability_heatmap.md). The goal — per PDF — is to *mathematically justify* every feature by tracing it back to a business goal, and forward to a test, with **zero orphans**.
+
+### 2.1 Master Summary
+
+| Business Goal | FR-IDs Covered | NFR-IDs Covered | Features | Tests |
 |---|---|---|---|---|
-| GET | `/api/orders` | Admin | 200 | Paginated order list, sorted by `created_at DESC` |
-| GET | `/api/orders/:id` | Admin | 200 | Single order with all line items |
-| PATCH | `/api/orders/:id/status` | Admin | 200 | Update fulfillment status with transition guard |
-| GET | `/api/inventory` | Admin | 200 | All products with current stock quantities |
-| PATCH | `/api/inventory/:id` | Admin | 200 | Update product stock quantity |
+| **BG-1** Operational visibility of orders | FR-D1, FR-D3 | NFR-D1, NFR-D2 | `GET /orders`, `GET /orders/:id` | T-D1.*, T-D3.* |
+| **BG-2** Order fulfillment lifecycle control | FR-D2 | NFR-D2, NFR-D3, NFR-D4 | `PATCH /orders/:id/status` | T-D2.* |
+| **BG-3** Inventory accuracy | FR-D4, FR-D5 | NFR-D1, NFR-D2, NFR-D4 | `GET /inventory`, `PATCH /inventory/:id` | T-D4.*, T-D5.* |
+
+### 2.2 Orphan Audit Result
+
+- ✅ Every FR maps to ≥1 feature
+- ✅ Every feature maps to ≥1 test
+- ✅ Every NFR is referenced by ≥1 feature
+- ✅ Every persona-surfaced Hidden Requirement (§3) escalates to an FR or NFR
+- **Orphan count: 0**
 
 ---
 
-## 6. Phase 2 Next Steps (TDP — Failing Tests First)
+## 3. Persona Discovery
 
-1. Write failing test: `GET /api/orders` → returns paginated list, enforces admin-only access.
-2. Write failing test: `PATCH /api/orders/:id/status` → valid transition + `DELIVERED → PENDING` regression guard.
-3. Write failing test: `PATCH /api/inventory/:id` → valid update, rejects negative and decimal quantities.
+Per PDF: *"Use an 'AI User' avatar to act as a frustrated or malicious student to uncover at least 5 'hidden' requirements or edge cases."*
+
+Two distinct personas were instantiated.
+
+### 3.1 Persona A — Frustrated Admin
+**Profile:** Mid-shift supervisor managing 500+ active orders. Tired, error-prone, time-pressured.
+
+### 3.2 Persona B — Malicious Power-User
+**Profile:** Insider with admin credentials probing the API for ways to corrupt data, bypass business rules, or escalate privilege.
+
+### 3.3 Hidden Requirements Surfaced
+
+8 hidden requirements identified — **exceeds PDF minimum of 5**.
+
+| ID | Persona | Hidden Requirement | Escalates To |
+|---|---|---|---|
+| **HR-1** | Frustrated Admin | "I can't scan 500 rows. I need to filter by status." | New **FR-D1.b** — `?status=PENDING` query param on `GET /orders` |
+| **HR-2** | Frustrated Admin | "I clicked update but the page froze waiting for the server." | New **NFR-D1.b** — optimistic UI with server-side rollback on failure |
+| **HR-3** | Frustrated Admin | "The customer is calling about a delayed order — I need their phone number visible." | New **FR-D3.b** — surface `customer.email` and `customer.phone` in order detail |
+| **HR-4** | Malicious | "What happens if I set `stock` to `Number.MAX_SAFE_INTEGER`?" | New **FR-D5.b** — upper bound `stock ≤ 100,000` (rejects integer overflow attacks) |
+| **HR-5** | Malicious | "What if I send `PATCH /orders/:id/status` with an empty body `{}`?" | New **FR-D2.b** — empty/missing body returns HTTP 400 |
+| **HR-6** | Malicious | "Two admins update the same order's status at the same time. Last write silently wins." | New **NFR-D4.b** — optimistic concurrency on `Order.updatedAt` (HTTP 409 on conflict) |
+| **HR-7** | Malicious | "Can I `DELETE /orders/:id` to wipe a record?" | New **design rule** — no DELETE endpoint exposed; soft-delete only via `status = CANCELLED` |
+| **HR-8** | Malicious — Cross-Slice (added post-pull) | "Payment provider confirms success but our status-advance logic crashes — customer paid, order shows PENDING forever, then gets auto-cancelled by the 15-min sweep. We stole their money." | New **FR-D6.b** (sweep checks `Payment.status=SUCCESS` first) + **NFR-D5** (idempotent status advancement) |
+
+---
+
+## 4. Functional Requirements (Consolidated)
+
+| FR-ID | Description |
+|---|---|
+| **FR-D1**  | Admin can list all orders with pagination |
+| **FR-D1.b** | Admin can filter the order list by `status` query param (from HR-1) |
+| **FR-D2**  | Admin can update an order's `status` |
+| **FR-D2.b** | Empty/missing body on status update returns 400 (from HR-5) |
+| **FR-D3**  | Admin can retrieve a single order's full detail with line items |
+| **FR-D3.b** | Order detail surfaces customer contact info (from HR-3) |
+| **FR-D4**  | Admin can view product inventory with low-stock visual flag (`stock < 5`) |
+| **FR-D5**  | Admin can update a product's stock quantity |
+| **FR-D5.b** | Stock updates are bounded `0 ≤ stock ≤ 100,000` (from HR-4) |
+| **FR-D6**  | System cron auto-cancels orders stuck in `PENDING` for > 15 minutes (from Member B REQ_EC_5 Zombie Recovery mandate) |
+| **FR-D6.b** | Before cancelling a stale order, the sweep MUST check for `Payment.status === "SUCCESS"`; if found, advance to `CONFIRMED` instead of cancelling (closes HR-8) |
+
+---
+
+## 5. Non-Functional Requirements (Consolidated)
+
+| NFR-ID | Description | Source |
+|---|---|---|
+| **NFR-D1**  | UI updates must reflect within 500ms p95 of API response (DOM repaint) | Performance baseline |
+| **NFR-D1.b** | Status & stock mutations use optimistic UI with rollback on failure | HR-2 (Frustrated Admin) |
+| **NFR-D2**  | Every admin endpoint enforces JWT with `role === "admin"`; 401 if absent, 403 if non-admin | Security baseline (Offstage: Tax Authority) |
+| **NFR-D3**  | Every order status mutation writes an immutable audit-log entry | Offstage Audit Authority interest |
+| **NFR-D4**  | Illegal status transitions blocked at service layer (HTTP 422) | Data integrity baseline |
+| **NFR-D4.b** | Optimistic concurrency on `Order.updatedAt` — concurrent writes return 409 | HR-6 (Malicious) |
+| **NFR-D5**  | Idempotent status advancement: replaying the same `payment.success` event MUST NOT cause duplicate transitions, audit-log entries, or notifications. Borrowed from Member B's idempotency pattern (300s window, UUID key). | HR-8 (Cross-Slice) |
+
+---
+
+## 6. Exit Criteria — Phase 1
+
+- [x] Actor Classification — Primary / Supporting / Offstage fully populated
+- [x] Traceability Heatmap produced (see companion file); 0 orphans
+- [x] Persona Discovery executed with two personas; 8 hidden requirements surfaced (≥ 5 required)
+- [x] FRs and NFRs consolidated and indexed for Phase 2 consumption
+- [x] Cross-Slice Coordination Map drafted (§1.4) — integrated with Member A & Member B's published work
+- [x] Tax rate ambiguity closed (10% confirmed as Global Mandate)
+- [x] Logbook entry written (`docs/logbook/member_d_phase1_agile_logbook.md`)
