@@ -11,18 +11,19 @@
 - `src/backend/`: Node/Express code (Vertical slices under `features/`).
 - `src/database/`: Prisma models and migrations.
 
-## 3. FEATURE OWNERSHIP
+## 3. FEATURE OWNERSHIP (Updated 2026-05-13)
 - **Member A (Khairy):** Checkout & Shopping Cart System.
-- **Member B:** Auth & User Management.
-- **Member C:** Product Catalog.
-- **Member D:** Admin & Order Fulfillment.
+- **Member B:** Payment.
+- **Member C:** Tickets / Support System.
+- **Member D:** Admin & Order Fulfillment + **Auth & User Management** (two slices).
+- **Catalog:** ⚠️ Currently unowned — reassignment pending team decision.
 
 ## 4. FEATURE SLICE STATUS
 
 | Slice | Owner | Status | Last Completed Task | Blockers |
 |---|---|---|---|---|
 | checkout | Member A | 🟢 Complete | Sprint 2 + Checkout Button | None |
-| auth | Member B | 🟡 In Progress | Phase 1: Requirement Discovery | None |
+| auth | Member D | 🟡 In Progress | Phase 1 Complete (2026-05-13) — see `docs/requirements/member_d_auth_phase1_requirements.md` | None — JWT contract locked for consumers |
 | catalog | Member C | 🔴 Not Started | — | — |
 | payment | Member B | 🟢 Phase 3 Complete | Phase 3: TDP Implementation | None |
 | orders | Member D | 🟡 In Progress | Phase 1 v2.1 + Phase 2 v2.1 (PDF-aligned + cross-slice integrated with Member A & B) | RFC-D001 (catalog write); awaiting Member B's `protectRoute` middleware (auth Phase 1 in progress) |
