@@ -155,7 +155,27 @@ The following Edge Case Requirements (REQ_EC) were discovered using an adversari
 - **Tax Rate:** 10% (Global mandate)
 - **Currency:** USD (Fixed)
 - **Gateway Timeout:** 30 seconds
-- **Session Expiry:** 24 hours (Inherited from Auth slice)
+- **Session Expiry:** 24 hours
+
+---
+
+## Member B — Payment Features: Phase 2 Log
+**Date:** 2026-05-13
+**Status:** Phase 2 Complete — Design, UML & API Contracts
+
+### Phase 2 Deliverables: Architectural Integrity
+Completed the formal design phase using Information Hiding principles and UML modeling:
+
+1. **Gherkin Scenarios:** Defined 3 key features (Credit Card Processing, Promo Edge Cases, Tax Compliance) with Scenario Outlines for various card states (valid, expired, stolen).
+2. **System Sequence Diagrams (SSDs):** 
+   - **Happy Path:** End-to-end flow from JWT validation to Stripe capture and atomic DB commit.
+   - **Failure Path:** Modeled the "Double-Click Blitz" guard using Redis-style idempotency locks (`SETNX`).
+3. **Activity Diagram:** Mapped the full execution pipeline including the 10% tax engine and negative subtotal floor.
+4. **API Contract:** Finalized the `POST /api/payments` specification, ensuring internal logic (tax, gateway details) is encapsulated and hidden from consumers.
+
+### Key Padlocks (Design)
+- **Information Hiding:** Internal gateway responses and database IDs are sanitized before returning to the client.
+- **State Guard:** Status transition `PENDING` → `SUCCEEDED` is atomic and verified.
 
 ---
 
