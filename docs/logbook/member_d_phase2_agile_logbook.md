@@ -403,3 +403,111 @@ customer-ordering-system/
 | **AF-12** | Information Hiding §5.3 listed only auth consumption from Member B | Member B's payment slice introduces new event-based contract | Renamed/expanded row; added new row for payment-event consumption; added §5.4 with full event contract |
 | **AF-13** | No explicit reordering-safety statement | Cross-slice event ordering is non-deterministic | Added explicit "what if sweep ran first?" handling clause to §5.4 |
 | **AF-14** | Exit Criteria undercounted scenarios | After adding D-6, totals are 6 stories, 10 vague terms, 5 SSDs | Updated §6 checklist counts |
+
+---
+
+## Sprint 2.6 — UML Modeling Expansion
+
+**Date:** 2026-05-13
+**Goal:** Restructure §3 + §4 of the Phase 2 doc under a single "UML Modeling" umbrella matching the team-wide convention (Members B and C both label their UML deliverables this way), and add the two UML artifacts we were missing: Class Diagram and State Machine Diagram.
+
+### 1. Functional Requirements Addressed
+No new FRs. This sprint adds **structural UML** for already-defined FRs:
+- FR-D1..D6 — covered by SSDs (§3.3) AND the OrderService methods exposed in the Class Diagram (§3.1)
+- FR-D2 transition machine — now expressed as a UML State Machine (§3.2) in addition to the existing table
+
+### 2. Non-Functional Requirements Addressed
+- **NFR-D3** (Auditability) — the AuditLog class is now a first-class entity in the domain model
+- **NFR-D4** (Data integrity) — illegal-transition guard is encoded both in the State Machine Diagram (visually) AND the §3.2.2 matrix (tabularly)
+- **NFR-D5** (Idempotency) — the `idempotencyKey` field on AuditLog is now visible in the class diagram
+
+### 3. Golden Prompts Used
+
+```
+PROMPT 2.6.a — Class Diagram Generation
+─────────────────────────────────
+For the orders slice, produce a UML Class Diagram in PlantUML notation that:
+  1. Shows every persisted entity (Order, OrderItem, AuditLog) with all fields and PK/FK markers
+  2. Shows the OrderStatus enum with terminal states marked <<terminal>>
+  3. Shows OrderService and InventoryService classes with their public method signatures
+  4. Shows cross-slice EXTERNAL classes (Payment, Product) in gray with the owning slice noted
+  5. Encodes relationships: composition (Order-OrderItem, Order-AuditLog), dependency (service uses entity), and cross-slice reads/writes (with RFC-D001 noted for inventory writes)
+  6. Uses <<snapshot>> stereotype on fields that are frozen at order-placement time
+```
+
+```
+PROMPT 2.6.b — State Machine Diagram Generation
+─────────────────────────────────
+Render the OrderStatus lifecycle as a UML State Machine in PlantUML. Constraints:
+  1. Initial pseudo-state points to PENDING with the trigger "Member A's checkout.placeOrder()"
+  2. All 7 states present; CANCELLED and REFUNDED marked <<terminal>> and end with → [*]
+  3. Every legal transition is labeled with its initiator(s): [Admin manual], [System cron], [Event payment.success] — multi-initiator transitions concatenated with OR
+  4. Notes attached to PENDING (explains 15-min auto-cancel) and to terminal states (explain no outgoing transitions)
+  5. Diagram does NOT replace the 7×7 matrix; the matrix and Initiator legend are companion artifacts in §3.2.1 and §3.2.2
+```
+
+```
+PROMPT 2.6.c — Restructure Phase 2 §3 + §4 → §3 UML Modeling
+─────────────────────────────────
+Restructure the Phase 2 design doc so:
+  - §3 becomes "UML Modeling" (umbrella heading)
+  - §3.1 = Class Diagram (new)
+  - §3.2 = State Machine Diagram (new, absorbs existing transition-matrix addendum)
+  - §3.3 = System Sequence Diagrams (former §3, unchanged content)
+  - §3.4 = Activity Diagrams (former §4, unchanged content)
+  - §4 = Information Hiding (former §5; renumber 5.1..5.4 → 4.1..4.4)
+  - §5 = Exit Criteria (former §6)
+Preserve every line of pre-existing content verbatim. Update the deliverable map at top and the exit criteria checklist at bottom.
+```
+
+### 4. Audits
+
+| Check | Finding |
+|---|---|
+| Class Diagram includes every persisted entity | ✅ Order, OrderItem, AuditLog (3 entities) |
+| Class Diagram exposes service method signatures | ✅ OrderService (6 methods), InventoryService (2 methods) |
+| Cross-slice classes marked external + gray | ✅ Payment (Member B), Product (catalog TBD) |
+| State diagram has correct initial + terminal pseudo-states | ✅ `[*] → PENDING`; `CANCELLED → [*]`; `REFUNDED → [*]` |
+| Every state-machine transition labeled with at least one initiator | ✅ 8 transitions, all labeled |
+| Initiator legend complete | ✅ §3.2.1 — Admin / System / Payment Event with code entry points |
+| 7×7 matrix preserved as companion to state diagram | ✅ §3.2.2 |
+| Information Hiding consumption rule updated for Member C (auth) | ✅ Member B → Member C correction applied (per team-coordination issue C-1) |
+| Catalog ownership marked TBD pending team decision | ✅ §4.3 row says "Catalog (owner TBD)" |
+| Exit Criteria checklist updated with UML totals | ✅ 4 UML artifacts explicitly itemized |
+
+### 5. Folder Structure (Sprint 2.6 End — Phase 2 v2.2 COMPLETE)
+
+```
+customer-ordering-system/
+└── docs/
+    ├── requirements/
+    │   ├── member_d_phase1_requirements_v1.md       [SUPERSEDED]
+    │   ├── member_d_phase2_design_v1.md             [SUPERSEDED]
+    │   ├── member_d_phase1_requirements.md          [Phase 1 v2.1]
+    │   ├── member_d_phase2_design.md                [Phase 2 v2.2 ✅ — UML Modeling section added]
+    │   └── member_d_traceability_heatmap.md
+    ├── logbook/
+    │   ├── member_d_phase1_agile_logbook.md
+    │   └── member_d_phase2_agile_logbook.md         [Sprint 2.6 ✅]
+    └── phases/
+        ├── combined_phase1.md
+        ├── combined_phase2.md
+        ├── combined_phase3.md
+        └── combined_phase4.md
+```
+
+---
+
+## Audit & Fixes Log — Phase 2 v2.1 → v2.2 (UML Modeling Expansion)
+
+| # | Issue Identified | Source | Fix Applied |
+|---|---|---|---|
+| **AF-15** | §3 + §4 split SSDs and Activity Diagrams into peer sections; PDF lumps both under "UML Modeling" and teammates (B, C) use a single umbrella | PDF Phase 2 spec; `md/phase2/Phase2_UMLModeling.md` (Member B); `Phase 2/02c..02e_*.md` (Member C) | Renamed §3 → "UML Modeling" umbrella; SSDs and Activity moved to §3.3 and §3.4 |
+| **AF-16** | Missing Class Diagram | UML Modeling deliverable was thin — no static structure artifact | Added §3.1 with PlantUML class diagram (3 entities + 2 services + 2 external) |
+| **AF-17** | OrderStatus transitions only shown as a 7×7 table; PDF expects state-driven systems to have a State Machine Diagram | UML state machines are standard for status-lifecycle features | Added §3.2 with PlantUML state machine (7 states, 8 transitions, terminal markers); preserved matrix as §3.2.2 companion |
+| **AF-18** | Sections §5 (Info Hiding) and §6 (Exit Criteria) had stale numbering | Knock-on effect of §3 restructure | Renumbered to §4 and §5; updated 4 subsection numbers (5.1..5.4 → 4.1..4.4) |
+| **AF-19** | §5.3 (now §4.3) still listed "Member B (auth)" — team coordination issue C-1 says auth is Member C | Cross-checked against `Phase 1/01a_persona_and_actors.md` (Member C's auth references) | Updated row to "Member C (auth)" |
+| **AF-20** | §5.3 still listed "Member C (catalog)" — Member C owns tickets+auth, not catalog | Cross-checked against user clarification + Member C's file structure | Updated row to "Catalog (owner TBD)" pending team reassignment |
+
+### Audit Verdict
+Phase 2 v2.2 is **UML-complete**: four distinct UML artifact types (Class, State, Sequence, Activity) all present, all PDF-compliant, all cross-referenced with the FR/NFR/HR catalog from Phase 1. Information Hiding rules updated to reflect post-pull ownership reality.

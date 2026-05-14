@@ -15,9 +15,11 @@
 |---|---|
 | Gherkin Scripting (core user stories in Given/When/Then) | §1 |
 | The Refinement Loop (Senior QA Audit — kill unquantifiable adjectives) | §2 |
-| UML Modeling — System Sequence Diagrams (happy + failure paths) | §3 |
-| UML Modeling — Activity Diagrams (integrating code decision points) | §4 |
-| Information Hiding (API contracts as shared interface only) | §5 |
+| UML Modeling — Class Diagram (domain model) | §3.1 |
+| UML Modeling — State Machine Diagram (OrderStatus lifecycle) | §3.2 |
+| UML Modeling — System Sequence Diagrams (happy + failure paths) | §3.3 |
+| UML Modeling — Activity Diagrams (integrating code decision points) | §3.4 |
+| Information Hiding (API contracts as shared interface only) | §4 |
 
 ---
 
@@ -170,9 +172,219 @@ The following words are **forbidden in tests, code comments, and PR descriptions
 
 ---
 
-## 3. System Sequence Diagrams (Happy + Failure Paths)
+## 3. UML Modeling
 
-### SSD-D1 — `GET /api/v1/orders`
+Per PDF: *"Document the system flow using **System Sequence Diagrams** (for happy/failure paths) and **Activity Diagrams** that integrate code decision points."*
+
+The Orders slice produces **four** UML artifacts under this umbrella. Class + State diagrams establish the static and dynamic structure; SSDs and Activity diagrams cover behaviour:
+
+- **§3.1 Class Diagram** — domain entities + service operations + cross-slice boundaries
+- **§3.2 State Machine Diagram** — `OrderStatus` lifecycle with initiator legend and full transition matrix
+- **§3.3 System Sequence Diagrams** — happy + failure paths for all 6 endpoints/flows
+- **§3.4 Activity Diagrams** — code-decision-point mapping
+
+PlantUML notation chosen for §3.1 and §3.2 to match Member C's team-wide convention; SSDs and Activity diagrams remain in ASCII art for in-source readability.
+
+---
+
+### 3.1 Class Diagram — Domain Model
+
+```plantuml
+@startuml
+title Orders Slice — Class Diagram (Member D)
+
+skinparam classAttributeIconSize 0
+left to right direction
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED <<terminal>>
+  REFUNDED  <<terminal>>
+}
+
+class Order <<entity>> {
+  +id: String <<PK>>
+  +status: OrderStatus
+  +subtotal: Float
+  +discount: Float
+  +tax: Float
+  +shippingCost: Float
+  +total: Float
+  +shippingAddress: Json
+  +customerId: String
+  +placedAt: DateTime
+  +updatedAt: DateTime
+}
+
+class OrderItem <<entity>> {
+  +id: String <<PK>>
+  +orderId: String <<FK>>
+  +productId: String
+  +productName: String <<snapshot>>
+  +quantity: Int
+  +unitPrice: Float <<snapshot>>
+  +totalPrice: Float
+}
+
+class AuditLog <<entity>> {
+  +id: String <<PK>>
+  +orderId: String <<FK>>
+  +fromStatus: OrderStatus
+  +toStatus: OrderStatus
+  +actor: String          /' "admin" | "system" | <adminUserId> '/
+  +idempotencyKey: String?
+  +reason: String
+  +occurredAt: DateTime
+}
+
+class OrderService <<service>> {
+  +findAll(page, limit, status?): PaginatedOrders
+  +findById(id): Order?
+  +updateStatus(id, newStatus, actor): Order
+  +validateTransition(from, to): boolean
+  +sweepStalePending(now): SweepResult
+  +handlePaymentSuccess(payload): void
+}
+
+class InventoryService <<service>> {
+  +findAll(): Product[]
+  +updateStock(id, stock): Product
+  /' ⛓ cross-slice write to Member C's Product.stock via RFC-D001 '/
+}
+
+' Cross-slice external classes (read-only / event-only)
+class Payment <<external, Member B>> #lightgray {
+  +id: String
+  +orderId: String <<FK>>
+  +status: String   /' "SUCCESS" | "PENDING" | "FAILED" '/
+  +idempotencyKey: String
+}
+
+class Product <<external, catalog TBD>> #lightgray {
+  +id: String
+  +name: String
+  +stock: Int
+}
+
+' Composition: Order owns its items and audit log
+Order "1" *-- "N" OrderItem  : contains
+Order "1" *-- "N" AuditLog   : generates
+
+' Enum usage
+Order ..> OrderStatus     : status type
+AuditLog ..> OrderStatus  : from/to type
+
+' Service dependencies
+OrderService     ..> Order
+OrderService     ..> AuditLog
+OrderService     ..> Payment     : reads only (cross-slice)
+InventoryService ..> Product     : reads + writes via RFC-D001
+
+@enduml
+```
+
+#### Class Diagram Legend
+
+| Stereotype | Meaning |
+|---|---|
+| `<<entity>>` | Persisted in our slice's DB (Order, OrderItem, AuditLog) |
+| `<<service>>` | Owns business logic; called by route handlers |
+| `<<external>>` (gray) | Belongs to another slice; we have read-only or event-only access |
+| `<<terminal>>` | Enum value with no outgoing transition |
+| `<<snapshot>>` | Field value frozen at order placement; never re-derived from upstream |
+| `<<PK>>` / `<<FK>>` | Primary key / foreign key |
+
+#### Cross-Slice Boundaries Encoded in the Diagram
+
+| Boundary | Direction | Rule |
+|---|---|---|
+| `Payment` (Member B) → `OrderService` | Read only | Queried by `sweepStalePending()` to detect late-confirmed payments |
+| `OrderService` ← `payment.success` event | Event subscription | Triggers `handlePaymentSuccess()`; transport mechanism hidden (§4.4) |
+| `Product.stock` (catalog) ← `InventoryService.updateStock()` | Write via RFC-D001 | **Blocker** — RFC unapproved at time of writing |
+
+---
+
+### 3.2 State Machine Diagram — Order Lifecycle
+
+```plantuml
+@startuml
+title Order Lifecycle — UML State Machine (Member D)
+
+[*] --> PENDING : Member A's checkout.placeOrder()
+
+state PENDING
+state CONFIRMED
+state PROCESSING
+state SHIPPED
+state DELIVERED
+state CANCELLED <<terminal>>
+state REFUNDED  <<terminal>>
+
+PENDING    --> CONFIRMED  : [Admin manual]\nOR [System cron + Payment.SUCCESS late]\nOR [Event payment.success]
+PENDING    --> CANCELLED  : [Admin manual]\nOR [System cron 15min,\n no Payment.SUCCESS]
+CONFIRMED  --> PROCESSING : [Admin manual]
+CONFIRMED  --> CANCELLED  : [Admin manual]
+PROCESSING --> SHIPPED    : [Admin manual]
+PROCESSING --> CANCELLED  : [Admin manual]
+SHIPPED    --> DELIVERED  : [Admin manual]
+DELIVERED  --> REFUNDED   : [Admin manual]
+
+CANCELLED  --> [*]
+REFUNDED   --> [*]
+
+note right of PENDING
+  Initial state after checkout.
+  Auto-cancelled by cron after
+  15 minutes if no Payment.SUCCESS
+  exists for this order.
+end note
+
+note left of CANCELLED
+  Terminal. No outgoing transition.
+  Soft-delete equivalent (closes HR-7).
+end note
+
+note right of REFUNDED
+  Terminal. No outgoing transition.
+end note
+
+@enduml
+```
+
+#### 3.2.1 Initiator Trigger Legend
+
+| Initiator | Mechanism | Code Entry Point | Transitions It May Trigger |
+|---|---|---|---|
+| **Admin (manual)** | UI button → `PATCH /api/v1/orders/:id/status` | `orderService.updateStatus(actor=<adminUserId>)` | Every legal transition |
+| **System (cron)** | `*/5 * * * *` job `sweepStalePendingOrders()` | `orderService.sweepStalePending(now)` | PENDING → CANCELLED (no Payment.SUCCESS) <br> PENDING → CONFIRMED (Payment.SUCCESS detected late) |
+| **Payment Event** | Subscriber on `payment.success` | `orderService.handlePaymentSuccess(payload)` — idempotent on `idempotencyKey` | PENDING → CONFIRMED only |
+
+#### 3.2.2 Full Transition Matrix (Initiator × From → To)
+
+| Transition | Admin (manual)? | System (cron)? | Payment Event? |
+|---|---|---|---|
+| PENDING → CONFIRMED | ✅ | ✅ (when `Payment.SUCCESS` detected late) | ✅ (`payment.success` subscriber) |
+| PENDING → CANCELLED | ✅ | ✅ (after 15-min stale-pending sweep, no successful payment) | — |
+| CONFIRMED → PROCESSING | ✅ | — | — |
+| CONFIRMED → CANCELLED | ✅ | — | — |
+| PROCESSING → SHIPPED | ✅ | — | — |
+| PROCESSING → CANCELLED | ✅ | — | — |
+| SHIPPED → DELIVERED | ✅ | — | — |
+| DELIVERED → REFUNDED | ✅ | — | — |
+
+Any transition not in this table is **illegal** and returns HTTP 422.
+
+> **Test implication:** any system-driven transition writes `actor = "system"` in the audit log; admin-driven transitions write the admin's user ID; event-driven transitions write `actor = "system"` plus the source `idempotencyKey` for replay protection.
+
+---
+
+### 3.3 System Sequence Diagrams (Happy + Failure Paths)
+
+#### SSD-D1 — `GET /api/v1/orders`
 ```
 Admin Browser        Express Router       adminGuard()     orderService       In-Memory Store
      │                     │                    │                │                    │
@@ -186,7 +398,7 @@ Admin Browser        Express Router       adminGuard()     orderService       In
      │◀── 200 { orders[20], pagination{...} } ─────────────────────────────────────── │
 ```
 
-### SSD-D2 — `PATCH /api/v1/orders/:id/status` (HAPPY + 422 + 400)
+#### SSD-D2 — `PATCH /api/v1/orders/:id/status` (HAPPY + 422 + 400)
 ```
 HAPPY PATH:
 Admin ─▶ PATCH /orders/:id/status { status:"PROCESSING" } ─▶ adminGuard ✅
@@ -209,7 +421,7 @@ Admin ─▶ PATCH /orders/:id/status {} ─▶ adminGuard ✅
        ◀── 400 { error:"Validation failed", field:"status", message:"Required" }
 ```
 
-### SSD-D3 — `GET /api/v1/orders/:id` (HAPPY + 404)
+#### SSD-D3 — `GET /api/v1/orders/:id` (HAPPY + 404)
 ```
 HAPPY:    Admin ─▶ GET /orders/:id ─▶ adminGuard ✅ ─▶ findById() → Order with items[]
                 ◀── 200 { ...order, items[], customer, shippingAddress }
@@ -217,7 +429,7 @@ NOT FOUND: Admin ─▶ GET /orders/999999 ─▶ adminGuard ✅ ─▶ findById
                 ◀── 404 { error:"Order not found" }
 ```
 
-### SSD-D5 — `PATCH /api/v1/inventory/:id` (HAPPY + 400 NEG + 400 UPPER)
+#### SSD-D5 — `PATCH /api/v1/inventory/:id` (HAPPY + 400 NEG + 400 UPPER)
 ```
 HAPPY:       PATCH /inventory/PROD-003 { stock: 50 } ─▶ zod ✅ ─▶ store.update ─▶ 200
 400 NEG:     PATCH /inventory/PROD-003 { stock: -10 } ─▶ zod ❌ ─▶ 400
@@ -225,7 +437,7 @@ HAPPY:       PATCH /inventory/PROD-003 { stock: 50 } ─▶ zod ✅ ─▶ store
 400 UPPER:   PATCH /inventory/PROD-003 { stock: 999999 } ─▶ zod ❌ ─▶ 400 (HR-4 padlock)
 ```
 
-### SSD-D6 — System Cron Sweep of Stale Pending Orders (added post-pull)
+#### SSD-D6 — System Cron Sweep of Stale Pending Orders (added post-pull)
 **Initiator:** System (cron, not Admin). Runs every 5 minutes.
 
 ```
@@ -254,30 +466,11 @@ store.find({ status: "PENDING", placedAt: { lt: now - 15min } })
    ▼ (idempotent — second run finds no PENDING records → no-op)
 ```
 
-### 3.1 Status Transition Matrix Update (post-pull addendum)
-
-Add `Initiator` dimension to the existing transition matrix. The full matrix from v1 is preserved; the addendum lists who may legally trigger each transition.
-
-| Transition | Admin (manual)? | System (cron)? | Payment Event? |
-|---|---|---|---|
-| PENDING → CONFIRMED | ✅ | ✅ (when Payment.SUCCESS detected late) | ✅ (`payment.success` subscriber) |
-| PENDING → CANCELLED | ✅ | ✅ (after 15-min stale-pending sweep, no successful payment) | — |
-| CONFIRMED → PROCESSING | ✅ | — | — |
-| CONFIRMED → CANCELLED | ✅ | — | — |
-| PROCESSING → SHIPPED | ✅ | — | — |
-| PROCESSING → CANCELLED | ✅ | — | — |
-| SHIPPED → DELIVERED | ✅ | — | — |
-| DELIVERED → REFUNDED | ✅ | — | — |
-
-> Test implication: any system-driven transition needs `actor = "system"` in the audit log; admin-driven transitions need the admin's user ID.
-
 ---
 
-## 4. Activity Diagrams (Integrating Code Decision Points)
+### 3.4 Activity Diagrams (Integrating Code Decision Points)
 
-Per PDF: *"Activity Diagrams that integrate code decision points."*
-
-### 4.1 Activity Diagram — `PATCH /api/v1/orders/:id/status`
+#### 3.4.1 Activity Diagram — `PATCH /api/v1/orders/:id/status`
 
 ```
                               ●  (Start)
@@ -335,9 +528,9 @@ Per PDF: *"Activity Diagrams that integrate code decision points."*
 - `◇ role === "admin"?` → same middleware, role check
 - `◇ Body matches schema?` → `updateOrderStatusSchema.parse(req.body)`
 - `◇ Order found?` → `orderService.findById(id)` returning `null`
-- `◇ Transition legal?` → `orderService.validateTransition(from, to)` consults the 7×7 matrix
+- `◇ Transition legal?` → `orderService.validateTransition(from, to)` consults the 7×7 matrix in §3.2.2
 
-### 4.2 Activity Diagram — `PATCH /api/v1/inventory/:id`
+#### 3.4.2 Activity Diagram — `PATCH /api/v1/inventory/:id`
 
 ```
 ●  Start
@@ -391,11 +584,11 @@ Per PDF: *"Activity Diagrams that integrate code decision points."*
 
 ---
 
-## 5. Information Hiding
+## 4. Information Hiding
 
 Per PDF: *"Design your API contracts such that teams/AI only need to respect shared interfaces, keeping internal stack logic hidden."*
 
-### 5.1 The Public Interface (Visible to Everyone)
+### 4.1 The Public Interface (Visible to Everyone)
 
 This is the **ONLY** contract teammates, frontend code, and AI tools are entitled to depend on:
 
@@ -407,7 +600,7 @@ This is the **ONLY** contract teammates, frontend code, and AI tools are entitle
 | `GET` | `/api/v1/inventory` | Admin JWT | — | `200 { products[{ ...product, lowStock }] }` | 401, 403 |
 | `PATCH` | `/api/v1/inventory/:id` | Admin JWT | `{ stock }` | `200 { id, stock, lowStock }` | 400, 401, 403, 404 |
 
-### 5.2 The Hidden Implementation (Free to Change)
+### 4.2 The Hidden Implementation (Free to Change)
 
 These details are **encapsulated inside the slice** and may change without notifying any teammate, because no teammate depends on them:
 
@@ -421,17 +614,17 @@ These details are **encapsulated inside the slice** and may change without notif
 | `Order.updatedAt` precision (ms vs μs) | Internal; client only sends back what server gave |
 | Whether routes use Express `Router` or Fastify | Framework choice hidden behind HTTP |
 
-### 5.3 Teammate Consumption Rules
+### 4.3 Teammate Consumption Rules
 
 | Teammate | What They May Depend On | What They May NOT Touch |
 |---|---|---|
 | **Member A (checkout)** | Nothing from orders slice (orders is downstream) | All orders code |
-| **Member B (auth)** | Orders consumes their `protectRoute`/`adminGuard` middleware via `app.use()` | Orders' status matrix, services |
+| **Member C (auth)** | Orders consumes their `protectRoute`/`adminGuard` middleware via `app.use()` | Orders' status matrix, services |
 | **Member B (payment)** | Orders **reads** their `Payment` Prisma model (status, orderId); orders **subscribes** to logical `payment.success` event | Orders writes nothing to Payment table; payment writes nothing to Order table — coordination is event-based only |
-| **Member C (catalog)** | Owns `Product.stock` — orders writes only via RFC-D001 | Orders' route handlers |
+| **Catalog (owner TBD)** | Owns `Product.stock` — orders writes only via RFC-D001 | Orders' route handlers |
 | **Frontend (any member)** | REST API only | Direct DB access; no Prisma imports |
 
-### 5.4 Cross-Slice Event Contract (added post-pull)
+### 4.4 Cross-Slice Event Contract (added post-pull)
 
 A new logical event is consumed by our slice:
 
@@ -454,13 +647,14 @@ This **information-hiding boundary** is the slice's contract. Violations are blo
 
 ---
 
-## 6. Exit Criteria — Phase 2
+## 5. Exit Criteria — Phase 2
 
 - [x] Gherkin: 6 stories (D-1 through D-6) × ≥1 happy + ≥1 negative scenario each
 - [x] Refinement Loop: 10 vague terms eliminated; 18 words banned
-- [x] SSDs: 5 diagrams covering happy + failure for all 6 endpoints/flows (including system cron)
-- [x] Activity Diagrams: 2 diagrams with code decision points labeled
-- [x] Status Transition Matrix updated with Initiator dimension (Admin vs System vs Event)
+- [x] **UML Modeling — Class Diagram:** 3 entities + 2 services + 2 cross-slice externals with stereotypes and boundaries (§3.1)
+- [x] **UML Modeling — State Machine Diagram:** 7-state lifecycle with terminal states, initiator legend, full transition matrix (§3.2)
+- [x] **UML Modeling — System Sequence Diagrams:** 5 diagrams covering happy + failure for all 6 endpoints/flows including system cron (§3.3)
+- [x] **UML Modeling — Activity Diagrams:** 2 diagrams with code decision points labeled (§3.4)
 - [x] Information Hiding: public contract + hidden details + consumption rules + event contract documented
 - [x] Cross-slice event contract (`payment.success`) defined with idempotency guarantees
 - [x] Logbook entry written (`docs/logbook/member_d_phase2_agile_logbook.md`)
