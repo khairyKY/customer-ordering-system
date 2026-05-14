@@ -10,21 +10,28 @@
 - `src/frontend/`: React/Tailwind code (Vertical slices under `features/`).
 - `src/backend/`: Node/Express code (Vertical slices under `features/`).
 - `src/database/`: Prisma models and migrations.
+- `docs/`: All project documentation.
+
+## Documentation Architecture
+- **Requirements & Design:** All Phase 1 and Phase 2 documentation for ALL team members (including Members B and C) is permanently located in `docs/requirements/`.
+- **Logbooks:** Individual activity logs reside in `docs/logbook/`.
+- **Architectural Rules:** Core system standards are in `docs/architecture_v2/`.
+- **Vault Integrity:** The rogue directories `md/`, `Phase 1/`, and `Phase 2/` have been deleted. Do not reference them.
 
 ## 3. FEATURE OWNERSHIP (Updated 2026-05-13)
 - **Member A (Khairy):** Checkout & Shopping Cart System.
 - **Member B:** Payment.
 - **Member C:** Tickets / Support System.
 - **Member D:** Admin & Order Fulfillment + **Auth & User Management** (two slices).
-- **Catalog:** ⚠️ Currently unowned — reassignment pending team decision.
+- **Catalog:** **Member A** (Khairy) — reassigned 2026-05-16 per Scrum Master executive decision. Scope: product browsing, search, and stock-read endpoints consumed by the Checkout slice.
 
 ## 4. FEATURE SLICE STATUS
 
 | Slice | Owner | Status | Last Completed Task | Blockers |
 |---|---|---|---|---|
 | checkout | Member A | 🟢 Complete | Sprint 2 + Checkout Button | None |
-| auth | Member D | 🟡 In Progress | Phase 1 Complete (2026-05-13) — see `docs/requirements/member_d_auth_phase1_requirements.md` | None — JWT contract locked for consumers |
-| catalog | Member C | 🔴 Not Started | — | — |
+| auth | **Member D** | 🟡 In Progress | Phase 1 Complete (2026-05-13) — see `docs/requirements/member_d_auth_phase1_requirements.md` | None — JWT contract locked for consumers. **Auth is EXCLUSIVELY owned by Member D. Member C owns Tickets only.** |
+| catalog | **Member A** | 🟡 In Progress | Ownership transferred 2026-05-16 — product mock data already served by `productController.js` | RFC-D001 (catalog stock write by Member D) requires Member A approval |
 | payment | Member B | 🟢 Phase 3 Complete | Phase 3: TDP Implementation | None |
 | orders | Member D | 🟡 In Progress | Phase 1 v2.1 + Phase 2 v2.1 (PDF-aligned + cross-slice integrated with Member A & B) | RFC-D001 (catalog write); awaiting Member B's `protectRoute` middleware (auth Phase 1 in progress) |
 
@@ -36,8 +43,8 @@
 - **Database:** `src/database/schema.sql` (Mock/Initial schema for carts and cart_items).
 - **Backend:**
   - `src/backend/controllers/cartController.js` (In-memory cart logic and total calculation).
-  - `src/backend/routes/cartRoutes.js` (API endpoints: `GET /` and `POST /add`).
-  - `src/backend/server.js` (Express entry point with CORS and JSON middleware).
+  - `src/backend/routes/cartRoutes.js` (API endpoints: `GET /` and `POST /add`). 
+  - `src/backend/server.js` (Express entry point with CORS and JSON middleware). 
 - **Frontend:**
   - `src/frontend/src/api/cartApi.js` (Axios client for checkout slice communication).
   - `src/frontend/src/components/CartWidget.jsx` (UI state manager for cart display and test-add functionality).
@@ -45,7 +52,7 @@
 
 ### API Routes Established:
 - `GET http://localhost:3001/api/cart` - Returns current cart state.
-- `POST http://localhost:3001/api/cart/add` - Adds mock item to in-memory store.
+- `POST http://localhost:3001/api/cart/add` - Adds mock item to in-memory store. 
 
 ### Success Criteria Confirmation:
 - [x] Backend initialized with Express/Node.
@@ -71,7 +78,7 @@
   - `src/frontend/src/api/cartApi.js` (Added update/remove methods).
   - `src/frontend/src/components/ProductGrid.jsx` (Responsive grid display for products).
   - `src/frontend/src/components/CartWidget.jsx` (Upgraded with quantity controls and remove actions).
-  - `src/frontend/src/App.jsx` (Layout for Catalog and Cart side-by-side).
+  - `src/frontend/src/App.jsx` (Layout for Catalog and Cart side-by-side).       
 
 ### API Routes Established:
 - `GET http://localhost:3001/api/products` - Returns 6 mock products.
@@ -82,13 +89,13 @@
 - [x] Product catalog fetchable from backend.
 - [x] Stock validation enforced during add/update.
 - [x] Cart subtotal and tax (10%) recalculated on every change.
-- [x] UI allows full catalog-to-cart lifecycle (Add -> Update -> Remove).
+- [x] UI allows full catalog-to-cart lifecycle (Add -> Update -> Remove).        
 
 ### Feature Log: Checkout Button (feat/checkout-button)
 **Date:** 2026-05-10
 **Status:** Feature Initialized
 
-- **Component:** `CartWidget.jsx` updated with a "Proceed to Checkout" button.
+- **Component:** `CartWidget.jsx` updated with a "Proceed to Checkout" button.   
 - **Functionality:**
   - Validates if cart is empty before enabling.
   - Triggers a simulated routing alert.
@@ -119,7 +126,7 @@ All team members **MUST** use these library components for common UI elements. *
 
 ## Member B — Payment Features: Phase 1 Log
 **Date:** 2026-05-12
-**Status:** Phase 1 Complete — Advanced Requirements & Edge Case Discovery
+**Status:** Phase 1 Complete — Advanced Requirements & Edge Case Discovery     
 
 ### Slice Boundaries
 - **Backend:** `src/backend/features/payment/`
@@ -128,14 +135,14 @@ All team members **MUST** use these library components for common UI elements. *
 - **Slice Token:** `payment`
 
 ### Actors Defined
-- **Customer** — Primary. Initiates checkout and provides payment credentials.
+- **Customer** — Primary. Initiates checkout and provides payment credentials. 
 - **Payment Gateway (Stripe/Mock)** — Supporting. Authorizes transactions and provides status webhooks.
-- **Finance System** — Offstage. Consumes payment logs for reconciliation.
+- **Finance System** — Offstage. Consumes payment logs for reconciliation.     
 
 ### Phase 1 Deliverables: Advanced "Padlock" Requirements
 The following Edge Case Requirements (REQ_EC) were discovered using an adversarial AI persona (Student 'Z') to ensure a secure perimeter:
 
-1. **REQ_EC_1 (Negative Amount):** Server-side rejection of `amount <= 0`.
+1. **REQ_EC_1 (Negative Amount):** Server-side rejection of `amount <= 0`.       
 2. **REQ_EC_2 (Idempotency):** 300s window for duplicate request suppression via session key.
 3. **REQ_EC_3 (Race Condition):** Final server-side cart re-calculation at moment of payment.
 4. **REQ_EC_4 (Negative Floor):** Subtotal constraint `Max(0, Subtotal - Discount)` before tax.
@@ -159,7 +166,7 @@ The following Edge Case Requirements (REQ_EC) were discovered using an adversari
 | POST | `/api/payment/process` | Atomic payment execution | `{ amount, promoCode, idempotencyKey, cartTotal }` | `{ status: 'SUCCESS', total }` |
 
 ### Prisma Models Added
-- **Payment:** Stores transaction logs, tax, discount, and idempotency key.
+- **Payment:** Stores transaction logs, tax, discount, and idempotency key.      
 - **PromoCode:** Stores validation logic, usage limits, and counts.
 
 ### Key Padlocks (payment.schema.js)
@@ -212,12 +219,12 @@ The following Edge Case Requirements (REQ_EC) were discovered using an adversari
 
 ### Blockers
 - **RFC-D001** — `PATCH /api/v1/inventory/:id` writes `Product.stock` (Member C's domain). Needs written approval from Member C before implementation.
-- **Auth middleware** — Member B's `protectRoute` ships with their auth slice (currently Phase 1). Until then, our routes mount a mock `x-mock-role` guard.
+- **Auth middleware** — Member B's `protectRoute` ships with their auth slice (currently Phase 1). Until then, our routes mount a mock `x-mock-role` guard.     
 - ~~Tax rate ambiguity~~ — **CLOSED 2026-05-13**. 10% confirmed as Global Mandate per Member B Phase 1 Log L181.
 
 ### Phase 2 Deliverables (Complete)
 - Refined Gherkin for all 5 stories (D-1 through D-5) with schema-accurate field names.
-- System Sequence Diagrams for all 5 endpoints (happy paths + guard paths).
+- System Sequence Diagrams for all 5 endpoints (happy paths + guard paths).      
 - OrderStatus transition machine — 7×7 valid/invalid matrix.
 - Zod schemas: `updateOrderStatusSchema`, `orderListQuerySchema`, `updateStockSchema`.
 - Formal API contract with error codes.
@@ -226,14 +233,40 @@ The following Edge Case Requirements (REQ_EC) were discovered using an adversari
 ### Next 5 Tasks (Phase 3 — TDP: failing tests first)
 1. `test/orders-get-list` — paginated list + 401/403 guards.
 2. `test/orders-update-status` — valid transition + DELIVERED→PENDING regression (422).
-3. `test/orders-update-status-invalid` — `status:"HACKED"` returns 400.
-4. `test/inventory-update-stock` — valid, negative, decimal quantity guards.
+3. `test/orders-update-status-invalid` — `status:"HACKED"` returns 400.        
+4. `test/inventory-update-stock` — valid, negative, decimal quantity guards.   
 5. `test/orders-get-detail-not-found` — 404 on missing order.
 
 ### Phase 1 v2.1 + Phase 2 v2.1 — Cross-Slice Integration Complete (2026-05-13)
 - Phases redone against authoritative `CSE323_Project_Overview.pdf`.
 - v1 docs archived as `*_v1.md` with deprecation banners.
-- Sprint 1.4 (Phase 1 logbook) + Sprint 2.5 (Phase 2 logbook) added — integrate Member A's checkout artifacts and Member B's payment+auth slice publications.
+- Sprint 1.4 (Phase 1 logbook) + Sprint 2.5 (Phase 2 logbook) added — integrate Member A's checkout artifacts and Member B's payment+auth slice publications.   
 - New requirements absorbed: FR-D6 (15-min stale-pending auto-cancel per Member B REQ_EC_5), FR-D6.b (sweep checks Payment.SUCCESS first), NFR-D5 (idempotent advancement), HR-8 (paid-but-cancelled cross-slice failure mode).
 - New cross-slice contracts: Story D-6 Gherkin, SSD-D6 cron flow, §3.1 Initiator dimension on transition matrix, §5.4 `payment.success` Event Contract.
 - Cross-Slice Coordination Map locked down in Phase 1 §1.4.
+
+---
+
+## Git Branching Conventions
+**Enforced as of:** 2026-05-16 | **Authority:** Scrum Master (Khairy) + CONTEXT.md
+
+All branches MUST follow this naming scheme. PRs with non-compliant branch names are **auto-rejected** by CI (`branch-name-lint` job in `.github/workflows/ci.yml`).
+
+### Branch Types
+
+| Prefix | Purpose | Example |
+|---|---|---|
+| `feat/` | New feature work within a vertical slice | `feat/cart-checkout`, `feat/auth-jwt-refresh` |
+| `bugfix/` | Non-urgent bug fix (caught in dev/QA) | `bugfix/payment-crash`, `bugfix/cart-tax-rounding` |
+| `hotfix/` | Urgent production fix requiring immediate merge to `main` | `hotfix/order-status-loop` |
+| `refactor/` | Internal code restructuring — no new features, no bug fixes | `refactor/cart-controller-zod` |
+| `chore/` | Documentation, dependency updates, config, tooling, maintenance | `chore/update-readme`, `chore/upgrade-prisma` |
+| `test/` | Writing or updating automated tests only | `test/orders-get-list`, `test/checkout-e2e` |
+| `docs/` | Documentation-only changes in `docs/` or `.ai/` | `docs/phase4-validation-report` |
+
+### Rules
+1. **Slice token required:** Branch name must embed the slice name after the prefix, e.g. `feat/cart-...`, `feat/payment-...`, `feat/auth-...`, `test/orders-...`.
+2. **No direct push to `main` or `develop`.** All changes arrive via Pull Request.
+3. **Rebase before merge** — no merge commits on `develop`.
+4. **Feature branches are short-lived** — must merge or be abandoned within 5 working days.
+5. **One concern per branch** — a `feat/` branch must not contain doc-only changes; use a separate `chore/` or `docs/` branch.
