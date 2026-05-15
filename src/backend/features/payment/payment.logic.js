@@ -19,4 +19,10 @@ const calculateTotal = (subtotal, discount) => {
   return Math.round(total * 100) / 100;
 };
 
-module.exports = { calculateTotal };
+const validatePaymentInput = (data) => {
+  if (!data.amount || data.amount <= 0) throw new Error('InvalidAmountError');
+  if (!data.idempotencyKey) throw new Error('MissingIdempotencyKey');
+  return true;
+};
+
+module.exports = { calculateTotal, validatePaymentInput };

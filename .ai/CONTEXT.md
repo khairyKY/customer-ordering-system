@@ -34,7 +34,7 @@
 | checkout | Member A | 🟢 Complete | Sprint 2 + Checkout Button | None |
 | auth | **Member D** | 🟡 In Progress | Phase 1 Complete (2026-05-13) — see `docs/requirements/member_d_auth_phase1_requirements.md` | None — JWT contract locked for consumers. **Auth is EXCLUSIVELY owned by Member D. Member C owns Tickets only.** |
 | catalog | **Member A** | 🟡 In Progress | Ownership transferred 2026-05-16 — product mock data already served by `productController.js` | RFC-D001 (catalog stock write by Member D) requires Member A approval |
-| payment | Member B | 🟢 Phase 3 Complete | Phase 3: TDP Implementation | None |
+| payment | Member B | 🟢 Phase 4 Complete | Phase 4: Pyramid Engineering 70/20/10 Ratio & Validation Docs | None |
 | tickets | Member C | 🟢 Phase 3 Complete | Phase 3: Create Ticket with AI Priority — 10/10 tests passing | None |
 | orders | Member D | 🟢 Phase 4 Complete | Phase 4: Testing Pyramid + Playwright POM + V&V report — 32/32 tests green; coverage ≥ 87% on services/routers; Python/FastAPI implementation in `src/backend_python/` | Frontend pages pending; `payment.success` webhook contract published, Member B can integrate; NFR-D4.b optimistic concurrency deferred |
 
@@ -201,6 +201,7 @@ Completed the formal design phase using Information Hiding principles and UML mo
 - **Zustand Store:** `usePaymentStore.js` manages client-side idempotency key and loading states.
 - **Component:** `PaymentForm.jsx` implements double-click prevention and live calculation.
 
+
 ---
 
 ## Member D — Admin & Order Fulfillment: Phase 1 Log
@@ -347,3 +348,43 @@ All branches MUST follow this naming scheme. PRs with non-compliant branch names
 6. **Frontend:** `TicketForm.jsx` and `TicketList.jsx` implementation
 7. **Phase 4:** Test pyramid report, Playwright E2E scripts, Verification vs Validation statement
 
+---
+
+## Member B — Payment Features: Phase 3 Localized Audit
+**Date:** 2026-05-15
+**Status:** 🟢 **PHASE 3 COMPLIANT**
+
+### Audit Summary:
+1. **Failing Test First:** `payment.test.js` is fully functional. It successfully imports `processPayment` and `calculateTotal`. All mathematical boundaries (10% tax, negative block, $0.00 floor) are verified.
+2. **Edge Case Cage (Padlocks):** `payment.schema.js` uses Zod to enforce:
+   - `amount`: Must be positive (`REQ_EC_1`).
+   - `idempotencyKey`: Must be a valid UUID (`REQ_EC_2`).
+   - `promoCode`: Alphanumeric only, max 20 chars (`REQ_EC_4`).
+3. **Vertical Slicing:** The Payment slice is fully isolated within `src/backend/features/payment/` and `src/frontend/src/features/payment/`.
+4. **TDP Verification:** Implementation in `payment.logic.js` and `payment.controller.js` directly matches the test suite requirements.
+
+### Technical Improvements:
+- [x] Test suite decoupled from Express request objects for direct unit testing.
+- [x] In-memory mock storage implemented in controller to verify idempotency logic.
+- [x] All missing function exports (`validatePaymentInput`) restored to logic layer.
+
+---
+
+## Member B — Payment Features: Phase 4 Completion
+**Date:** 2026-05-15
+**Status:** 🟢 **PHASE 4 COMPLETE**
+
+### Phase 4 Deliverables:
+1. **Testing Pyramid (70/20/10):**
+   - **Unit (14 tests):** Full coverage for tax precision, promo floors, and schema padlocks in `payment.test.js`.
+   - **Integration (3 tests):** Schema-to-Logic flow verified in `payment.integration.test.js`.
+   - **E2E (3 tests):** Success, Duplicate, and Error paths verified with Playwright in `payment.spec.js`.
+2. **Playwright POM Architecture:**
+   - Implemented `PaymentPage` POM in `tests/e2e/pages/`.
+   - Mapped Gherkin scenarios to `payment.spec.js`.
+3. **Verification vs Validation:**
+   - Authored `docs/payment/verification_validation.md` explaining technical correctness vs. business value.
+4. **Pipeline Engineering:**
+   - Standardized test organization for CI readiness.
+5. **Traceability:**
+   - Confirmed 0 orphaned requirements; every REQ_EC is traced to a unit and E2E test.
