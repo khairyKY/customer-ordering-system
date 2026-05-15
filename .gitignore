@@ -5,3 +5,7 @@ dist/
 build/
 .DS_Store
 .cursorrules
+
+.vite/
+node_modules/
+dist/
