@@ -1,4 +1,4 @@
-# SYSTEM CONTEXT: CSE323 Customer Ordering System (COS)
+﻿# SYSTEM CONTEXT: CSE323 Customer Ordering System (COS)
 
 **Current Focus:** Global UI Component Standardization (One-Shot Library Lockdown) and Phase 4 Test Infrastructure setup.
 
