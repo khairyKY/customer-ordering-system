@@ -22,21 +22,34 @@
 
 ## 3. FEATURE OWNERSHIP (Updated 2026-05-13)
 - **Member A (Khairy):** Checkout & Shopping Cart System.
+<<<<<<< HEAD
 - **Member B:** Payment.
 - **Member C:** Tickets / Support System.
 - **Member D:** Admin & Order Fulfillment + **Auth & User Management** (two slices).
 - **Catalog:** **Member A** (Khairy) — reassigned 2026-05-16 per Scrum Master executive decision. Scope: product browsing, search, and stock-read endpoints consumed by the Checkout slice.
+=======
+- **Member B:** Payment Features.
+- **Member C:** Product Catalog.
+- **Member D:** Admin & Order Fulfillment + Auth & User Management.
+>>>>>>> 71fd622 (/.ai/Context.md)
 
 ## 4. FEATURE SLICE STATUS
 
 | Slice | Owner | Status | Last Completed Task | Blockers |
 |---|---|---|---|---|
 | checkout | Member A | 🟢 Complete | Sprint 2 + Checkout Button | None |
+<<<<<<< HEAD
 | auth | **Member D** | 🟡 In Progress | Phase 1 Complete (2026-05-13) — see `docs/requirements/member_d_auth_phase1_requirements.md` | None — JWT contract locked for consumers. **Auth is EXCLUSIVELY owned by Member D. Member C owns Tickets only.** |
 | catalog | **Member A** | 🟡 In Progress | Ownership transferred 2026-05-16 — product mock data already served by `productController.js` | RFC-D001 (catalog stock write by Member D) requires Member A approval |
 | payment | Member B | 🟢 Phase 4 Complete | Phase 4: Pyramid Engineering 70/20/10 Ratio & Validation Docs | None |
 | tickets | Member C | 🟢 Phase 3 Complete | Phase 3: Create Ticket with AI Priority — 10/10 tests passing | None |
 | orders | Member D | 🟢 Phase 4 Complete | Phase 4: Testing Pyramid + Playwright POM + V&V report — 32/32 tests green; coverage ≥ 87% on services/routers; Python/FastAPI implementation in `src/backend_python/` | Frontend pages pending; `payment.success` webhook contract published, Member B can integrate; NFR-D4.b optimistic concurrency deferred |
+=======
+| auth | Member D | 🟡 In Progress | Phase 1 Complete (2026-05-13) — see `docs/requirements/member_d_auth_phase1_requirements.md` | None — JWT contract locked for consumers |
+| catalog | Member C | 🔴 Not Started | — | — |
+| payment | Member B | 🟢 Phase 4 Complete | Pyramid Engineering: 70/20/10 Ratio & Validation Docs | None |
+| orders | Member D | 🟡 In Progress | Phase 1 v2.1 + Phase 2 v2.1 (PDF-aligned + cross-slice integrated with Member A & B) | RFC-D001 (catalog write); awaiting Auth slice implementation (Member D) |
+>>>>>>> 71fd622 (/.ai/Context.md)
 
 ## Sprint 1 Execution Log
 **Date:** 2026-05-10
@@ -62,7 +75,7 @@
 - [x] Database mock schema defined.
 - [x] Frontend can fetch and display empty cart state.
 - [x] "Add Item" button triggers backend calculation and UI refresh.
-- [x] Tax calculation (8%) verified in controller logic.
+- [x] Tax calculation (10%) verified in controller logic.
 
 ## Sprint 2 Execution Log
 **Date:** 2026-05-10
@@ -119,11 +132,74 @@ All team members **MUST** use these library components for common UI elements. *
 **Date:** 2026-05-10
 **Status:** Complete & Verified
 
+<<<<<<< HEAD
 ### Audit Summary:
 - **`App.jsx`:** Refactored layout to use semantic tags and standardized Tailwind typography. Layout enforced as side-by-side Flex/Grid.
 - **`ProductGrid.jsx`:** 100% compliance. All raw buttons and divs replaced with `<Button>` and `<Card>`.
 - **`CartWidget.jsx`:** 100% compliance. Replaced the last remaining raw "X" button with a library `<Button>` component.
 - **Verification:** Global search confirms zero instances of raw `<button>` or `<input>` tags in the `src/components/` and `src/App.jsx` files.
+=======
+### Slice Boundaries
+- **Backend:** `src/backend/features/orders/`
+- **Frontend:** `src/frontend/src/features/orders/`
+- **Database:** Migrations scoped to `orders` table (coordinate schema with Member A)
+- **Slice Token:** `orders`
+
+### API Contract (Planned — Not Yet Implemented)
+| Method | Endpoint | Description | Status |
+|---|---|---|---|
+| GET | `/api/orders` | Paginated admin order list | ❌ Not Started |
+| GET | `/api/orders/:id` | Single order detail | ❌ Not Started |
+| PATCH | `/api/orders/:id/status` | Update fulfillment status | ❌ Not Started |
+| GET | `/api/inventory` | Product stock list | ❌ Not Started |
+| PATCH | `/api/inventory/:id` | Update product stock quantity | ❌ Not Started |
+
+### Actors Defined
+- **Admin** — Primary actor. JWT with `role === "admin"` claim required on all endpoints.
+- **System** — Consumes `orders` + `order_items` records created by Member A's `placeOrder` transaction.
+- **Customer** — Out-of-scope boundary actor.
+
+### Phase 1 Deliverables
+- 5 user stories written in Gherkin (D-1 through D-5).
+- Ambiguity audit complete — all vague terms replaced with measurable constraints.
+- 7 negative acceptance test scenarios identified (NEG-1 through NEG-7).
+- Full requirements document: `docs/requirements/member_d_phase1_requirements.md`
+
+### Key Design Constraints
+- "Low-stock" threshold: `stock_quantity < 5`
+- Tax rate: 10% (consistent with Member A's cart logic)
+- Status transition guard: `DELIVERED` → `PENDING` is an illegal regression (HTTP 422)
+- All admin endpoints require `Authorization: Bearer <token>` with `role === "admin"`
+- UI updates must reflect within 500ms of API response (React Query cache invalidation)
+
+### Blockers
+- **RFC-D001** — `PATCH /api/v1/inventory/:id` writes `Product.stock` (Member C's domain). Needs written approval from Member C before implementation.
+- **Auth middleware** — Auth slice (Member D). Until then, our routes mount a mock `x-mock-role` guard.
+- ~~Tax rate ambiguity~~ — **CLOSED 2026-05-13**. 10% confirmed as Global Mandate per Member B Phase 1 Log L181.
+
+### Phase 2 Deliverables (Complete)
+- Refined Gherkin for all 5 stories (D-1 through D-5) with schema-accurate field names.
+- System Sequence Diagrams for all 5 endpoints (happy paths + guard paths).
+- OrderStatus transition machine — 7×7 valid/invalid matrix.
+- Zod schemas: `updateOrderStatusSchema`, `orderListQuerySchema`, `updateStockSchema`.
+- Formal API contract with error codes.
+- Full document: `docs/requirements/member_d_phase2_design.md`
+
+### Next 5 Tasks (Phase 3 — TDP: failing tests first)
+1. `test/orders-get-list` — paginated list + 401/403 guards.
+2. `test/orders-update-status` — valid transition + DELIVERED→PENDING regression (422).
+3. `test/orders-update-status-invalid` — `status:"HACKED"` returns 400.
+4. `test/inventory-update-stock` — valid, negative, decimal quantity guards.
+5. `test/orders-get-detail-not-found` — 404 on missing order.
+
+### Phase 1 v2.1 + Phase 2 v2.1 — Cross-Slice Integration Complete (2026-05-13)
+- Phases redone against authoritative `CSE323_Project_Overview.pdf`.
+- v1 docs archived as `*_v1.md` with deprecation banners.
+- Sprint 1.4 (Phase 1 logbook) + Sprint 2.5 (Phase 2 logbook) added — integrate Member A's checkout artifacts and Member B's payment+auth slice publications.
+- New requirements absorbed: FR-D6 (15-min stale-pending auto-cancel per Member B REQ_EC_5), FR-D6.b (sweep checks Payment.SUCCESS first), NFR-D5 (idempotent advancement), HR-8 (paid-but-cancelled cross-slice failure mode).
+- New cross-slice contracts: Story D-6 Gherkin, SSD-D6 cron flow, §3.1 Initiator dimension on transition matrix, §5.4 `payment.success` Event Contract.
+- Cross-Slice Coordination Map locked down in Phase 1 §1.4.
+>>>>>>> 71fd622 (/.ai/Context.md)
 
 ---
 
@@ -180,7 +256,7 @@ Completed the formal design phase using Information Hiding principles and UML mo
 ---
 
 ## Member B — Payment Features: Phase 3 Log
-**Date:** 2026-05-12
+**Date:** 2026-05-14
 **Status:** Phase 3 Complete — TDP Vertical Slice
 
 ### API Contract (Implemented)
