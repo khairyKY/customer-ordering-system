@@ -13,7 +13,8 @@
 |---|---|---|---|
 | Checkout & Shopping Cart | **Member A** (Khairy) | `docs/requirements/member_a_*.md` + `docs/architecture_v2/` | ✅ Complete |
 | Payment | **Member B** | `md/phase1/` | ✅ Complete |
-| Tickets + Auth | **Member C** | `Phase 1/` (root) | ✅ Tickets complete; Auth pending |
+| Tickets | **Member C** | `Phase 1/` (root) | ✅ Tickets complete |
+| Auth & User Management | **Member D** | `docs/requirements/member_d_auth_phase1_requirements.md` | ✅ Phase 1 Complete (2026-05-13) |
 | Admin & Order Fulfillment | **Member D** | `docs/requirements/member_d_*.md` | ✅ Complete (v2.1 cross-slice integrated) |
 
 ---
@@ -22,7 +23,7 @@
 
 | # | Issue | Evidence | Resolution Required |
 |---|---|---|---|
-| **C-1** | Auth slice ownership ambiguity. Member B's `Phase3_04_vertical_slicing.md` and Member C's `02f_API_CONTRACT.yaml` both reference *"Member D's auth service"* / *"Member D's `protectRoute`"*. Per team confirmation, **Member C owns auth** (alongside tickets). | `md/phase3/Phase3_04_vertical_slicing.md` L77, L114; `Phase 2/02f_API_CONTRACT.yaml` L10, L38 | Update `.ai/CONTEXT.md` slice-status table to assign `auth` to Member C. All consumers (Members B & D) should re-point references. |
+| ~~**C-1**~~ | ~~Auth slice ownership ambiguity.~~ **CLOSED 2026-05-16 — RESOLVED.** Auth is exclusively owned by **Member D** as part of their Python/FastAPI backend (alongside Admin & Orders). Member C owns **Tickets only**. All references to "Member C's auth" in `02f_API_CONTRACT.yaml` and `Phase3_04_vertical_slicing.md` are legacy errors and should be treated as pointing to **Member D's auth service** (which is how the code was always written). No re-pointing needed — the original code references were correct; only the narrative was wrong. | `md/phase3/Phase3_04_vertical_slicing.md` L77, L114; `Phase 2/02f_API_CONTRACT.yaml` L10, L38 | ✅ CLOSED — `.ai/CONTEXT.md` updated 2026-05-16 |
 | **C-2** | Member B has two persona-discovery files with conflicting idempotency windows. `Phase1_PersonaDiscovery.md` says **60 seconds**; `Phase1_PersonaDiscovery_updated.md` says **300 seconds**. The latter is canonical. | `md/phase1/Phase1_PersonaDiscovery.md` L42; `..._updated.md` L48 | Archive the 60s version or annotate it as superseded. |
 
 ---
@@ -60,7 +61,9 @@ Every slice classifies actors as **Primary** / **Supporting** / **Offstage** per
 
 ---
 
-## 1.3 Tickets + Auth — Member C
+## 1.3 Tickets — Member C
+
+> ⚠️ **OWNERSHIP CORRECTION (2026-05-16):** Member C owns **Tickets ONLY**. Auth & User Management is owned by **Member D**. Section header and S-2 actor note corrected below.
 
 *Source: `Phase 1/01a_persona_and_actors.md` §2*
 
@@ -74,7 +77,7 @@ Every slice classifies actors as **Primary** / **Supporting** / **Offstage** per
 | Actor | Service Provided | Failure Contract |
 |---|---|---|
 | **S-1 HuggingFace Sentiment API** | Sentiment score 0.0–1.0 mapped to LOW / MEDIUM / HIGH / CRITICAL | Timeout > 5,000 ms or HTTP error → fallback `MEDIUM` + `sentiment_source: "fallback"` |
-| **S-2 Auth Service (JWT)** | Validated `{ user_id, role }` or HTTP 401 | Originally documented as *"Member D's Auth Service"* — corrected per team to be **Member C's** own auth slice |
+| **S-2 Auth Service (JWT)** | Validated `{ user_id, role }` or HTTP 401 | **Member D's Auth Service** — consumed by Member C's ticket endpoints. The original correction note in this row was erroneous. Member D owns auth. |
 
 ### Offstage
 | Actor | Role |
@@ -96,7 +99,7 @@ Every slice classifies actors as **Primary** / **Supporting** / **Offstage** per
 ### Supporting
 | Actor | Service Provided | Owner |
 |---|---|---|
-| `protectRoute` / `adminGuard` Middleware | Validates JWT + `role === "admin"` claim | Member C (auth slice) — **we consume** |
+| `protectRoute` / `adminGuard` Middleware | Validates JWT + `role === "admin"` claim | **Member D** (auth slice) — **we consume** |
 | Order Database | Persists `Order` + `OrderItem`; serves read queries | Member A (checkout — schema authority) |
 | Product Catalog Service | Provides product names, SKUs, stock | (was Member C; per re-ownership, may need new owner) |
 | Payment Service | Emits `payment.success` events — drives `Order.status` PENDING → CONFIRMED | Member B (payment) |
@@ -289,8 +292,8 @@ Each slice produced its own traceability matrix and certified zero orphans. Belo
 
 | Cross-Slice Dependency | Producer | Consumer | Status |
 |---|---|---|---|
-| JWT contract (`role` claim) | Member C (auth) | Members A, B, D | ⚠️ Pending — auth slice Phase 1 in progress |
-| `Authorization: Bearer <token>` header | Member C (auth) | All slices | ⚠️ Mock until middleware ships |
+| JWT contract (`role` claim) | **Member D** (auth) | Members A, B, C | ✅ Phase 1 complete — JWT contract locked per `member_d_auth_phase1_requirements.md` |
+| `Authorization: Bearer <token>` header | **Member D** (auth) | All slices | ⚠️ Mock until middleware ships |
 | `Order` + `OrderItem` Prisma models | Member A (checkout) | Member D (orders read), Member B (payment writes status on success) | ✅ Schema defined in `08-database-schema-checkout.md` |
 | `Payment` + `PromoCode` Prisma models | Member B (payment) | Member D (orders reads for stale-pending sweep) | ✅ Phase 3 complete |
 | `payment.success` logical event | Member B (payment) | Member D (orders) | ⚠️ Event transport unspecified (EventEmitter / queue / polling) — Member D's Phase 2 §5.4 codifies the consumer contract |
@@ -317,9 +320,9 @@ Each slice produced its own traceability matrix and certified zero orphans. Belo
 
 | Item | Owner | Blocker |
 |---|---|---|
-| Auth slice Phase 1 docs | Member C | In progress (per CONTEXT.md slice-status table — but table assigns auth to Member B; needs correction per coordination issue C-1 above) |
-| Catalog slice (now potentially orphaned given Member C took tickets+auth) | TBD | No owner currently |
-| RFC-D001 approval (inventory cross-slice write) | Catalog owner (TBD) | Waiting on owner reassignment |
+| ~~Auth slice Phase 1 docs~~ | ~~Member C~~ | **CLOSED** — Auth Phase 1 complete under Member D. See `docs/requirements/member_d_auth_phase1_requirements.md`. |
+| Catalog slice | **Member A** | ✅ Ownership assigned 2026-05-16. Product mock data already functional in `productController.js`. |
+| RFC-D001 approval (inventory cross-slice write) | **Member A** (catalog owner) | Member A must formally approve Member D's `PATCH /api/v1/inventory/:id` writing `Product.stock`. |
 
 ---
 
