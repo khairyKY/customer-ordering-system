@@ -12,5 +12,5 @@
 
 ### Edge Case 2: The Stale Cart Ghost (Concurrency)
 *   **Avatar Persona:** The Distracted Window-Shopper.
-*   **Scenario:** The customer adds the last available "Signature Espresso" to their cart, opens a new tab to check something, and leaves the checkout screen sitting there for 20 minutes. Meanwhile, someone else buys the last espresso. The customer returns and hits "Pay".
+*   **Scenario:** The customer adds the last available product to their cart, opens a new tab to check something, and leaves the checkout screen sitting there for 20 minutes. Meanwhile, someone else buys the last espresso. The customer returns and hits "Pay".
 *   **UI Requirement:** The UI cannot assume the cart is still valid. Upon hitting "Pay", if the backend throws a 409 Conflict or 400 Bad Request regarding inventory, the UI must intercept this error gracefully. Instead of crashing, it must trigger a specific modal informing the user the item sold out, and force a cart refresh.

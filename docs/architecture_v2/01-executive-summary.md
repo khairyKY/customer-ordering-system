@@ -47,4 +47,4 @@ The project satisfies the CSE323 academic rubric while simultaneously demonstrat
 | Member A | Checkout & Shopping Cart | Frontend (React), Backend (Express), Database (Prisma) |
 | Member B | Auth & User Management | Frontend, Backend, Database |
 | Member C | Product Catalog | Frontend, Backend, Database |
-| Member B + C | Order Management & Admin | Shared post-checkout responsibility |
+| Member D | Order Management & Admin | Shared post-checkout responsibility |
