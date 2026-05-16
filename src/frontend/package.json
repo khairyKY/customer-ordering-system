@@ -1,11 +1,13 @@
-﻿{
+{
   "name": "cos-frontend",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "axios": "^1.6.0"
+    "react-router-dom": "^6.26.2",
+    "axios": "^1.6.0",
+    "zustand": "^4.5.5"
   },
   "scripts": {
     "dev": "vite",
