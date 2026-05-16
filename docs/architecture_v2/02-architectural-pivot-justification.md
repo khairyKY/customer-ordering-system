@@ -55,7 +55,7 @@ Feature-Based Vertical Slicing decomposes the system along **business capability
 │   Auth &     │   Product    │  Checkout &  │   Order       │
 │   User Mgmt  │   Catalog    │  Shopping    │   Management  │
 │              │              │    Cart      │   & Admin     │
-│  (Member B)  │  (Member C)  │  (Member A)  │  (Member B+C) │
+│  (Member B)  │  (Member C)  │  (Member A)  │  (Member D) │
 ├──────────────┴──────────────┴──────────────┴───────────────┤
 │  React Frontend (each member owns their feature's UI)      │
 ├─────────────────────────────────────────────────────────────┤

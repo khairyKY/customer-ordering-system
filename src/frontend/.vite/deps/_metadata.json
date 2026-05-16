@@ -1,32 +1,38 @@
 {
-  "hash": "852de7b7",
-  "browserHash": "19157599",
+  "hash": "202d6e53",
+  "browserHash": "f23de87f",
   "optimized": {
     "axios": {
       "src": "../../node_modules/axios/index.js",
       "file": "axios.js",
-      "fileHash": "f8b9ebc5",
+      "fileHash": "b8b7246e",
+      "needsInterop": false
+    },
+    "framer-motion": {
+      "src": "../../node_modules/framer-motion/dist/es/index.mjs",
+      "file": "framer-motion.js",
+      "fileHash": "9d836bd0",
       "needsInterop": false
     },
     "react": {
       "src": "../../node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "eecc93bb",
+      "fileHash": "a55817ac",
       "needsInterop": true
     },
     "react-dom/client": {
       "src": "../../node_modules/react-dom/client.js",
       "file": "react-dom_client.js",
-      "fileHash": "a8053092",
+      "fileHash": "e306edee",
       "needsInterop": true
     }
   },
   "chunks": {
-    "chunk-GE3BAENF": {
-      "file": "chunk-GE3BAENF.js"
+    "chunk-UMBEC6V5": {
+      "file": "chunk-UMBEC6V5.js"
     },
-    "chunk-6TJCVOLN": {
-      "file": "chunk-6TJCVOLN.js"
+    "chunk-ROME4SDB": {
+      "file": "chunk-ROME4SDB.js"
     }
   }
 }
