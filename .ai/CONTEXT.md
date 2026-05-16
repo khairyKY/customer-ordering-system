@@ -1,5 +1,7 @@
 # SYSTEM CONTEXT: CSE323 Customer Ordering System (COS)
 
+**Current Focus:** Global UI Component Standardization (One-Shot Library Lockdown) and Phase 4 Test Infrastructure setup.
+
 ## 1. MANDATE: AI-NATIVE VERTICAL SLICING
 - **Architecture:** Feature-Based Vertical Slicing (Mandated by CSE322/323 Curriculum).
 - **Human Role:** Orchestrator (Architect & Reviewer).
