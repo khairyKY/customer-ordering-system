@@ -23,10 +23,10 @@
 | Slice | Owner | Status | Last Completed Task | Blockers |
 |---|---|---|---|---|
 | checkout | Member A | 🟢 Complete | Sprint 2 + Checkout Button | None |
-| auth | Member D | 🟡 In Progress | Phase 1 Complete (2026-05-13) — see `docs/requirements/member_d_auth_phase1_requirements.md` | None — JWT contract locked for consumers |
-| catalog | Member C | 🔴 Not Started | — | — |
+| auth | Member D | 🟢 Phase 4 Complete | Phase 4: Testing Pyramid + Playwright POM + Verification/Validation report — 16/16 tests green; coverage ≥ 91% on all auth modules; Python/FastAPI implementation in `src/backend_python/` | Frontend pages pending (next turn) |
+| catalog | Member C(?) | 🟡 In Progress | `feature/catalog-integration` branch active on origin | RFC-D001 unblocking depends on owner confirmation |
 | payment | Member B | 🟢 Phase 3 Complete | Phase 3: TDP Implementation | None |
-| orders | Member D | 🟡 In Progress | Phase 1 v2.1 + Phase 2 v2.1 (PDF-aligned + cross-slice integrated with Member A & B) | RFC-D001 (catalog write); awaiting Member B's `protectRoute` middleware (auth Phase 1 in progress) |
+| orders | Member D | 🟢 Phase 4 Complete | Phase 4: Testing Pyramid + Playwright POM + V&V report — 32/32 tests green; coverage ≥ 87% on services/routers; Python/FastAPI implementation in `src/backend_python/` | Frontend pages pending; `payment.success` webhook contract published, Member B can integrate; NFR-D4.b optimistic concurrency deferred |
 
 ## Sprint 1 Execution Log
 **Date:** 2026-05-10
@@ -147,11 +147,50 @@
 - Full document: `docs/requirements/member_d_phase2_design.md`
 
 ### Next 5 Tasks (Phase 3 — TDP: failing tests first)
-1. `test/orders-get-list` — paginated list + 401/403 guards.
-2. `test/orders-update-status` — valid transition + DELIVERED→PENDING regression (422).
-3. `test/orders-update-status-invalid` — `status:"HACKED"` returns 400.
-4. `test/inventory-update-stock` — valid, negative, decimal quantity guards.
-5. `test/orders-get-detail-not-found` — 404 on missing order.
+~~1. `test/orders-get-list` — paginated list + 401/403 guards.~~ ✅ Complete
+~~2. `test/orders-update-status` — valid transition + DELIVERED→PENDING regression (422).~~ ✅ Complete
+~~3. `test/orders-update-status-invalid` — `status:"HACKED"` returns 400.~~ ✅ Complete
+~~4. `test/inventory-update-stock` — valid, negative, decimal quantity guards.~~ ✅ Complete
+~~5. `test/orders-get-detail-not-found` — 404 on missing order.~~ ✅ Complete
+
+### Phase 3 — Node.js Attempt (SUPERSEDED 2026-05-15)
+~~Initial TDP attempt was Node.js / Express / Zod under `src/backend/features/orders/`. Discarded after team agreed Member D's slices ship as a Python/FastAPI sister service.~~ The Node folder was deleted; the failing-test discipline and padlock catalog from that attempt were carried forward into the Python rewrite.
+
+### Phase 3 — Python Implementation Complete (2026-05-15)
+- **Stack:** FastAPI + SQLAlchemy 2.0 + Pydantic v2 + python-jose + bcrypt + APScheduler
+- **Location:** `src/backend_python/` (sister service to Member A/B's Node backend; port 8000)
+- **JWT bridge:** HS256 + shared `JWT_SECRET` — both backends interoperable
+- **Tests:** 32 GREEN for orders + 16 GREEN for auth = **48 total**
+- **Padlocks (orders):** 3 layers — Pydantic schema (5) + service (3) + DB (3) — 11 mapped to verifying tests
+- **Padlocks (auth):**   4 layers — schema (4) + service (4) + DB (2) + crypto (4) — 14 mapped to verifying tests
+- **HR-8 closed in code** — `sweep_service.sweep_stale_pending()` checks `Payment.SUCCESS` before cancelling
+- **NFR-D5 closed in code** — `audit_log.idempotency_key UNIQUE` + `update_status()` short-circuit
+- **NFR-AU7 closed in code** — `InvalidCredentialsError` raised on both wrong-email and wrong-password paths; byte-identical test passes
+- **Phase 3 docs:** `docs/requirements/member_d_phase3_implementation.md` (orders) + `docs/requirements/member_d_auth_phase3_implementation.md` (auth)
+- **Phase 3 logbooks:** `docs/logbook/member_d_phase3_agile_logbook.md` + `docs/logbook/member_d_auth_phase3_agile_logbook.md`
+
+### Phase 4 — Validation & Pipeline Engineering Complete (2026-05-15)
+- **Testing Pyramid:**
+  - Orders: 22 unit / 16 integration / 3 planned E2E (Sprint 4.1 added 6 pure-function tests for `_decide`, `_calc_total_pages`, `_decorate`, `LOW_STOCK_THRESHOLD`)
+  - Auth:   12 unit / 12 integration / 2 planned E2E (Sprint A4.1 added 7 pure-function tests for `hash_password`, `verify_password`, `sign_token`, `verify_token`, `_extract_bearer`, role-gate hierarchy)
+- **Coverage gates:** `--cov-fail-under=80`. Achieved: services 87-91 %, routers 92-100 %, security 96 %
+- **Playwright POM:**
+  - Orders pages: `OrderListPage`, `OrderDetailPage`, `InventoryPage` + 7 specs covering Stories D-1..D-6
+  - Auth pages: `LoginPage`, `RegisterPage` + 5 specs covering Stories AU-1..AU-2 (lockout sequence + byte-identical generic error specs included)
+  - Specs use `data-testid` locators only — `test.skip()` markers until frontend ships next turn
+- **Verification report:** every FR-D/FR-AU has a passing test cited (Phase 4 doc §3.1)
+- **Validation report:** every Phase 1 Hidden Requirement (HR-1..HR-8 for orders; HR-AU1..HR-AU8 for auth) has a mitigating feature + test (Phase 4 doc §3.2)
+- **Known limitations honestly documented:**
+  - Orders: NFR-D4.b optimistic concurrency deferred; RFC-D001 still sandbox
+  - Auth: registration rate-limit (NFR-AU8) deferred to Redis-backed sprint; refresh tokens out of scope; audit-log DB persistence is follow-up sprint
+- **Phase 4 docs:** `docs/requirements/member_d_phase4_validation.md` + `docs/requirements/member_d_auth_phase4_validation.md`
+- **Phase 4 logbooks:** `docs/logbook/member_d_phase4_agile_logbook.md` + `docs/logbook/member_d_auth_phase4_agile_logbook.md`
+
+### Integration Notes for Teammates
+- **Run our service:** `cd src/backend_python && uvicorn app.main:app --port 8000` — Swagger UI at http://localhost:8000/docs
+- **JWT bridge:** Set `JWT_SECRET` to the SAME 32+ char value in Member B's `.env` to verify our tokens
+- **Payment events:** POST to `http://localhost:8000/api/v1/events/payment.success` with `{ order_id, payment_id, idempotency_key, amount, occurred_at }` — see Phase 2 §5.4
+- **Demo creds (after `python -m scripts.seed`):** `admin@example.com / admin123` and `alice@example.com / Sup3rPass!`
 
 ### Phase 1 v2.1 + Phase 2 v2.1 — Cross-Slice Integration Complete (2026-05-13)
 - Phases redone against authoritative `CSE323_Project_Overview.pdf`.
