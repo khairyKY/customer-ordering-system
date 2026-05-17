@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import { Button } from '../../../components/ui/Button';
+import { Card } from '../../../components/ui/Card';
+import { Input } from '../../../components/ui/Input';
+
 import { authApi } from '../api/authApi';
 
 export default function RegisterPage() {
@@ -10,16 +14,16 @@ export default function RegisterPage() {
     const [error, setError] = useState(null);
     const [submitting, setSubmitting] = useState(false);
 
-    async function onSubmit(e) {
-        e.preventDefault();
+    async function submit(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        if (submitting) return;
         setError(null);
         setSubmitting(true);
         try {
             await authApi.register({ email, password });
-            navigate('/login', { state: { justRegistered: true } });
+            navigate('/admin/login', { state: { justRegistered: true } });
         } catch (err) {
             const detail = err.response?.data?.detail || err.response?.data;
-            // Pydantic validation errors come back as 422 with a `detail` array
             if (err.response?.status === 422 && Array.isArray(detail)) {
                 setError(detail.map((d) => `${d.loc.slice(-1)[0]}: ${d.msg}`).join(' · '));
             } else if (err.response?.status === 409) {
@@ -33,47 +37,59 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="auth-card">
-            <h1>Create Account</h1>
-            <form onSubmit={onSubmit} data-testid="register-form">
-                <label>
-                    Email
-                    <input
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+            <Card className="w-full max-w-md">
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Create Account</h1>
+
+                <form onSubmit={submit} className="flex flex-col gap-4" data-testid="register-form">
+                    <Input
+                        label="Email"
                         type="email"
-                        required
                         autoComplete="email"
+                        required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         data-testid="register-email"
                     />
-                </label>
-                <label>
-                    Password <span className="hint">(min 8 chars)</span>
-                    <input
+                    <Input
+                        label="Password (min 8 chars)"
                         type="password"
+                        autoComplete="new-password"
                         required
                         minLength={8}
-                        autoComplete="new-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         data-testid="register-password"
                     />
-                </label>
 
-                {error && (
-                    <div className="error" data-testid="register-error">
-                        {error}
-                    </div>
-                )}
+                    {error && (
+                        <div
+                            className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2"
+                            data-testid="register-error"
+                        >
+                            {error}
+                        </div>
+                    )}
 
-                <button type="submit" disabled={submitting} data-testid="register-submit">
-                    {submitting ? 'Creating…' : 'Create account'}
-                </button>
-            </form>
+                    <Button
+                        variant="primary"
+                        disabled={submitting}
+                        onClick={submit}
+                        className="mt-2 w-full"
+                    >
+                        <span data-testid="register-submit">
+                            {submitting ? 'Creating…' : 'Create account'}
+                        </span>
+                    </Button>
+                </form>
 
-            <p className="auth-card__link">
-                Already registered? <Link to="/login">Sign in</Link>
-            </p>
+                <p className="text-center mt-6 text-sm text-gray-600">
+                    Already registered?{' '}
+                    <Link to="/admin/login" className="text-blue-600 hover:underline font-medium">
+                        Sign in
+                    </Link>
+                </p>
+            </Card>
         </div>
     );
 }
