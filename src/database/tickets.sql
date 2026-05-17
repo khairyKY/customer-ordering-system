@@ -1,0 +1,8 @@
+-- Placeholder for Ticket System schema
+-- CREATE TABLE IF NOT EXISTS tickets (
+--     id TEXT PRIMARY KEY,
+--     title TEXT NOT NULL,
+--     description TEXT,
+--     status TEXT DEFAULT 'OPEN',
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );

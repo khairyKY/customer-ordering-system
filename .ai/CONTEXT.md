@@ -35,6 +35,7 @@
 | auth | **Member D** | 🟡 In Progress | Phase 1 Complete (2026-05-13) — see `docs/requirements/member_d_auth_phase1_requirements.md` | None — JWT contract locked for consumers. **Auth is EXCLUSIVELY owned by Member D. Member C owns Tickets only.** |
 | catalog | **Member A** | 🟡 In Progress | Ownership transferred 2026-05-16 — product mock data already served by `productController.js` | RFC-D001 (catalog stock write by Member D) requires Member A approval |
 | payment | Member B | 🟢 Phase 3 Complete | Phase 3: TDP Implementation | None |
+| tickets | Member C | 🟢 Phase 3 Complete | Phase 3: Create Ticket with AI Priority — 10/10 tests passing | None |
 | orders | Member D | 🟢 Phase 4 Complete | Phase 4: Testing Pyramid + Playwright POM + V&V report — 32/32 tests green; coverage ≥ 87% on services/routers; Python/FastAPI implementation in `src/backend_python/` | Frontend pages pending; `payment.success` webhook contract published, Member B can integrate; NFR-D4.b optimistic concurrency deferred |
 
 ## Sprint 1 Execution Log
@@ -272,3 +273,57 @@ All branches MUST follow this naming scheme. PRs with non-compliant branch names
 3. **Rebase before merge** — no merge commits on `develop`.
 4. **Feature branches are short-lived** — must merge or be abandoned within 5 working days.
 5. **One concern per branch** — a `feat/` branch must not contain doc-only changes; use a separate `chore/` or `docs/` branch.
+
+---
+
+## Ticket System Execution Log (Member C)
+**Date:** 2026-05-11
+**Status:** Phase 1, 2, and 3 Complete (Vertical Slice)
+
+### WHAT WAS BUILT:
+- Full vertical slice for the Ticket System feature (Phase 1, 2, and 3)
+- POST /api/v1/tickets endpoint with validation, sanitization, deduplication, AI priority, and fallback logic
+
+### TEST CASES NOW PASSING:
+- [x] **TC-01:** Create ticket happy path — 201 Created with correct response shape
+- [x] **TC-02:** AI priority mapping — all 4 bands (CRITICAL, HIGH, MEDIUM, LOW)
+- [x] **TC-06 (EC-1):** XSS and SQL injection sanitization — script tags stripped, table not dropped
+- [x] **TC-07 (EC-2):** Duplicate submission — 201 then 409, HuggingFace called once
+- [x] **TC-08 (EC-3):** HuggingFace timeout — 201 with priority MEDIUM and sentimentSource "fallback"
+- [x] **TC-09 (EC-4):** Extreme payload — 422 before HuggingFace is called
+- [x] **TC-10 (EC-5):** NaN and null score — 201 with priority MEDIUM and sentimentSource "score_invalid"
+- **Total:** 10 passed, 10 total across 2 test suites
+
+### FILES CREATED OR MODIFIED:
+- `src/backend/features/tickets/ticket.validators.js`
+- `src/backend/features/tickets/ticket.service.js`
+- `src/backend/features/tickets/ticket.controller.js`
+- `src/backend/features/tickets/ticket.routes.js`
+- `src/backend/features/tickets/__tests__/ticket.integration.test.js`
+- `src/backend/features/tickets/__tests__/ticket.edge.test.js`
+- `src/database/tickets.sql`
+- `src/frontend/src/features/tickets/hooks/useTickets.js`
+- `src/frontend/src/features/tickets/store/ticketStore.js`
+- `src/frontend/src/features/tickets/types/ticket.types.js`
+
+### KEY DECISIONS MADE:
+- **Field Names:** `subject` and `body` (not title and description)
+- **Priority ENUM:** `CRITICAL`, `HIGH`, `MEDIUM`, `LOW` (not URGENT)
+- **Status ENUM:** `OPEN`, `IN_PROGRESS`, `RESOLVED` (not CLOSED)
+- **sentimentSource values:** `"hf_model"`, `"fallback"`, `"score_invalid"`, `"low_content"`
+- **Timeout:** `AbortController` timeout set to 5000ms per Phase 1 EC-3 definition
+- **Deduplication:** Hash = SHA-256(userId + subject + body), 600-second window
+- **Validation:** `body` max 2000 chars, `subject` max 120 chars, enforced before any external API call
+- **Resilience:** HuggingFace fallback always returns `MEDIUM` — ticket is always persisted (201 never blocked by AI failure)
+- **Storage:** In-memory storage used for Phase 3 — Prisma/PostgreSQL to be wired in Phase 4
+- **Auth:** `mockAuthGuard` used in tests pending Member D confirming JWT payload structure
+
+### WHAT REMAINS TO BE DONE:
+1. **TC-03:** `GET /api/v1/tickets` — customer views own tickets (JWT-scoped, paginated)
+2. **TC-04:** `GET /api/v1/tickets/triage` — agent triage queue (role-gated, priority sorted)
+3. **TC-05:** `PATCH /api/v1/tickets/:id/status` — status state machine
+4. **Data Persistence:** Replace in-memory storage with Prisma + PostgreSQL
+5. **Security:** Replace `mockAuthGuard` with real JWT middleware from Member D
+6. **Frontend:** `TicketForm.jsx` and `TicketList.jsx` implementation
+7. **Phase 4:** Test pyramid report, Playwright E2E scripts, Verification vs Validation statement
+
