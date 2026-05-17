@@ -1,4 +1,4 @@
-# SYSTEM CONTEXT: CSE323 Customer Ordering System (COS)
+﻿# SYSTEM CONTEXT: CSE323 Customer Ordering System (COS)
 
 **Current Focus:** Global UI Component Standardization (One-Shot Library Lockdown) and Phase 4 Test Infrastructure setup.
 
@@ -22,21 +22,34 @@
 
 ## 3. FEATURE OWNERSHIP (Updated 2026-05-13)
 - **Member A (Khairy):** Checkout & Shopping Cart System.
+<<<<<<< HEAD
 - **Member B:** Payment.
 - **Member C:** Tickets / Support System.
 - **Member D:** Admin & Order Fulfillment + **Auth & User Management** (two slices).
 - **Catalog:** **Member A** (Khairy) — reassigned 2026-05-16 per Scrum Master executive decision. Scope: product browsing, search, and stock-read endpoints consumed by the Checkout slice.
+=======
+- **Member B:** Payment Features.
+- **Member C:** Product Catalog.
+- **Member D:** Admin & Order Fulfillment + Auth & User Management.
+>>>>>>> 71fd622 (/.ai/Context.md)
 
 ## 4. FEATURE SLICE STATUS
 
 | Slice | Owner | Status | Last Completed Task | Blockers |
 |---|---|---|---|---|
 | checkout | Member A | 🟢 Complete | Sprint 2 + Checkout Button | None |
+<<<<<<< HEAD
 | auth | **Member D** | 🟡 In Progress | Phase 1 Complete (2026-05-13) — see `docs/requirements/member_d_auth_phase1_requirements.md` | None — JWT contract locked for consumers. **Auth is EXCLUSIVELY owned by Member D. Member C owns Tickets only.** |
 | catalog | **Member A** | 🟡 In Progress | Ownership transferred 2026-05-16 — product mock data already served by `productController.js` | RFC-D001 (catalog stock write by Member D) requires Member A approval |
-| payment | Member B | 🟢 Phase 3 Complete | Phase 3: TDP Implementation | None |
+| payment | Member B | 🟢 Phase 4 Complete | Phase 4: Pyramid Engineering 70/20/10 Ratio & Validation Docs | None |
 | tickets | Member C | 🟢 Phase 3 Complete | Phase 3: Create Ticket with AI Priority — 10/10 tests passing | None |
 | orders | Member D | 🟢 Phase 4 Complete | Phase 4: Testing Pyramid + Playwright POM + V&V report — 32/32 tests green; coverage ≥ 87% on services/routers; Python/FastAPI implementation in `src/backend_python/` | Frontend pages pending; `payment.success` webhook contract published, Member B can integrate; NFR-D4.b optimistic concurrency deferred |
+=======
+| auth | Member D | 🟡 In Progress | Phase 1 Complete (2026-05-13) — see `docs/requirements/member_d_auth_phase1_requirements.md` | None — JWT contract locked for consumers |
+| catalog | Member C | 🔴 Not Started | — | — |
+| payment | Member B | 🟢 Phase 4 Complete | Pyramid Engineering: 70/20/10 Ratio & Validation Docs | None |
+| orders | Member D | 🟡 In Progress | Phase 1 v2.1 + Phase 2 v2.1 (PDF-aligned + cross-slice integrated with Member A & B) | RFC-D001 (catalog write); awaiting Auth slice implementation (Member D) |
+>>>>>>> 71fd622 (/.ai/Context.md)
 
 ## Sprint 1 Execution Log
 **Date:** 2026-05-10
@@ -62,7 +75,7 @@
 - [x] Database mock schema defined.
 - [x] Frontend can fetch and display empty cart state.
 - [x] "Add Item" button triggers backend calculation and UI refresh.
-- [x] Tax calculation (8%) verified in controller logic.
+- [x] Tax calculation (10%) verified in controller logic.
 
 ## Sprint 2 Execution Log
 **Date:** 2026-05-10
@@ -119,11 +132,74 @@ All team members **MUST** use these library components for common UI elements. *
 **Date:** 2026-05-10
 **Status:** Complete & Verified
 
+<<<<<<< HEAD
 ### Audit Summary:
 - **`App.jsx`:** Refactored layout to use semantic tags and standardized Tailwind typography. Layout enforced as side-by-side Flex/Grid.
 - **`ProductGrid.jsx`:** 100% compliance. All raw buttons and divs replaced with `<Button>` and `<Card>`.
 - **`CartWidget.jsx`:** 100% compliance. Replaced the last remaining raw "X" button with a library `<Button>` component.
 - **Verification:** Global search confirms zero instances of raw `<button>` or `<input>` tags in the `src/components/` and `src/App.jsx` files.
+=======
+### Slice Boundaries
+- **Backend:** `src/backend/features/orders/`
+- **Frontend:** `src/frontend/src/features/orders/`
+- **Database:** Migrations scoped to `orders` table (coordinate schema with Member A)
+- **Slice Token:** `orders`
+
+### API Contract (Planned — Not Yet Implemented)
+| Method | Endpoint | Description | Status |
+|---|---|---|---|
+| GET | `/api/orders` | Paginated admin order list | ❌ Not Started |
+| GET | `/api/orders/:id` | Single order detail | ❌ Not Started |
+| PATCH | `/api/orders/:id/status` | Update fulfillment status | ❌ Not Started |
+| GET | `/api/inventory` | Product stock list | ❌ Not Started |
+| PATCH | `/api/inventory/:id` | Update product stock quantity | ❌ Not Started |
+
+### Actors Defined
+- **Admin** — Primary actor. JWT with `role === "admin"` claim required on all endpoints.
+- **System** — Consumes `orders` + `order_items` records created by Member A's `placeOrder` transaction.
+- **Customer** — Out-of-scope boundary actor.
+
+### Phase 1 Deliverables
+- 5 user stories written in Gherkin (D-1 through D-5).
+- Ambiguity audit complete — all vague terms replaced with measurable constraints.
+- 7 negative acceptance test scenarios identified (NEG-1 through NEG-7).
+- Full requirements document: `docs/requirements/member_d_phase1_requirements.md`
+
+### Key Design Constraints
+- "Low-stock" threshold: `stock_quantity < 5`
+- Tax rate: 10% (consistent with Member A's cart logic)
+- Status transition guard: `DELIVERED` → `PENDING` is an illegal regression (HTTP 422)
+- All admin endpoints require `Authorization: Bearer <token>` with `role === "admin"`
+- UI updates must reflect within 500ms of API response (React Query cache invalidation)
+
+### Blockers
+- **RFC-D001** — `PATCH /api/v1/inventory/:id` writes `Product.stock` (Member C's domain). Needs written approval from Member C before implementation.
+- **Auth middleware** — Auth slice (Member D). Until then, our routes mount a mock `x-mock-role` guard.
+- ~~Tax rate ambiguity~~ — **CLOSED 2026-05-13**. 10% confirmed as Global Mandate per Member B Phase 1 Log L181.
+
+### Phase 2 Deliverables (Complete)
+- Refined Gherkin for all 5 stories (D-1 through D-5) with schema-accurate field names.
+- System Sequence Diagrams for all 5 endpoints (happy paths + guard paths).
+- OrderStatus transition machine — 7×7 valid/invalid matrix.
+- Zod schemas: `updateOrderStatusSchema`, `orderListQuerySchema`, `updateStockSchema`.
+- Formal API contract with error codes.
+- Full document: `docs/requirements/member_d_phase2_design.md`
+
+### Next 5 Tasks (Phase 3 — TDP: failing tests first)
+1. `test/orders-get-list` — paginated list + 401/403 guards.
+2. `test/orders-update-status` — valid transition + DELIVERED→PENDING regression (422).
+3. `test/orders-update-status-invalid` — `status:"HACKED"` returns 400.
+4. `test/inventory-update-stock` — valid, negative, decimal quantity guards.
+5. `test/orders-get-detail-not-found` — 404 on missing order.
+
+### Phase 1 v2.1 + Phase 2 v2.1 — Cross-Slice Integration Complete (2026-05-13)
+- Phases redone against authoritative `CSE323_Project_Overview.pdf`.
+- v1 docs archived as `*_v1.md` with deprecation banners.
+- Sprint 1.4 (Phase 1 logbook) + Sprint 2.5 (Phase 2 logbook) added — integrate Member A's checkout artifacts and Member B's payment+auth slice publications.
+- New requirements absorbed: FR-D6 (15-min stale-pending auto-cancel per Member B REQ_EC_5), FR-D6.b (sweep checks Payment.SUCCESS first), NFR-D5 (idempotent advancement), HR-8 (paid-but-cancelled cross-slice failure mode).
+- New cross-slice contracts: Story D-6 Gherkin, SSD-D6 cron flow, §3.1 Initiator dimension on transition matrix, §5.4 `payment.success` Event Contract.
+- Cross-Slice Coordination Map locked down in Phase 1 §1.4.
+>>>>>>> 71fd622 (/.ai/Context.md)
 
 ---
 
@@ -155,31 +231,58 @@ The following Edge Case Requirements (REQ_EC) were discovered using an adversari
 - **Tax Rate:** 10% (Global mandate)
 - **Currency:** USD (Fixed)
 - **Gateway Timeout:** 30 seconds
-- **Session Expiry:** 24 hours (Inherited from Auth slice)
+- **Session Expiry:** 24 hours
+
+---
+
+## Member B — Payment Features: Phase 2 Log
+**Date:** 2026-05-13
+**Status:** Phase 2 Complete — Design, UML & API Contracts
+
+### Phase 2 Deliverables: Architectural Integrity
+Completed the formal design phase using Information Hiding principles and UML modeling:
+
+1. **Gherkin Scenarios:** Defined 3 key features (Credit Card Processing, Promo Edge Cases, Tax Compliance) with Scenario Outlines for various card states (valid, expired, stolen).
+2. **System Sequence Diagrams (SSDs):** 
+   - **Happy Path:** End-to-end flow from JWT validation to Stripe capture and atomic DB commit.
+   - **Failure Path:** Modeled the "Double-Click Blitz" guard using Redis-style idempotency locks (`SETNX`).
+3. **Activity Diagram:** Mapped the full execution pipeline including the 10% tax engine and negative subtotal floor.
+4. **API Contract:** Finalized the `POST /api/payments` specification, ensuring internal logic (tax, gateway details) is encapsulated and hidden from consumers.
+
+### Key Padlocks (Design)
+- **Information Hiding:** Internal gateway responses and database IDs are sanitized before returning to the client.
+- **State Guard:** Status transition `PENDING` → `SUCCEEDED` is atomic and verified.
 
 ---
 
 ## Member B — Payment Features: Phase 3 Log
-**Date:** 2026-05-12
-**Status:** Phase 3 Complete — TDP Vertical Slice
+**Date:** 2026-05-14 (Updated 2026-05-17)
+**Status:** Phase 3 Complete — Python Refactor Complete
 
-### API Contract (Implemented)
+### Backend Refactor (Migration to Python)
+As per TA requirements, the payment backend and unit tests have been migrated from Node.js/JavaScript to Python/FastAPI.
+
+### API Contract (Python Implementation)
 | Method | Endpoint | Description | Request Body | Response |
 |---|---|---|---|---|
 | POST | `/api/payment/process` | Atomic payment execution | `{ amount, promoCode, idempotencyKey, cartTotal }` | `{ status: 'SUCCESS', total }` |
 
-### Prisma Models Added
-- **Payment:** Stores transaction logs, tax, discount, and idempotency key.      
-- **PromoCode:** Stores validation logic, usage limits, and counts.
+### Python Files Added (src/backend/features/payment/)
+- `payment_logic.py`: Core mathematical engine (10% tax, promo floor).
+- `payment_schema.py`: Pydantic models with REQ_EC padlocks.
+- `payment_controller.py`: Business orchestration and idempotency management.
+- `payment_route.py`: FastAPI router with mock auth dependency.
+- `test_payment.py`: Pytest suite (100% pass rate).
 
-### Key Padlocks (payment.schema.js)
-- **Amount Padlock:** `z.number().positive().multipleOf(0.01)`
-- **Idempotency Padlock:** `z.string().uuid()`
-- **Logic Floor:** `Math.max(0, subtotal - discount)` enforced in `payment.logic.js`.
+### Key Padlocks (Python)
+- **Amount Padlock:** `Field(..., gt=0)` + 2-decimal precision validator.
+- **Idempotency Padlock:** `uuid.UUID` validation.
+- **Logic Floor:** `max(0.0, subtotal - discount)` enforced in `payment_logic.py`.
 
 ### UI Integration
-- **Zustand Store:** `usePaymentStore.js` manages client-side idempotency key and loading states.
-- **Component:** `PaymentForm.jsx` implements double-click prevention and live calculation.
+- **Zustand Store:** `usePaymentStore.js` remains unchanged, successfully communicating with the Python backend endpoints.
+- **Component:** `PaymentForm.jsx` remains unchanged.
+
 
 ---
 
@@ -327,3 +430,43 @@ All branches MUST follow this naming scheme. PRs with non-compliant branch names
 6. **Frontend:** `TicketForm.jsx` and `TicketList.jsx` implementation
 7. **Phase 4:** Test pyramid report, Playwright E2E scripts, Verification vs Validation statement
 
+---
+
+## Member B — Payment Features: Phase 3 Localized Audit
+**Date:** 2026-05-15
+**Status:** 🟢 **PHASE 3 COMPLIANT**
+
+### Audit Summary:
+1. **Failing Test First:** `payment.test.js` is fully functional. It successfully imports `processPayment` and `calculateTotal`. All mathematical boundaries (10% tax, negative block, $0.00 floor) are verified.
+2. **Edge Case Cage (Padlocks):** `payment.schema.js` uses Zod to enforce:
+   - `amount`: Must be positive (`REQ_EC_1`).
+   - `idempotencyKey`: Must be a valid UUID (`REQ_EC_2`).
+   - `promoCode`: Alphanumeric only, max 20 chars (`REQ_EC_4`).
+3. **Vertical Slicing:** The Payment slice is fully isolated within `src/backend/features/payment/` and `src/frontend/src/features/payment/`.
+4. **TDP Verification:** Implementation in `payment.logic.js` and `payment.controller.js` directly matches the test suite requirements.
+
+### Technical Improvements:
+- [x] Test suite decoupled from Express request objects for direct unit testing.
+- [x] In-memory mock storage implemented in controller to verify idempotency logic.
+- [x] All missing function exports (`validatePaymentInput`) restored to logic layer.
+
+---
+
+## Member B — Payment Features: Phase 4 Completion
+**Date:** 2026-05-15
+**Status:** 🟢 **PHASE 4 COMPLETE**
+
+### Phase 4 Deliverables:
+1. **Testing Pyramid (70/20/10):**
+   - **Unit (14 tests):** Full coverage for tax precision, promo floors, and schema padlocks in `payment.test.js`.
+   - **Integration (3 tests):** Schema-to-Logic flow verified in `payment.integration.test.js`.
+   - **E2E (3 tests):** Success, Duplicate, and Error paths verified with Playwright in `payment.spec.js`.
+2. **Playwright POM Architecture:**
+   - Implemented `PaymentPage` POM in `tests/e2e/pages/`.
+   - Mapped Gherkin scenarios to `payment.spec.js`.
+3. **Verification vs Validation:**
+   - Authored `docs/payment/verification_validation.md` explaining technical correctness vs. business value.
+4. **Pipeline Engineering:**
+   - Standardized test organization for CI readiness.
+5. **Traceability:**
+   - Confirmed 0 orphaned requirements; every REQ_EC is traced to a unit and E2E test.
