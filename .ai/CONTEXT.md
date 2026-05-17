@@ -256,26 +256,32 @@ Completed the formal design phase using Information Hiding principles and UML mo
 ---
 
 ## Member B — Payment Features: Phase 3 Log
-**Date:** 2026-05-14
-**Status:** Phase 3 Complete — TDP Vertical Slice
+**Date:** 2026-05-14 (Updated 2026-05-17)
+**Status:** Phase 3 Complete — Python Refactor Complete
 
-### API Contract (Implemented)
+### Backend Refactor (Migration to Python)
+As per TA requirements, the payment backend and unit tests have been migrated from Node.js/JavaScript to Python/FastAPI.
+
+### API Contract (Python Implementation)
 | Method | Endpoint | Description | Request Body | Response |
 |---|---|---|---|---|
 | POST | `/api/payment/process` | Atomic payment execution | `{ amount, promoCode, idempotencyKey, cartTotal }` | `{ status: 'SUCCESS', total }` |
 
-### Prisma Models Added
-- **Payment:** Stores transaction logs, tax, discount, and idempotency key.      
-- **PromoCode:** Stores validation logic, usage limits, and counts.
+### Python Files Added (src/backend/features/payment/)
+- `payment_logic.py`: Core mathematical engine (10% tax, promo floor).
+- `payment_schema.py`: Pydantic models with REQ_EC padlocks.
+- `payment_controller.py`: Business orchestration and idempotency management.
+- `payment_route.py`: FastAPI router with mock auth dependency.
+- `test_payment.py`: Pytest suite (100% pass rate).
 
-### Key Padlocks (payment.schema.js)
-- **Amount Padlock:** `z.number().positive().multipleOf(0.01)`
-- **Idempotency Padlock:** `z.string().uuid()`
-- **Logic Floor:** `Math.max(0, subtotal - discount)` enforced in `payment.logic.js`.
+### Key Padlocks (Python)
+- **Amount Padlock:** `Field(..., gt=0)` + 2-decimal precision validator.
+- **Idempotency Padlock:** `uuid.UUID` validation.
+- **Logic Floor:** `max(0.0, subtotal - discount)` enforced in `payment_logic.py`.
 
 ### UI Integration
-- **Zustand Store:** `usePaymentStore.js` manages client-side idempotency key and loading states.
-- **Component:** `PaymentForm.jsx` implements double-click prevention and live calculation.
+- **Zustand Store:** `usePaymentStore.js` remains unchanged, successfully communicating with the Python backend endpoints.
+- **Component:** `PaymentForm.jsx` remains unchanged.
 
 
 ---
