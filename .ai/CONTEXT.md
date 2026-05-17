@@ -272,3 +272,63 @@ All branches MUST follow this naming scheme. PRs with non-compliant branch names
 3. **Rebase before merge** — no merge commits on `develop`.
 4. **Feature branches are short-lived** — must merge or be abandoned within 5 working days.
 5. **One concern per branch** — a `feat/` branch must not contain doc-only changes; use a separate `chore/` or `docs/` branch.
+
+## Dev-Cosmic Integration Update
+**Date:** 2026-05-17
+**Status:** UI Restored & Visual Overhaul Complete
+
+### Technical Fixes:
+- **`App.jsx`:** Resolved syntax error in `handleCartUpdate` and mounted `CosmicCanvas` background.
+- **`ProductGrid.jsx` & `CartWidget.jsx`:** Corrected imports to handle `export default` from the new UI library. Mapped props to match `LiquidCard` and `NeonButton` specifications.
+- **UI Lockdown:** Verified that all feature components now consume the `Dev-Cosmic` library.
+
+### Visual State:
+- Animated starfield is active.
+- Product cards use liquid-glass refraction.
+- Terminal-style cart is integrated with neon accents.
+
+## UI Recovery & Encoding Audit
+**Date:** 2026-05-17
+**Status:** Recovery Complete
+
+### Changes:
+- **Encoding Fix:** Rewrote all React components using `write_file` to eliminate potential shell-redirection character artifacts.
+- **Redundancy removal:** Temporarily removed `CosmicCanvas` and complex `framer-motion` logic to verify basic React rendering.
+- **Debug Mounting:** Added a high-visibility red `DEBUG::REACT_MOUNTED_SUCCESSFULLY` banner to the top of the app.
+- **Defensive State:** Initialized `cart` state in `App.jsx` with a valid object instead of `null` to prevent immediate property access crashes.
+
+### Result:**
+The app should now be visible at localhost:5173. If the red banner is visible, the React tree is mounting correctly.
+
+## Phase 4 — Dev-Cosmic Page Layout Integration
+**Date:** 2026-05-17
+**Branch:** `feat/wire-cosmic-pages`
+**Status:** ✅ Complete — Dev-Cosmic UI library fully wired into functional Page Layouts (Catalog, Cart, Checkout) on branch feat/wire-cosmic-pages.
+
+### Pages Assembled:
+| Page | Component | Description |
+|---|---|---|
+| Storefront / Catalog | `StorefrontPage.jsx` | Hero Banner (RTX 5090 promo) + Featured Categories Grid + TerminalInput search + LiquidCard product grid connected to `fetchProducts` + `addToCart` |
+| Cart & Checkout | `CartPage.jsx` | Terminal-style cart table with TerminalInput qty inputs + NeonButton `[ × ]` removes + Order Summary sidebar + NeonButton `[ PROCEED TO CHECKOUT ]` connected to `fetchCart`, `updateCartItem`, `removeCartItem` |
+
+### Shared Chrome (new):
+| Component | File | Purpose |
+|---|---|---|
+| TopNavBar | `components/TopNavBar.jsx` | Fixed 56px nav bar — wordmark, nav links, Cart badge, Sign In button |
+| StatusBar | `components/StatusBar.jsx` | Fixed 24px footer strip — STORE_ONLINE status, GLOBAL_PRIORITY label |
+
+### Root Layout (`App.jsx`):
+- CosmicCanvas (layer 0, `position: fixed`, z-index: 0) rendered behind all UI.
+- Stateful view router: `'storefront'` ↔ `'cart'` (no react-router dependency).
+- Cart state lifted to App and threaded down to both pages.
+
+### Backwards Compatibility:
+- `ProductGrid.jsx` and `CartWidget.jsx` converted to thin re-export shims — existing Playwright tests and imports continue to resolve without modification.
+
+### Business Logic Preserved (Unmodified API Hooks):
+- `src/frontend/src/api/productApi.js` — `fetchProducts()`
+- `src/frontend/src/api/cartApi.js` — `fetchCart()`, `addToCart()`, `updateCartItem()`, `removeCartItem()`
+
+### Ready for:
+- [ ] Local browser test: `npm run dev` in `src/frontend/`
+- [ ] Phase 4 Playwright E2E suite: `src/frontend/e2e/cart-flow.spec.js`

@@ -1,21 +1,34 @@
-import React from 'react';
+// ============================================================
+// NeonButton — Dev-Cosmic Terminal-Style Button
+// ============================================================
 
-const NeonButton = ({ children, onClick, variant = 'primary', disabled = false, fullWidth = false, className = '' }) => {
-  const styles = {
-    primary: 'border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black',
-    secondary: 'border border-gray-600 text-gray-400 hover:bg-gray-600 hover:text-white',
-    danger: 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white'
-  };
+const VARIANT_CLASSES = {
+  primary:     'btn-neon-primary',
+  secondary:   'btn-neon-secondary',
+  destructive: 'btn-neon-destructive',
+};
+
+export default function NeonButton({
+  variant   = 'primary',
+  className = '',
+  fullWidth = false,
+  disabled  = false,
+  type      = 'button',
+  onClick,
+  children,
+  ...rest
+}) {
+  const base = VARIANT_CLASSES[variant] || VARIANT_CLASSES.primary;
 
   return (
     <button
-      onClick={onClick}
+      type={type}
       disabled={disabled}
-      className={`px-4 py-2 font-mono uppercase font-bold transition-all ${styles[variant]} ${fullWidth ? 'w-full' : ''} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
+      onClick={onClick}
+      className={[base, fullWidth ? 'w-full' : '', className].filter(Boolean).join(' ')}
+      {...rest}
     >
       {children}
     </button>
   );
-};
-
-export default NeonButton;
+}
