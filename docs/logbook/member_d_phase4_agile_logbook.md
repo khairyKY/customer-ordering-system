@@ -3,7 +3,7 @@
 
 **Owner:** Member D
 **Phase:** 4 — Validation & Pipeline Engineering
-**Stack:** pytest + Playwright (POM)
+**Stack:** pytest + playwright-python + pytest-playwright (POM)
 **Curriculum:** `CSE323_Project_Overview.pdf`
 **Sprints:** 3 (Testing Pyramid → Playwright POM → Verification vs Validation)
 
@@ -77,7 +77,7 @@ src/backend_python/
 Every FR-D1..FR-D6 represented by at least one E2E spec.
 
 ### 2. Non-Functional Requirements Addressed
-- **NFR-D1** (UI < 500 ms p95) — Playwright `expect(...).toBeVisible({ timeout: 500 })` enforces it
+- **NFR-D1** (UI < 500 ms p95) — `expect(locator).to_be_visible(timeout=500)` enforces it
 - **NFR-D2** (admin JWT required) — POM beforeEach hook seeds the Bearer token
 
 ### 3. Golden Prompts Used
@@ -86,25 +86,26 @@ Every FR-D1..FR-D6 represented by at least one E2E spec.
 PROMPT 4.2.a — POM Class Design
 ─────────────────────────────────
 For each major page in the admin UI (Order List, Order Detail, Inventory),
-write a TypeScript class that:
-  1. Holds locators as readonly fields (data-testid only — no CSS selectors)
-  2. Exposes high-level actions (goto, filterByStatus, changeStatusTo)
-  3. Exposes high-level assertions (expectRowCount, expectStatus)
+write a Python class that:
+  1. Holds locators as instance attributes (data-testid only — no CSS selectors)
+  2. Exposes high-level actions (goto, filter_by_status, change_status_to)
+  3. Exposes high-level assertions (expect_row_count, expect_status)
   4. Avoids any test logic — pure UI surface
 
-The class is consumed by Playwright spec files. Spec files contain test
-intent only — POM contains UI mechanics.
+The class is consumed by pytest-playwright spec modules. Spec files contain
+test intent only — POM contains UI mechanics. Use playwright.sync_api.
 ```
 
 ```
-PROMPT 4.2.b — Spec File for Each Gherkin Scenario
+PROMPT 4.2.b — Spec Module for Each Gherkin Scenario
 ─────────────────────────────────
-For each Phase 2 Gherkin scenario (Stories D-1..D-6), produce a Playwright
-test() in the appropriate spec file. The test() body should:
+For each Phase 2 Gherkin scenario (Stories D-1..D-6), produce a pytest
+function `test_<scenario>()` in the appropriate spec module. The function body
+should:
   1. Use POM methods (no raw locators)
   2. Mirror the Given/When/Then structure with comments
-  3. Reference the originating Gherkin scenario ID (e.g. "Story D-1")
-  4. Skip with reason if a frontend element doesn't exist yet
+  3. Reference the originating Gherkin scenario ID (e.g. "Story D-1") in the docstring
+  4. Use `pytest.mark.skip(reason=...)` if a frontend element doesn't exist yet
 ```
 
 ### 4. Audits
@@ -114,24 +115,26 @@ test() in the appropriate spec file. The test() body should:
 | 1 POM class per major page | ✅ OrderListPage, OrderDetailPage, InventoryPage |
 | Locators use `data-testid` (no CSS classes) | ✅ |
 | Spec files contain test intent only, no raw locators | ✅ |
-| Every Gherkin scenario has a Playwright `test()` | ✅ 7 specs cover 7 scenarios |
+| Every Gherkin scenario has a `test_<name>()` function | ✅ 7 specs cover 7 scenarios |
 | beforeEach hook seeds admin JWT | ✅ shared across all specs |
 | Specs marked `test.skip()` with reason if UI missing | ✅ pending frontend turn |
 
 ### 5. Folder Structure (Sprint 4.2 End)
 
 ```
-src/frontend/tests/playwright/
-├── playwright.config.ts             [base URL = http://localhost:5173]
+src/backend_python/tests/playwright/
+├── conftest.py                      [base URL + admin JWT seed fixture]
 ├── pages/
-│   ├── BasePage.ts                  [admin JWT seed helper]
-│   ├── OrderListPage.ts
-│   ├── OrderDetailPage.ts
-│   └── InventoryPage.ts
+│   ├── __init__.py
+│   ├── base_page.py
+│   ├── order_list_page.py
+│   ├── order_detail_page.py
+│   └── inventory_page.py
 └── specs/
-    ├── orders-list.spec.ts          [Story D-1 × 2 scenarios]
-    ├── orders-status.spec.ts        [Story D-2 × 2 + D-3 × 1]
-    └── inventory.spec.ts            [Story D-4 × 1 + D-5 × 2]
+    ├── __init__.py
+    ├── test_orders_list.py          [Story D-1 × 2 scenarios]
+    ├── test_orders_status.py        [Story D-2 × 2 + D-3 × 1]
+    └── test_inventory.py            [Story D-4 × 1 + D-5 × 2]
 ```
 
 > Status: POM + specs designed and scaffolded; activation contingent on the frontend shipping in the next turn.
@@ -213,7 +216,7 @@ docs/
 |---|---|
 | Testing Pyramid 70/20/10 | ✅ 22 unit / 16 integration / 3 planned E2E — within PDF tolerance |
 | Coverage ≥ 80 % | ✅ services 87 %, routers 92 % |
-| Gherkin → Playwright POM | ✅ 3 page objects, 3 spec files, 7 tests mapping 1-to-1 with scenarios |
+| Gherkin → playwright-python POM | ✅ 3 page objects, 3 spec modules, 7 tests mapping 1-to-1 with scenarios |
 | Verification report | ✅ every FR has a cited passing test |
 | Validation report | ✅ every persona pain has a mitigating feature + test |
 | Known limitations documented | ✅ NFR-D4.b + RFC-D001 + frontend pending — all tracked |

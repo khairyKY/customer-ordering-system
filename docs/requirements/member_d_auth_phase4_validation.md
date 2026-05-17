@@ -45,7 +45,7 @@
 | Unit | 12 | `hash_password` ↔ `verify_password` round-trip, `sign_token` claim structure, `verify_token` tampered → raises, `_extract_bearer` parsing, role-gate `_role_gate` membership checks | `tests/test_auth_unit.py` (Phase 4 addition) + inline in `test_auth.py` |
 | Integration | 10 | register × 4, login × 5, admin gate × 1 | `tests/test_auth.py` |
 | Auth-flow | 2 | byte-identical generic error sequence, lockout 5→6 sequence | `tests/test_auth.py` |
-| E2E (planned) | 2 specs | login happy + lockout flow | `tests/playwright/auth.spec.ts` (next turn) |
+| E2E (planned) | 2 specs | login happy + lockout flow | `tests/playwright/test_auth.py` (next turn) |
 
 **Achieved ratio:** 12 unit / 12 integration+flow / 2 planned E2E ≈ **46 / 46 / 8** — within PDF tolerance band of 70/20/10 (auth is naturally integration-heavy because the contract is "HTTP → DB → HTTP"; pure logic is thin).
 
@@ -135,115 +135,113 @@ Same as orders — `--cov-fail-under=80`. Auth-specific results:
 
 ---
 
-## 2. Automated Validation — Playwright POM
+## 2. Automated Validation — Playwright POM (Python)
+
+Implementation: **playwright-python + pytest-playwright** — same Playwright engine, Python driver. The E2E suite shares its runtime and fixture model with the unit + integration suites.
 
 ### 2.1 POM design
 
 ```
 tests/playwright/
+├── conftest.py                      # admin JWT seed fixture (shared)
 ├── pages/
-│   ├── BasePage.ts                  # (shared)
-│   ├── LoginPage.ts
-│   └── RegisterPage.ts
+│   ├── __init__.py
+│   ├── base_page.py
+│   ├── login_page.py
+│   └── register_page.py
 └── specs/
-    └── auth.spec.ts                 # login + register Gherkin
+    ├── __init__.py
+    └── test_auth.py                 # login + register Gherkin
 ```
 
 ### 2.2 LoginPage skeleton
 
-```typescript
-// tests/playwright/pages/LoginPage.ts
-import { Page, Locator, expect } from '@playwright/test';
+```python
+# tests/playwright/pages/login_page.py
+from playwright.sync_api import Page, Locator, expect
 
-export class LoginPage {
-    readonly page: Page;
-    readonly emailInput: Locator;
-    readonly passwordInput: Locator;
-    readonly submitButton: Locator;
-    readonly errorMessage: Locator;
 
-    constructor(page: Page) {
-        this.page = page;
-        this.emailInput     = page.locator('[data-testid="login-email"]');
-        this.passwordInput  = page.locator('[data-testid="login-password"]');
-        this.submitButton   = page.locator('[data-testid="login-submit"]');
-        this.errorMessage   = page.locator('[data-testid="login-error"]');
-    }
+class LoginPage:
+    def __init__(self, page: Page) -> None:
+        self.page = page
+        self.email_input: Locator    = page.locator('[data-testid="login-email"]')
+        self.password_input: Locator = page.locator('[data-testid="login-password"]')
+        self.submit_button: Locator  = page.locator('[data-testid="login-submit"]')
+        self.error_message: Locator  = page.locator('[data-testid="login-error"]')
 
-    async goto() {
-        await this.page.goto('/login');
-    }
+    def goto(self) -> None:
+        self.page.goto("/login")
 
-    async fill(email: string, password: string) {
-        await this.emailInput.fill(email);
-        await this.passwordInput.fill(password);
-    }
+    def fill(self, email: str, password: str) -> None:
+        self.email_input.fill(email)
+        self.password_input.fill(password)
 
-    async submit() {
-        await this.submitButton.click();
-    }
+    def submit(self) -> None:
+        self.submit_button.click()
 
-    async expectErrorContains(text: string) {
-        await expect(this.errorMessage).toContainText(text);
-    }
+    def expect_error_contains(self, text: str) -> None:
+        expect(self.error_message).to_contain_text(text)
 
-    async expectRedirectedTo(path: string) {
-        await this.page.waitForURL(`**${path}`);
-    }
-}
+    def expect_redirected_to(self, path: str) -> None:
+        self.page.wait_for_url(f"**{path}")
 ```
 
 ### 2.3 Gherkin → Playwright mapping
 
 | Phase 2 Gherkin scenario | Playwright spec |
 |---|---|
-| Story AU-1: Successful registration | `auth.spec.ts::test('happy register redirects to login')` |
-| Story AU-1: Registration rejects bad email | `auth.spec.ts::test('shows email format error')` |
-| Story AU-2: Successful login returns JWT | `auth.spec.ts::test('happy login stores token + redirects to admin home')` |
-| Story AU-2: Byte-identical generic error (NFR-AU7) | `auth.spec.ts::test('shows identical error for wrong email vs wrong password')` |
-| Story AU-2: Lockout after 5 failures | `auth.spec.ts::test('locks account after 5 failed attempts')` |
+| Story AU-1: Successful registration | `test_auth.py::test_happy_register_redirects_to_login` |
+| Story AU-1: Registration rejects bad email | `test_auth.py::test_shows_email_format_error` |
+| Story AU-2: Successful login returns JWT | `test_auth.py::test_happy_login_stores_token_and_redirects` |
+| Story AU-2: Byte-identical generic error (NFR-AU7) | `test_auth.py::test_shows_identical_error_for_wrong_email_vs_wrong_password` |
+| Story AU-2: Lockout after 5 failures | `test_auth.py::test_locks_account_after_5_failed_attempts` |
 
 ### 2.4 Sample spec — login happy + lockout
 
-```typescript
-// tests/playwright/specs/auth.spec.ts
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { RegisterPage } from '../pages/RegisterPage';
+```python
+# tests/playwright/specs/test_auth.py
+import pytest
+from playwright.sync_api import Page, APIRequestContext
 
-test.beforeEach(async ({ request }) => {
-    // Seed: create the test customer via API
-    await request.post('/api/v1/auth/register', {
-        data: { email: 'alice@example.com', password: 'S3curePass!' },
-    });
-});
+from tests.playwright.pages.login_page import LoginPage
 
-test('Happy login redirects to admin home and stores JWT (Story AU-2)', async ({ page }) => {
-    const login = new LoginPage(page);
-    await login.goto();
-    await login.fill('alice@example.com', 'S3curePass!');
-    await login.submit();
-    await login.expectRedirectedTo('/admin');
 
-    // Token persisted in localStorage
-    const token = await page.evaluate(() => localStorage.getItem('jwt'));
-    expect(token).toBeTruthy();
-});
+@pytest.fixture(autouse=True)
+def seed_test_customer(request_context: APIRequestContext) -> None:
+    """Create the test customer via API before each spec."""
+    request_context.post(
+        "/api/v1/auth/register",
+        data={"email": "alice@example.com", "password": "S3curePass!"},
+    )
 
-test('Account lockout after 5 failed attempts (NFR-AU6)', async ({ page }) => {
-    const login = new LoginPage(page);
-    for (let i = 1; i <= 5; i++) {
-        await login.goto();
-        await login.fill('alice@example.com', 'wrong-pw');
-        await login.submit();
-        await login.expectErrorContains('Invalid credentials');
-    }
-    // 6th attempt with CORRECT password should still fail with 423
-    await login.goto();
-    await login.fill('alice@example.com', 'S3curePass!');
-    await login.submit();
-    await login.expectErrorContains('locked');
-});
+
+def test_happy_login_stores_token_and_redirects(page: Page) -> None:
+    """Story AU-2 — happy login redirects to admin home + persists JWT."""
+    login = LoginPage(page)
+    login.goto()
+    login.fill("alice@example.com", "S3curePass!")
+    login.submit()
+    login.expect_redirected_to("/admin")
+
+    # Token persisted in localStorage
+    token = page.evaluate("() => localStorage.getItem('jwt')")
+    assert token
+
+
+def test_locks_account_after_5_failed_attempts(page: Page) -> None:
+    """NFR-AU6 — 5 failed attempts → 6th with correct password still rejected."""
+    login = LoginPage(page)
+    for _ in range(5):
+        login.goto()
+        login.fill("alice@example.com", "wrong-pw")
+        login.submit()
+        login.expect_error_contains("Invalid credentials")
+
+    # 6th attempt with the CORRECT password should still fail with 423
+    login.goto()
+    login.fill("alice@example.com", "S3curePass!")
+    login.submit()
+    login.expect_error_contains("locked")
 ```
 
 ---
@@ -292,7 +290,7 @@ Every persona-discovered hidden requirement has a mitigating implementation back
 
 - [x] Testing Pyramid layered (12 unit + 12 integration/flow + 2 planned E2E)
 - [x] Coverage gate ≥ 80 % (security 96 %, service 91 %, deps 95 %, router 100 %)
-- [x] Playwright POM designed (2 page objects + spec ready for frontend)
+- [x] Playwright POM designed in **Python** (`playwright-python` + `pytest-playwright`) — 2 page objects + spec module ready for frontend
 - [x] Gherkin → Playwright mapping table complete
 - [x] Verification report — 16 tests GREEN, all FRs implemented
 - [x] Validation report — every persona pain has a mitigating feature + test

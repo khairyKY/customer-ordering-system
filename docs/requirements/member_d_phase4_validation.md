@@ -46,7 +46,7 @@
 | Unit | 16 | `validate_transition` matrix × 14, low-stock decoration, idempotency-key membership check | `tests/test_orders.py` (transition-matrix block) |
 | Integration | 12 | `GET /orders` pagination + filter, `GET /orders/{id}` 200 + 404, `PATCH /orders/{id}/status` happy + 422 + 422 (HACKED) + 422 (empty), `GET /inventory` low-stock flag, `PATCH /inventory/{id}` happy + 422 × 3 | `tests/test_orders.py` (HTTP block) |
 | Cron/Webhook | 4 | sweep cancel, sweep advance HR-8, sweep skip-fresh, webhook idempotency | `tests/test_orders.py` (sweep block) |
-| E2E (planned) | 3 specs | admin lists orders, admin updates status, admin updates stock | `tests/playwright/orders.spec.ts` (next turn) |
+| E2E (planned) | 3 specs | admin lists orders, admin updates status, admin updates stock | `tests/playwright/test_orders.py` (next turn) |
 
 **Ratio achieved (excluding E2E which awaits frontend):** 16 unit + 16 integration/cron = **50% unit / 50% integration**.
 
@@ -102,61 +102,66 @@ Target: **≥ 80 % line coverage on `app/services/` and `app/routers/`**. Achiev
 
 ---
 
-## 2. Automated Validation — Playwright Page Object Model
+## 2. Automated Validation — Playwright Page Object Model (Python)
 
 Per PDF: *"Convert your Gherkin scenarios into executable Playwright scripts using the Page Object Model."*
+
+Implementation: **playwright-python + pytest-playwright** — same Playwright engine the JS world uses, driven from Python so the E2E suite shares a runtime with the unit + integration suites.
 
 ### 2.1 POM design — three page objects for the orders slice
 
 ```
 tests/playwright/
+├── conftest.py                      # pytest fixtures: page, api_client, seed_admin
 ├── pages/
-│   ├── BasePage.ts                  # shared auth header injection
-│   ├── OrderListPage.ts             # for Stories D-1, D-2
-│   ├── OrderDetailPage.ts           # for Story D-3
-│   └── InventoryPage.ts             # for Stories D-4, D-5
+│   ├── __init__.py
+│   ├── base_page.py                 # shared auth-header / JWT-seed helper
+│   ├── order_list_page.py           # for Stories D-1, D-2
+│   ├── order_detail_page.py         # for Story D-3
+│   └── inventory_page.py            # for Stories D-4, D-5
 └── specs/
-    ├── orders-list.spec.ts          # D-1
-    ├── orders-status.spec.ts        # D-2, D-3
-    └── inventory.spec.ts            # D-4, D-5
+    ├── __init__.py
+    ├── test_orders_list.py          # D-1
+    ├── test_orders_status.py        # D-2, D-3
+    └── test_inventory.py            # D-4, D-5
 ```
 
 ### 2.2 OrderListPage skeleton
 
-```typescript
-// tests/playwright/pages/OrderListPage.ts
-import { Page, Locator, expect } from '@playwright/test';
+```python
+# tests/playwright/pages/order_list_page.py
+from typing import Literal
 
-export class OrderListPage {
-    readonly page: Page;
-    readonly rows: Locator;
-    readonly pagination: Locator;
-    readonly statusFilter: Locator;
+from playwright.sync_api import Page, Locator, expect
 
-    constructor(page: Page) {
-        this.page = page;
-        this.rows          = page.locator('[data-testid="order-row"]');
-        this.pagination    = page.locator('[data-testid="pagination-info"]');
-        this.statusFilter  = page.locator('[data-testid="status-filter"]');
-    }
+OrderStatus = Literal[
+    "PENDING", "CONFIRMED", "PROCESSING", "SHIPPED",
+    "DELIVERED", "CANCELLED", "REFUNDED",
+]
 
-    async goto() {
-        await this.page.goto('/admin/orders');
-    }
 
-    async filterByStatus(status: 'PENDING'|'CONFIRMED'|'PROCESSING'|'SHIPPED'|'DELIVERED'|'CANCELLED'|'REFUNDED') {
-        await this.statusFilter.selectOption(status);
-        await this.page.waitForResponse(r => r.url().includes('/api/v1/orders'));
-    }
+class OrderListPage:
+    def __init__(self, page: Page) -> None:
+        self.page = page
+        self.rows: Locator          = page.locator('[data-testid="order-row"]')
+        self.pagination: Locator    = page.locator('[data-testid="pagination-info"]')
+        self.status_filter: Locator = page.locator('[data-testid="status-filter"]')
 
-    async expectRowCount(n: number) {
-        await expect(this.rows).toHaveCount(n);
-    }
+    def goto(self) -> None:
+        self.page.goto("/admin/orders")
 
-    async expectPagination(page: number, totalPages: number) {
-        await expect(this.pagination).toContainText(`Page ${page} of ${totalPages}`);
-    }
-}
+    def filter_by_status(self, status: OrderStatus) -> None:
+        self.status_filter.select_option(status)
+        # Wait for the resulting API call to settle
+        self.page.wait_for_response(
+            lambda r: "/api/v1/orders" in r.url and r.status == 200
+        )
+
+    def expect_row_count(self, n: int) -> None:
+        expect(self.rows).to_have_count(n)
+
+    def expect_pagination(self, page: int, total_pages: int) -> None:
+        expect(self.pagination).to_contain_text(f"Page {page} of {total_pages}")
 ```
 
 ### 2.3 Spec mapping Gherkin → Playwright
@@ -165,52 +170,59 @@ Each Phase 2 Gherkin scenario gets one Playwright `test()`:
 
 | Phase 2 Gherkin scenario | Playwright spec |
 |---|---|
-| Story D-1: Admin fetches the paginated order list | `orders-list.spec.ts::test('lists 20 orders with correct pagination')` |
-| Story D-1: Admin filters orders by status (HR-1) | `orders-list.spec.ts::test('filters by status=PENDING')` |
-| Story D-2: Admin advances order PENDING → PROCESSING | `orders-status.spec.ts::test('happy path status update')` |
-| Story D-2: Empty body returns 400 (HR-5) | `orders-status.spec.ts::test('shows validation error on empty submission')` |
-| Story D-3: Admin retrieves single order with line items + customer contact | `orders-status.spec.ts::test('detail shows items + customer')` |
-| Story D-5: Admin updates stock within bounds | `inventory.spec.ts::test('stock update within bounds')` |
-| Story D-5: Stock above upper bound rejected (HR-4) | `inventory.spec.ts::test('rejects stock > 100000')` |
+| Story D-1: Admin fetches the paginated order list | `test_orders_list.py::test_lists_20_orders_with_correct_pagination` |
+| Story D-1: Admin filters orders by status (HR-1) | `test_orders_list.py::test_filters_by_status_pending` |
+| Story D-2: Admin advances order PENDING → PROCESSING | `test_orders_status.py::test_happy_path_status_update` |
+| Story D-2: Empty body returns 400 (HR-5) | `test_orders_status.py::test_shows_validation_error_on_empty_submission` |
+| Story D-3: Admin retrieves single order with line items + customer contact | `test_orders_status.py::test_detail_shows_items_and_customer` |
+| Story D-5: Admin updates stock within bounds | `test_inventory.py::test_stock_update_within_bounds` |
+| Story D-5: Stock above upper bound rejected (HR-4) | `test_inventory.py::test_rejects_stock_over_100000` |
 
 ### 2.4 Sample spec — Story D-2 happy path
 
-```typescript
-// tests/playwright/specs/orders-status.spec.ts
-import { test, expect } from '@playwright/test';
-import { OrderListPage } from '../pages/OrderListPage';
-import { OrderDetailPage } from '../pages/OrderDetailPage';
+```python
+# tests/playwright/specs/test_orders_status.py
+import pytest
+from playwright.sync_api import Page, APIRequestContext, expect
 
-test.beforeEach(async ({ page, request }) => {
-    // Seed: login as admin, set Bearer token in localStorage
-    const login = await request.post('/api/v1/auth/login', {
-        data: { email: 'admin@example.com', password: 'admin123' },
-    });
-    const { token } = await login.json();
-    await page.addInitScript(t => localStorage.setItem('jwt', t), token);
-});
+from tests.playwright.pages.order_list_page import OrderListPage
+from tests.playwright.pages.order_detail_page import OrderDetailPage
 
-test('Admin advances order from PENDING to PROCESSING (Story D-2)', async ({ page }) => {
-    const list = new OrderListPage(page);
-    await list.goto();
 
-    // Click first PENDING order
-    await page.locator('[data-testid="order-row"][data-status="PENDING"]').first().click();
+@pytest.fixture(autouse=True)
+def seed_admin_session(page: Page, request_context: APIRequestContext):
+    """Login as admin via the API and seed the JWT into localStorage."""
+    res = request_context.post(
+        "/api/v1/auth/login",
+        data={"email": "admin@example.com", "password": "admin123"},
+    )
+    token = res.json()["token"]
+    # Set localStorage BEFORE the SPA boots so axios picks up the token
+    page.add_init_script(f"localStorage.setItem('jwt', '{token}')")
 
-    const detail = new OrderDetailPage(page);
-    await detail.changeStatusTo('CONFIRMED');         // PENDING -> CONFIRMED is legal
-    await expect(detail.statusBadge).toHaveText('CONFIRMED');
-});
 
-test('Empty body submission shows validation error (HR-5)', async ({ page }) => {
-    const list = new OrderListPage(page);
-    await list.goto();
-    await page.locator('[data-testid="order-row"]').first().click();
+def test_happy_path_status_update(page: Page) -> None:
+    """Story D-2 — admin advances PENDING → CONFIRMED."""
+    listing = OrderListPage(page)
+    listing.goto()
 
-    const detail = new OrderDetailPage(page);
-    await detail.submitStatusForm({});               // empty payload
-    await expect(page.locator('[data-testid="error"]')).toContainText('required');
-});
+    # Click the first PENDING order
+    page.locator('[data-testid="order-row"][data-status="PENDING"]').first.click()
+
+    detail = OrderDetailPage(page)
+    detail.change_status_to("CONFIRMED")  # PENDING → CONFIRMED is legal per matrix
+    expect(detail.status_badge).to_have_text("CONFIRMED")
+
+
+def test_shows_validation_error_on_empty_submission(page: Page) -> None:
+    """Story D-2 HR-5 — empty body submission shows a validation error."""
+    listing = OrderListPage(page)
+    listing.goto()
+    page.locator('[data-testid="order-row"]').first.click()
+
+    detail = OrderDetailPage(page)
+    detail.submit_status_form({})  # empty payload
+    expect(page.locator('[data-testid="error"]')).to_contain_text("required")
 ```
 
 ### 2.5 Why POM (not raw selectors in specs)
@@ -272,7 +284,7 @@ The slice **does the right thing** because:
 
 - [x] Testing Pyramid layered (22 unit + 16 integration + 3 planned E2E)
 - [x] Coverage gate ≥ 80 % lines on `app/services/` and `app/routers/`
-- [x] Playwright POM designed (3 page objects + 3 spec files, ready to run when frontend ships)
+- [x] Playwright POM designed in **Python** (`playwright-python` + `pytest-playwright`) — 3 page objects + 3 spec modules, ready to run when frontend ships
 - [x] Gherkin → Playwright mapping table complete
 - [x] Verification report — 32 tests GREEN, all FRs implemented
 - [x] Validation report — every persona pain has a mitigating implementation
