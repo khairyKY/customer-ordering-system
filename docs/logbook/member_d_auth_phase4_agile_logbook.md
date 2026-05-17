@@ -3,7 +3,7 @@
 
 **Owner:** Member D
 **Phase:** 4 — Validation & Pipeline Engineering
-**Stack:** pytest + Playwright POM + coverage gates
+**Stack:** pytest + playwright-python + pytest-playwright + coverage gates
 **Curriculum:** `CSE323_Project_Overview.pdf`
 **Sprints:** 3 (Testing Pyramid → Playwright POM → Verification vs Validation)
 
@@ -81,21 +81,22 @@ Every FR-AU1..AU5 represented by at least one E2E spec (skeletons; activation pe
 ### 3. Golden Prompts Used
 
 ```
-PROMPT A4.2.a — LoginPage POM
+PROMPT A4.2.a — LoginPage POM (Python)
 ─────────────────────────────────
-Write tests/playwright/pages/LoginPage.ts:
+Write tests/playwright/pages/login_page.py:
+- Use playwright.sync_api: Page, Locator, expect
 - Locators: email input, password input, submit button, error message
 - All locators use [data-testid="login-*"] selectors
 - Actions: goto(), fill(email, password), submit()
-- Assertions: expectErrorContains(text), expectRedirectedTo(path)
+- Assertions: expect_error_contains(text), expect_redirected_to(path)
 The class is a UI wrapper — it MUST NOT contain test logic.
 ```
 
 ```
-PROMPT A4.2.b — Spec for Lockout Sequence
+PROMPT A4.2.b — Spec for Lockout Sequence (pytest-playwright)
 ─────────────────────────────────
-Write a Playwright test that:
-1. Seeds an admin user via the API (request.post)
+Write a pytest function in tests/playwright/specs/test_auth.py that:
+1. Uses the seed_test_customer autouse fixture (api request_context.post)
 2. Loops 5 times: goto login, fill wrong password, submit, expect error
 3. On 6th iteration: fill CORRECT password, submit, expect error containing "locked"
 
@@ -103,16 +104,16 @@ The test proves NFR-AU6 at the end-to-end layer.
 ```
 
 ```
-PROMPT A4.2.c — Byte-Identical Error Spec
+PROMPT A4.2.c — Byte-Identical Error Spec (pytest-playwright)
 ─────────────────────────────────
-Write a Playwright test that:
-1. Seeds an admin user
-2. Captures the error text shown for wrong password
+Write a pytest function that:
+1. Seeds an admin user via the autouse fixture
+2. Captures the error text shown for wrong password (page.locator(...).text_content())
 3. Captures the error text shown for non-existent email
 4. Asserts the two error texts are identical
 
 This is the E2E counterpart to test_login_wrong_email_byte_identical_to_wrong_password
-in the pytest suite.
+in the integration pytest suite.
 ```
 
 ### 4. Audits
@@ -129,13 +130,16 @@ in the pytest suite.
 ### 5. Folder Structure (Sprint A4.2 End)
 
 ```
-src/frontend/tests/playwright/
+src/backend_python/tests/playwright/
+├── conftest.py                      [seed_test_customer autouse fixture]
 ├── pages/
-│   ├── BasePage.ts                  [shared]
-│   ├── LoginPage.ts                 [✅]
-│   └── RegisterPage.ts              [✅]
+│   ├── __init__.py
+│   ├── base_page.py                 [shared]
+│   ├── login_page.py                [✅]
+│   └── register_page.py             [✅]
 └── specs/
-    └── auth.spec.ts                 [✅ 5 specs covering AU-1 + AU-2]
+    ├── __init__.py
+    └── test_auth.py                 [✅ 5 specs covering AU-1 + AU-2]
 ```
 
 ---
@@ -211,7 +215,7 @@ docs/
 |---|---|
 | Testing Pyramid | ✅ 12 unit / 12 integration / 2 E2E planned |
 | Coverage ≥ 80 % | ✅ security 96 / service 91 / deps 95 / router 100 |
-| Gherkin → Playwright POM | ✅ 2 page objects, 5 specs covering all Phase 2 auth scenarios |
+| Gherkin → playwright-python POM | ✅ 2 page objects, 5 specs covering all Phase 2 auth scenarios |
 | Verification report | ✅ every FR-AU has a cited passing test |
 | Validation report | ✅ every persona pain has a mitigating feature + test |
 | Known limitations | ✅ 5 items, honestly documented |

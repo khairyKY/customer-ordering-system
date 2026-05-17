@@ -8,9 +8,9 @@
 **Phase 2:** [`member_d_phase2_design.md`](./member_d_phase2_design.md)
 **Implementation:** `src/backend_python/` (FastAPI + SQLAlchemy + Pydantic)
 
-> **Stack note:** Phase 1+2 docs were written generically (transition matrix, endpoint contracts, padlocks).
-> Phase 3 implementation is Python/FastAPI. Same contracts, different runtime. The Node.js reference
-> attempt was discarded after the team agreed Member D's slices ship as Python services.
+> **Stack:** Python 3.12 / FastAPI / SQLAlchemy 2.0 / Pydantic v2 / python-jose / bcrypt / APScheduler.
+> Tests: pytest + httpx + in-memory SQLite. Phase 1+2 docs are language-agnostic contracts;
+> this Phase 3 doc realises them in Python.
 
 ---
 
