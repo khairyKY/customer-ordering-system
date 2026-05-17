@@ -14,7 +14,7 @@ export default function ProtectedRoute({ role, children }) {
     const location = useLocation();
 
     if (!isAuthenticated) {
-        return <Navigate to="/login" replace state={{ from: location }} />;
+        return <Navigate to="/admin/login" replace state={{ from: location }} />;
     }
     if (role && user?.role !== role) {
         // Hierarchy: admin can access agent routes, etc. — but we keep it strict here.

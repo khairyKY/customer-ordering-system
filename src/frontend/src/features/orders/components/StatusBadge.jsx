@@ -1,21 +1,20 @@
-// Color-coded badge for the 7 OrderStatus values. data-testid set per status.
+// Color-coded badge for the 7 OrderStatus values. data-testid preserved per status.
 
-const COLORS = {
-    PENDING:    { bg: '#fef3c7', fg: '#92400e' },
-    CONFIRMED:  { bg: '#dbeafe', fg: '#1e40af' },
-    PROCESSING: { bg: '#e0e7ff', fg: '#3730a3' },
-    SHIPPED:    { bg: '#bae6fd', fg: '#075985' },
-    DELIVERED:  { bg: '#bbf7d0', fg: '#14532d' },
-    CANCELLED:  { bg: '#fee2e2', fg: '#7f1d1d' },
-    REFUNDED:   { bg: '#f3f4f6', fg: '#374151' },
+const TONE = {
+    PENDING:    'bg-amber-100  text-amber-800',
+    CONFIRMED:  'bg-blue-100   text-blue-800',
+    PROCESSING: 'bg-indigo-100 text-indigo-800',
+    SHIPPED:    'bg-sky-100    text-sky-800',
+    DELIVERED:  'bg-green-100  text-green-800',
+    CANCELLED:  'bg-red-100    text-red-800',
+    REFUNDED:   'bg-gray-100   text-gray-800',
 };
 
 export default function StatusBadge({ status }) {
-    const { bg, fg } = COLORS[status] || COLORS.REFUNDED;
+    const tone = TONE[status] || TONE.REFUNDED;
     return (
         <span
-            className="status-badge"
-            style={{ backgroundColor: bg, color: fg }}
+            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold tracking-wide ${tone}`}
             data-testid={`status-${status}`}
         >
             {status}
