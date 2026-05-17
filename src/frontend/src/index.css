@@ -1,1 +1,18 @@
-﻿@tailwind base; @tailwind components; @tailwind utilities;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { border-radius: 0 !important; box-sizing: border-box; }
+  body { background-color: #0D0D0D; color: #ffffff; margin: 0; }
+}
+
+/* Minimal utility classes for recovery */
+.bg-background { background-color: #0D0D0D; }
+.text-cyan-400 { color: #22d3ee; }
+.text-cyan-500 { color: #06b6d4; }
+.border-cyan-900 { border-color: #164e63; }
+
+/* Component stubs */
+.liquid-card { @apply border border-gray-800 bg-[#131313] hover:border-cyan-500 transition-colors; }
+.btn-neon-primary { @apply border border-cyan-400 text-cyan-400 px-4 py-2 hover:bg-cyan-400 hover:text-black; }

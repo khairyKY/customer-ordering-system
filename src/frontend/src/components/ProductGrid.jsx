@@ -1,1 +1,47 @@
-﻿import React, { useState, useEffect } from 'react'; import { fetchProducts } from '../api/productApi'; import { addToCart } from '../api/cartApi'; import { Button } from './ui/Button'; import { Card } from './ui/Card'; const ProductGrid = ({ onCartUpdate }) => { const [products, setProducts] = useState([]); const [loading, setLoading] = useState(true); useEffect(() => { const loadProducts = async () => { try { const data = await fetchProducts(); setProducts(data); } catch (error) { console.error('Failed to load products', error); } finally { setLoading(false); } }; loadProducts(); }, []); const handleAddToCart = async (productId) => { try { const updatedCart = await addToCart(productId); onCartUpdate(updatedCart); } catch (error) { alert(error.response?.data?.error || 'Failed to add item'); } }; if (loading) return <div className='p-8 text-center text-gray-500 italic'>Loading Products...</div>; return ( <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6'> {products.map(product => ( <Card key={product.id} className='text-center flex flex-col items-center gap-2 transform transition-transform hover:scale-[1.02]'> <div className='h-32 flex items-center justify-center mb-2'> <img src={product.image_url} alt={product.name} className='max-h-full max-w-full object-contain' /> </div> <h3 className='font-bold text-gray-900'>{product.name}</h3> <p className='text-blue-600 font-bold text-lg'></p> <p className='text-xs text-gray-500'>Available: {product.stock} units</p> <Button onClick={() => handleAddToCart(product.id)} className='w-full mt-4'> Add to Cart </Button> </Card> ))} </div> ); }; export default ProductGrid;
+import React, { useState, useEffect } from 'react';
+import { fetchProducts } from '../api/productApi';
+import { addToCart } from '../api/cartApi';
+import LiquidCard from './ui/LiquidCard';
+
+const ProductGrid = ({ onCartUpdate }) => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await fetchProducts();
+        if (data) setProducts(data);
+      } catch (error) {
+        console.error('Catalog fetch error', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, []);
+
+  if (loading) return <div className="p-12 text-center text-cyan-700 animate-pulse font-mono">INIT_PRODUCT_LINK...</div>;
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+      {products.map(p => (
+        <LiquidCard
+          key={p.id}
+          category="// HARDWARE"
+          title={p.name}
+          price={`$${p.price.toFixed(2)}`}
+          imageSrc={p.image_url}
+          onAdd={async () => {
+            try {
+              const updated = await addToCart(p.id);
+              onCartUpdate(updated);
+            } catch (err) { alert('Stock limit reached'); }
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+export default ProductGrid;
