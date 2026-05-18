@@ -1,5 +1,12 @@
 # CSE323 Customer Ordering System — Master Project Documentation
 
+> **⚠️ POST-MIGRATION NOTE.** Sections referencing `src/backend/`,
+> `src/backend/src/features/`, or the Node `:3001` service describe the
+> original dev-time architecture. As of commit `819ce7b` (Member C's
+> tickets migration), all backend code lives in `src/backend_python/` on
+> FastAPI `:8000`. The original text is preserved as architectural
+> history; for current paths see `src/backend_python/README.md`.
+
 > **Maintained by:** Member A (Checkout & Shopping Cart — Full-Stack Owner)
 > **Document Version:** 1.0.0
 > **Last Updated:** See Git log (`git log -1 --format="%ci" docs/MASTER.md`)

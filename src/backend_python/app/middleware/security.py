@@ -140,7 +140,10 @@ _MASK = "[REDACTED]"
 # Standalone value patterns.
 _EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 # 13-19 digit runs, optionally grouped by spaces/dashes — covers card numbers.
-_CARD_RE = re.compile(r"\b(?:\d[ -]?){13,19}\b")
+# Starts and ends on a digit so a trailing separator is never consumed (the
+# old `\b(?:\d[ -]?){13,19}\b` greedily ate the space after a card number,
+# leaving "[REDACTED]now" where "[REDACTED] now" was expected).
+_CARD_RE = re.compile(r"\b\d(?:[ -]?\d){12,18}\b")
 
 # JSON-style "key": "value" pairs whose key names a sensitive field.
 _SENSITIVE_KEYS = ("password", "passwd", "pwd", "secret", "token", "jwt",

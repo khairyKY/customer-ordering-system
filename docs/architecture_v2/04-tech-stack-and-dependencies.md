@@ -1,5 +1,12 @@
 # 04 — Tech Stack & Dependencies
 
+> **⚠️ POST-MIGRATION NOTE.** The Node/Express dev-time backend at
+> `src/backend/` and its `:3001` port were deleted in commit `819ce7b`
+> (Member C's tickets migration). The shipped backend is FastAPI on
+> `:8000` only. References below to Node, `:3001`, or `src/backend/`
+> describe the original architecture and are preserved as history.
+
+
 ## Technology Selection Table
 
 | Layer | Technology | Version / Notes | Justification |
