@@ -29,7 +29,7 @@ export default function AdminDashboard() {
   const { user } = useAuthStore();
 
   return (
-    <div className="p-8 max-w-5xl mx-auto flex flex-col gap-6" data-testid="admin-dashboard">
+    <div className="p-8 max-w-7xl mx-auto px-4 flex flex-col gap-6 w-full" data-testid="admin-dashboard">
       <header>
         <h1 className="font-mono text-[28px] font-bold text-on-background mb-1">// ADMIN_PANEL</h1>
         <p className="font-mono text-[13px] text-text-muted">
@@ -54,7 +54,7 @@ export default function AdminDashboard() {
         <Tile to="/admin/orders"    label="// ORDERS"     sub="List · filter · status transitions" testid="tile-admin-orders" />
         <Tile to="/admin/inventory" label="// INVENTORY"  sub="Stock + low-stock flags"            testid="tile-admin-inventory" />
         <Tile to="/admin/catalog"   label="// CATALOG"    sub="Products + categories"              testid="tile-admin-catalog" />
-        <Tile to="#"                label="// AUDIT_LOG"  sub="Status changes (read-only)"         testid="tile-admin-audit" />
+        <Tile to="/"                label="// AUDIT_LOG"  sub="Status changes (read-only)"         testid="tile-admin-audit" />
       </div>
 
       <div className="flex justify-end mt-2">

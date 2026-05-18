@@ -30,7 +30,7 @@ const TAX_RATE = 0.10; // 10% — matches Phase 3 Mathematical Boundary canonica
  * @param {function} props.onCartUpdate   - Lifted setter
  * @param {function} props.onNavigate     - App-level view router
  */
-export default function CartPage({ cart, onCartUpdate, onNavigate }) {
+export default function CartPage({ cart, onCartUpdate, onNavigate, hideCheckoutButton = false }) {
   const navigate = useNavigate();
   const [loading,   setLoading]   = useState(!cart?.items?.length);
   const [promoCode, setPromoCode] = useState('');
@@ -292,15 +292,26 @@ export default function CartPage({ cart, onCartUpdate, onNavigate }) {
             </div>
 
             {/* Primary CTA */}
-            <NeonButton
-              id="checkout-btn"
-              variant="primary"
-              fullWidth
-              disabled={items.length === 0}
-              onClick={() => navigate('/checkout')}
-            >
-              [ PROCEED TO CHECKOUT ]
-            </NeonButton>
+            {!hideCheckoutButton && (
+              <NeonButton
+                id="checkout-btn"
+                variant="primary"
+                fullWidth
+                disabled={items.length === 0}
+                className="whitespace-nowrap transition-all duration-300"
+                onClick={() => {
+                  const btn = document.getElementById('checkout-btn');
+                  if (btn) {
+                    btn.classList.add('!bg-accent-green', '!text-background', '!border-accent-green');
+                    setTimeout(() => navigate('/checkout'), 300);
+                  } else {
+                    navigate('/checkout');
+                  }
+                }}
+              >
+                [ PROCEED TO CHECKOUT ]
+              </NeonButton>
+            )}
 
             {/* Trust badge */}
             <div className="mt-unit-4 text-center text-outline font-inter text-[11px]

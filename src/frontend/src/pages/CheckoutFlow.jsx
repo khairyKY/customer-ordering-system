@@ -84,13 +84,22 @@ export default function CheckoutFlow({ cart, onCartUpdate }) {
   const [confirmation, setConfirmation] = useState(null); // { transactionId, total }
 
   const cartTotal = useMemo(() => cart?.total ?? 0, [cart]);
+  
+  if (user?.role === 'admin') {
+    return (
+      <div className="p-8 max-w-md mx-auto text-center font-mono py-16" data-testid="checkout-flow">
+        <h1 className="text-error text-[24px] font-bold mb-4">// ACCESS_DENIED</h1>
+        <p className="text-text-muted">Administrators are restricted from making storefront purchases. Switch to a customer account to test checkout.</p>
+      </div>
+    );
+  }
 
   // ── Step renderers ──────────────────────────────────────────
 
   function renderCartStep() {
     return (
       <div className="flex flex-col gap-4" data-testid="checkout-cart-step">
-        <CartPage cart={cart} onCartUpdate={onCartUpdate} onNavigate={() => {}} />
+        <CartPage cart={cart} onCartUpdate={onCartUpdate} onNavigate={() => {}} hideCheckoutButton={true} />
         <div className="flex justify-end">
           <NeonButton onClick={() => setStep(2)} disabled={!cart?.items?.length}>
             [ NEXT → AUTH ]
@@ -127,7 +136,7 @@ export default function CheckoutFlow({ cart, onCartUpdate }) {
           </NeonButton>
         </div>
         <button
-          onClick={() => setStep(3)}
+          onClick={(e) => { e.preventDefault(); setStep(3); }}
           className="font-mono text-[12px] text-text-muted underline hover:text-on-background"
         >
           continue as guest →
@@ -227,6 +236,10 @@ export default function CheckoutFlow({ cart, onCartUpdate }) {
         cartTotal,
         promoCode:      promoCode || undefined,
         idempotencyKey,
+        items:          cart.items || [],
+        shipping:       shipping,
+        customerEmail:  user?.email || 'guest@example.com',
+        customerId:     user?.id || user?.user_id || 'guest',
       });
       setConfirmation({ transactionId: result.transactionId, total: result.total });
       setStep(7);

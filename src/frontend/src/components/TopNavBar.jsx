@@ -9,14 +9,16 @@
 // truth instead of App.jsx state.
 
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { useAuthStore } from '../features/auth/store/authStore';
 
 /**
  * @param {object} props
  * @param {number} props.cartCount  - Number shown in the Cart badge
  */
-export default function TopNavBar({ cartCount = 0 }) {
+export default function TopNavBar({ cartCount = 0, onClearCart }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated, logout, user } = useAuthStore();
 
   // We're "on" cart whenever the URL begins with /cart or /checkout
   const onCart = location.pathname.startsWith('/cart') || location.pathname.startsWith('/checkout');
@@ -48,35 +50,56 @@ export default function TopNavBar({ cartCount = 0 }) {
       <nav className="hidden md:flex items-center gap-[32px] h-full" aria-label="Primary navigation">
         <NavLink to="/"          end className={navClassFor()}>Home</NavLink>
         <NavLink to="/products"     className={navClassFor()}>Shop</NavLink>
-        <span    className={linkMuted}>Deals</span>
-        <span    className={linkMuted}>Builds</span>
+        <NavLink to="/deals"        className={navClassFor()}>Deals</NavLink>
+        <NavLink to="/builds"       className={navClassFor()}>Builds</NavLink>
         <NavLink to="/account"      className={navClassFor()}>Account</NavLink>
-        <NavLink to="/admin"        className={navClassFor()}>Admin</NavLink>
+        {user?.role === 'admin' && (
+          <NavLink to="/admin" className={navClassFor()}>Admin Dashboard</NavLink>
+        )}
       </nav>
 
       {/* ── Right: Cart + Sign In ─────────────────────── */}
       <div className="flex items-center gap-[32px]">
-        <button
-          id="nav-cart-btn"
-          onClick={() => navigate('/cart')}
-          className={`font-inter text-[13px] transition-none ${
-            onCart ? 'text-primary-container' : 'text-text-muted hover:text-white'
-          }`}
-          aria-label="View cart"
-        >
-          Cart ({cartCount})
-        </button>
+        {user?.role !== 'admin' && (
+          <button
+            id="nav-cart-btn"
+            onClick={() => navigate('/cart')}
+            className={`font-inter text-[13px] transition-none ${
+              onCart ? 'text-primary-container' : 'text-text-muted hover:text-white'
+            }`}
+            aria-label="View cart"
+          >
+            Cart ({cartCount})
+          </button>
+        )}
 
-        <button
-          id="nav-signin-btn"
-          onClick={() => navigate('/admin/login')}
-          className="font-mono text-[13px] text-primary-container border border-primary-container
-                     bg-transparent px-4 py-1 uppercase hover:bg-primary-container hover:text-background
-                     transition-none"
-          aria-label="Sign in"
-        >
-          [ Sign In ]
-        </button>
+        {isAuthenticated ? (
+          <button
+            id="nav-logout-btn"
+            onClick={() => { 
+              logout(); 
+              if (onClearCart) onClearCart();
+              navigate('/'); 
+            }}
+            className="font-mono text-[13px] text-primary-container border border-primary-container
+                       bg-transparent px-4 py-1 uppercase hover:bg-primary-container hover:text-background
+                       transition-none"
+            aria-label="Log out"
+          >
+            [ Log Out ]
+          </button>
+        ) : (
+          <button
+            id="nav-signin-btn"
+            onClick={() => navigate('/admin/login')}
+            className="font-mono text-[13px] text-primary-container border border-primary-container
+                       bg-transparent px-4 py-1 uppercase hover:bg-primary-container hover:text-background
+                       transition-none"
+            aria-label="Sign in"
+          >
+            [ Sign In ]
+          </button>
+        )}
       </div>
     </header>
   );

@@ -70,7 +70,7 @@ export default function InventoryPage() {
     }
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 max-w-7xl mx-auto px-4 w-full p-8">
             {/* Page Header */}
             <div>
                 <h1 className="font-mono text-[32px] font-bold text-[#e5e2e1] mb-2">INVENTORY MANAGEMENT</h1>

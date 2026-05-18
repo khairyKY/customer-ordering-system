@@ -59,10 +59,10 @@ export default function AccountDashboard() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Tile to="/account/orders"       label="// ORDER_HISTORY"   sub="Past purchases + status"   testid="tile-orders" />
-        <Tile to="#"                     label="// ADDRESSES"       sub="Shipping destinations"     testid="tile-addresses" />
-        <Tile to="#"                     label="// PAYMENT_METHODS" sub="Stored card tokens"        testid="tile-payment-methods" />
-        <Tile to="#"                     label="// SECURITY"        sub="Password & sessions"       testid="tile-security" />
+        <Tile to="/account/orders"          label="// ORDER_HISTORY"   sub="Past purchases + status"   testid="tile-orders" />
+        <Tile to="/account/addresses"       label="// ADDRESSES"       sub="Shipping destinations"     testid="tile-addresses" />
+        <Tile to="/account/payment-methods" label="// PAYMENT_METHODS" sub="Stored card tokens"        testid="tile-payment-methods" />
+        <Tile to="/account/security"        label="// SECURITY"        sub="Password & sessions"       testid="tile-security" />
         {user?.role === 'admin' && (
           <Tile to="/admin"              label="// ADMIN_PANEL"     sub="Orders + Inventory"        testid="tile-admin" />
         )}

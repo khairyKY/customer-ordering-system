@@ -14,6 +14,9 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+    const [showForgot, setShowForgot] = useState(false);
+    const [forgotMsg, setForgotMsg] = useState('');
+    const [forgotEmail, setForgotEmail] = useState('');
 
     async function submit(e) {
         if (e && e.preventDefault) e.preventDefault();
@@ -31,6 +34,20 @@ export default function LoginPage() {
             } else {
                 setError(detail?.error || 'Invalid credentials');
             }
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
+    async function handleForgot(e) {
+        e.preventDefault();
+        setSubmitting(true);
+        try {
+            const axios = require('axios');
+            const res = await axios.post('http://localhost:8000/api/v1/auth/password/forgot', { email: forgotEmail || email });
+            setForgotMsg(res.data.message);
+        } catch (err) {
+            setForgotMsg('An error occurred.');
         } finally {
             setSubmitting(false);
         }
@@ -77,7 +94,7 @@ export default function LoginPage() {
                     <div className="flex flex-col gap-2">
                         <label className="font-mono text-[13px] text-[#e5e2e1] flex justify-between">
                             Password
-                            <a className="text-[#00bfff] hover:underline text-[12px]" href="#">Forgot?</a>
+                            <button type="button" className="text-[#00bfff] hover:underline text-[12px]" onClick={() => setShowForgot(true)}>Forgot?</button>
                         </label>
                         <TerminalInput
                             type="password"
@@ -136,6 +153,26 @@ export default function LoginPage() {
                     </Link>
                 </p>
             </div>
+
+            {showForgot && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                    <div className="bg-[#131313] border border-[#3d4850] p-6 max-w-sm w-full flex flex-col gap-4">
+                        <h3 className="font-mono text-[18px] text-[#e5e2e1]">// RESET_PASSWORD</h3>
+                        <p className="font-mono text-[13px] text-[#87929b]">Enter your email to receive a reset link.</p>
+                        <TerminalInput 
+                            type="email" 
+                            placeholder="user@domain.com" 
+                            value={forgotEmail || email} 
+                            onChange={e => setForgotEmail(e.target.value)} 
+                        />
+                        {forgotMsg && <p className="font-mono text-[13px] text-primary-container">{forgotMsg}</p>}
+                        <div className="flex justify-end gap-2 mt-2">
+                            <NeonButton variant="secondary" onClick={() => { setShowForgot(false); setForgotMsg(''); }}>[ CANCEL ]</NeonButton>
+                            <NeonButton onClick={handleForgot} disabled={submitting}>[ SEND LINK ]</NeonButton>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -39,7 +39,7 @@ export default function CatalogManagement() {
   );
 
   return (
-    <div className="p-8 max-w-6xl mx-auto flex flex-col gap-4" data-testid="catalog-management">
+    <div className="p-8 max-w-7xl mx-auto px-4 flex flex-col gap-4 w-full" data-testid="catalog-management">
       <header className="flex items-center justify-between">
         <div>
           <h1 className="font-mono text-[24px] font-bold text-on-background mb-1">// CATALOG_MANAGEMENT</h1>
