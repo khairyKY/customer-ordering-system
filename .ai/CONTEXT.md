@@ -69,6 +69,13 @@
 - **Frontend:** React pages for Login, Register, Order List, and Inventory.
 - **Validation:** Playwright POM suite and E2E specs for all admin/auth flows.
 
+## Frontend Routing Architecture
+The system is divided into 4 architectural zones, orchestrated via `react-router-dom` and the Dev-Cosmic UI library:
+1. **Public Storefront:** Catalog browsing and product discovery.
+2. **Checkout Funnel:** Session-based cart, shipping details, and payment processing.
+3. **User Account:** Authenticated access to order history and account settings.
+4. **Admin Panel:** Role-gated interface for fulfillment management and inventory control.
+
 ---
 
 ## UI Component Library
