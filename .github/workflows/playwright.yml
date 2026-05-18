@@ -59,9 +59,12 @@ jobs:
           ( cd src/backend_python && python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 ) > backend.log 2>&1 &
           ( cd src/frontend && npm run dev -- --host 127.0.0.1 --port 5173 ) > frontend.log 2>&1 &
 
-          # http-get:// forces a GET probe — FastAPI's @app.get("/health")
-          # rejects the default HEAD request with 405.
-          npx --yes wait-on http-get://127.0.0.1:8000/health http-get://127.0.0.1:5173 --timeout 120000 || {
+          # Backend: http-get:// forces a GET probe (FastAPI's @app.get
+          # rejects wait-on's default HEAD with 405).
+          # Frontend: plain tcp: probe — an HTTP GET against the vite dev
+          # server's root proved unreliable here; a listening socket is
+          # all Playwright needs to navigate.
+          npx --yes wait-on http-get://127.0.0.1:8000/health tcp:127.0.0.1:5173 --timeout 120000 || {
             echo "=== backend.log ===";  cat backend.log  2>/dev/null || echo "(none)"
             echo "=== frontend.log ==="; cat frontend.log 2>/dev/null || echo "(none)"
             exit 1
