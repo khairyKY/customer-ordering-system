@@ -27,11 +27,13 @@ def validate_transition(from_status: str, to_status: str) -> bool:
 
 
 def find_all(
-    db: Session, *, page: int = 1, limit: int = 20, status_filter: str | None = None
+    db: Session, *, page: int = 1, limit: int = 20, status_filter: str | None = None, customer_filter: str | None = None
 ) -> dict:
     base = select(Order)
     if status_filter:
         base = base.where(Order.status == status_filter)
+    if customer_filter:
+        base = base.where(Order.customer_id == customer_filter)
 
     total_count = db.scalar(select(func.count()).select_from(base.subquery())) or 0
     total_pages = max(1, math.ceil(total_count / limit))

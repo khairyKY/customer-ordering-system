@@ -10,8 +10,11 @@ from app.schemas import (
     RegisterRequest,
     RegisterResponse,
     UserPublic,
+    UpdatePasswordRequest,
+    ForgotPasswordRequest,
 )
 from app.services import auth_service
+from app.dependencies import CurrentUser, get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -39,3 +42,19 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> LoginResponse
         expires_at=expires_at,
         user=UserPublic.model_validate(user),
     )
+
+
+@router.put("/password/update", summary="Update user password")
+def update_password(
+    payload: UpdatePasswordRequest,
+    db: Session = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user)
+) -> dict:
+    auth_service.update_password(db, user.user_id, payload.current_password, payload.new_password)
+    return {"status": "SUCCESS"}
+
+
+@router.post("/password/forgot", summary="Forgot password mock endpoint")
+def forgot_password(payload: ForgotPasswordRequest) -> dict:
+    auth_service.forgot_password(payload.email)
+    return {"status": "SUCCESS", "message": "If that email exists, a reset link has been sent."}
