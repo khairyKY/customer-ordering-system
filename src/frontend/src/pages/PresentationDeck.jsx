@@ -1,372 +1,251 @@
-import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { slides } from './presentationSlides';
-import CosmicCanvas from '../components/CosmicCanvas';
+// ============================================================
+// PresentationDeck — fullscreen native React deck (route: /presentation)
+// Dev-Cosmic theme · COS CSE323 Final Presentation
+//
+// Performance notes:
+//  - The animated starfield (CosmicCanvas) is mounted ONCE at the App
+//    root, outside the router. Slide state lives here, so the canvas
+//    never re-renders on navigation — background isolation is structural.
+//  - SlideView is wrapped in React.memo: it re-renders only when the
+//    slide object identity changes, never on unrelated deck state.
+//  - Transitions animate ONLY opacity + x (and the progress bar's
+//    scaleX). No layout properties are animated. willChange is set.
+//  - <AnimatePresence mode="wait"> fully unmounts the outgoing slide
+//    before the incoming one mounts (clean DOM).
+//  - Keyboard navigation is throttled with a 250 ms cooldown.
+// ============================================================
+
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+
 import NeonButton from '../components/ui/NeonButton';
+import { slides } from './presentationSlides';
 
-// 1. Isolate Canvas to prevent re-renders
-const Background = memo(() => (
-  <CosmicCanvas variant="canvas" className="opacity-80" />
-));
+const NAV_COOLDOWN_MS = 250;
 
+// ── Inline **bold** renderer ─────────────────────────────────
+function RichText({ text }) {
+  return text.split('**').map((part, i) =>
+    i % 2 === 1
+      ? <strong key={i} className="font-semibold text-[#8fd6ff]">{part}</strong>
+      : <span key={i}>{part}</span>,
+  );
+}
+
+const Bullet = () => (
+  <span className="select-none font-mono text-[#00bfff]" aria-hidden="true">›</span>
+);
+
+// ── Single content block ─────────────────────────────────────
+function Block({ block }) {
+  switch (block.type) {
+    case 'lead':
+      return (
+        <p className="font-mono text-[15px] leading-[1.6] text-[#87929b]">
+          <RichText text={block.text} />
+        </p>
+      );
+
+    case 'bullets':
+      return (
+        <ul className="flex flex-col gap-2.5">
+          {block.items.map((item, i) => (
+            <li key={i} className="flex gap-3 font-sans text-[17px] leading-[1.5] text-[#e5e2e1]">
+              <Bullet />
+              <span><RichText text={item} /></span>
+            </li>
+          ))}
+        </ul>
+      );
+
+    case 'ordered':
+      return (
+        <ol className="flex flex-col gap-2.5">
+          {block.items.map((item, i) => (
+            <li key={i} className="flex gap-3 font-sans text-[16px] leading-[1.5] text-[#e5e2e1]">
+              <span className="w-6 shrink-0 select-none font-mono text-[14px] text-[#00bfff]">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span><RichText text={item} /></span>
+            </li>
+          ))}
+        </ol>
+      );
+
+    case 'group':
+      return (
+        <div className="flex flex-col gap-2">
+          <span className="font-mono text-[13px] uppercase tracking-[0.12em] text-[#8fd6ff]">
+            {block.label}
+          </span>
+          <ul className="flex flex-col gap-1.5">
+            {block.items.map((item, i) => (
+              <li key={i} className="flex gap-2.5 font-sans text-[15px] leading-[1.5] text-[#e5e2e1]">
+                <Bullet />
+                <span><RichText text={item} /></span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+
+    case 'table':
+      return (
+        <div className="border border-[#242424]">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr>
+                {block.head.map((h, i) => (
+                  <th
+                    key={i}
+                    className="border-b border-[#242424] bg-[#0D0D0D] px-3 py-2 text-left font-mono text-[12px] uppercase tracking-[0.1em] text-[#00bfff]"
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {block.rows.map((row, ri) => (
+                <tr key={ri}>
+                  {row.map((cell, ci) => (
+                    <td
+                      key={ci}
+                      className="border-b border-[#242424] px-3 py-2 align-top font-mono text-[13px] text-[#e5e2e1]"
+                    >
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+
+    default:
+      return null;
+  }
+}
+
+// ── Slide content — memoized so it re-renders only on slide change ──
+const SlideView = memo(function SlideView({ slide }) {
+  return (
+    <div
+      className="liquid-card w-full max-w-[920px] max-h-[80vh] overflow-y-auto px-10 py-9"
+      /* Local override: the global `.liquid-card:hover` rule reveals a cyan
+         top border on hover. The deck wants that look permanently, so we pin
+         the hovered value inline here — no change to the global component,
+         so the storefront's LiquidCard hover behaviour is untouched. */
+      style={{ borderTopColor: '#00bfff' }}
+    >
+      <div className="flex flex-col gap-5">
+        {slide.eyebrow && (
+          <span className="font-mono text-[12px] uppercase tracking-[0.2em] text-[#00bfff]">
+            {slide.eyebrow}
+          </span>
+        )}
+        <h1 className="font-sans font-bold leading-[1.12] text-[#e5e2e1] text-[clamp(28px,3.6vw,44px)]">
+          {slide.title}
+        </h1>
+        {slide.subtitle && (
+          <p className="-mt-3 font-mono text-[15px] text-[#87929b]">{slide.subtitle}</p>
+        )}
+        <div className="mt-1 flex flex-col gap-5">
+          {slide.blocks.map((block, i) => <Block key={i} block={block} />)}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+// ── Deck ─────────────────────────────────────────────────────
 const slideVariants = {
-  enter: (direction) => ({
-    x: direction > 0 ? 500 : -500, // Reduced distance for smoother feel
-    opacity: 0,
-    scale: 0.98,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-    scale: 1,
-    transition: {
-      x: { type: 'spring', stiffness: 300, damping: 30 },
-      opacity: { duration: 0.25 },
-      scale: { duration: 0.3 }
-    }
-  },
-  exit: (direction) => ({
-    x: direction < 0 ? 500 : -500,
-    opacity: 0,
-    scale: 0.98,
-    transition: {
-      x: { type: 'spring', stiffness: 300, damping: 30 },
-      opacity: { duration: 0.2 },
-      scale: { duration: 0.2 }
-    }
-  }),
+  enter:  (dir) => ({ opacity: 0, x: dir >= 0 ? 56 : -56 }),
+  center: { opacity: 1, x: 0 },
+  exit:   (dir) => ({ opacity: 0, x: dir >= 0 ? -56 : 56 }),
 };
 
 export default function PresentationDeck() {
-  const [[page, direction], setPage] = useState([0, 0]);
-  const lastNavTime = useRef(0);
-  const NAV_COOLDOWN = 250; // 250ms throttling
+  const [index, setIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const cooldownRef = useRef(0);
+  const total = slides.length;
 
-  const slideIndex = Math.max(0, Math.min(page, slides.length - 1));
-  const currentSlide = slides[slideIndex];
-
-  const paginate = useCallback((newDirection) => {
+  // Throttled navigation — ignores presses inside the 250 ms cooldown.
+  const go = useCallback((delta) => {
     const now = Date.now();
-    if (now - lastNavTime.current < NAV_COOLDOWN) return;
-    
-    const nextIndex = page + newDirection;
-    if (nextIndex >= 0 && nextIndex < slides.length) {
-      lastNavTime.current = now;
-      setPage([nextIndex, newDirection]);
-    }
-  }, [page]);
+    if (now - cooldownRef.current < NAV_COOLDOWN_MS) return;
+    cooldownRef.current = now;
+    setDirection(delta);
+    setIndex((i) => {
+      const next = i + delta;
+      return next < 0 || next >= total ? i : next;
+    });
+  }, [total]);
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'ArrowRight' || e.key === ' ') {
-        paginate(1);
+    const onKeyDown = (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Spacebar') {
+        e.preventDefault();
+        go(1);
       } else if (e.key === 'ArrowLeft') {
-        paginate(-1);
+        e.preventDefault();
+        go(-1);
       }
     };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [go]);
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [paginate]);
-
-  const renderContent = (slide) => {
-    switch (slide.layout) {
-      case 'title':
-        return (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <h1 className="text-6xl font-bold mb-8 text-[#e5e2e1] drop-shadow-[0_0_20px_rgba(0,191,255,0.5)]">{slide.title}</h1>
-            <h3 className="text-4xl text-[#00bfff] mb-12">{slide.subtitle}</h3>
-            <div className="bg-surface-container-low/60 backdrop-blur-xl border border-outline-variant p-8 rounded-xl shadow-2xl">
-              <p className="font-mono text-2xl text-primary-container mb-2">Team Dev-Cosmic</p>
-              <p className="font-mono text-xl text-text-muted">{slide.meta}</p>
-            </div>
-          </div>
-        );
-
-      case 'two-col':
-        return (
-          <div className="flex flex-col h-full">
-            <h2 className="text-5xl font-bold text-[#00bfff] mb-10 border-b-2 border-[#00bfff]/30 pb-4">{slide.title}</h2>
-            <div className="flex gap-10 flex-1">
-              <div className="flex-1 bg-surface-container-low/60 backdrop-blur-xl border border-outline-variant p-8 rounded-xl">
-                <ul className="space-y-6">
-                  {slide.left.map((item, i) => (
-                    <li key={`left-${i}`} className="text-2xl text-text-muted leading-relaxed flex items-start">
-                      <span className="text-[#00bfff] mr-4 mt-1">▶</span>
-                      <span dangerouslySetInnerHTML={{ __html: item.replace(/HTTP 400 PROMPT_INJECTION_BLOCKED/g, '<span class="text-[#7C3AED] font-mono">HTTP 400 PROMPT_INJECTION_BLOCKED</span>') }} />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="flex-1 bg-surface-container-low/60 backdrop-blur-xl border border-outline-variant p-8 rounded-xl">
-                <ul className="space-y-6">
-                  {slide.right.map((item, i) => (
-                    <li key={`right-${i}`} className="text-2xl text-text-muted leading-relaxed flex items-start">
-                      <span className="text-[#00bfff] mr-4 mt-1">▶</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'bullets':
-        return (
-          <div className="flex flex-col h-full">
-            <h2 className="text-5xl font-bold text-[#00bfff] mb-10 border-b-2 border-[#00bfff]/30 pb-4">{slide.title}</h2>
-            <div className="bg-surface-container-low/60 backdrop-blur-xl border border-outline-variant p-10 rounded-xl flex-1 flex items-center justify-center">
-              <ul className="space-y-8 w-full max-w-4xl">
-                {slide.bullets.map((b, i) => (
-                  <li key={`bullet-${i}`} className="text-3xl text-text-muted leading-relaxed flex items-start">
-                    <span className="text-[#00bfff] mr-4 mt-2">■</span>
-                    <div>
-                      {b.label && <strong className="text-[#00bfff] mr-2">{b.label}</strong>}
-                      {b.text}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        );
-
-      case 'two-col-table':
-        return (
-          <div className="flex flex-col h-full">
-            <h2 className="text-5xl font-bold text-[#00bfff] mb-8 border-b-2 border-[#00bfff]/30 pb-4">{slide.title}</h2>
-            <div className="flex gap-8 flex-1">
-              <div className="flex-1">
-                <ul className="space-y-6">
-                  {slide.bullets.map((b, i) => (
-                    <li key={`bullet-table-${i}`} className="text-2xl text-text-muted leading-relaxed flex items-start">
-                      <span className="text-[#00bfff] mr-4 mt-1">●</span>
-                      <span>{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="flex-1 flex flex-col justify-center">
-                <table className="w-full bg-surface-container-low/60 backdrop-blur-xl border border-outline-variant rounded-xl overflow-hidden">
-                  <thead>
-                    <tr>
-                      {slide.table.headers.map((h, i) => (
-                        <th key={`header-${i}`} className="bg-[#00bfff]/10 text-[#00bfff] font-mono text-xl uppercase p-4 text-left border-b border-white/10">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {slide.table.rows.map((row, i) => (
-                      <tr key={`row-${i}`} className="border-b border-white/5 last:border-0">
-                        {row.map((cell, j) => (
-                          <td key={`cell-${i}-${j}`} className={`p-4 text-xl ${j === 0 ? 'font-mono text-primary-container' : 'text-text-muted'}`}>{cell}</td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'three-cards':
-        return (
-          <div className="flex flex-col h-full">
-            <h2 className="text-5xl font-bold text-[#00bfff] mb-10 border-b-2 border-[#00bfff]/30 pb-4">{slide.title}</h2>
-            <div className="grid grid-cols-3 gap-8 flex-1">
-              {slide.cards.map((card, i) => (
-                <div key={`card-${i}`} className="bg-surface-container-low/60 backdrop-blur-xl border border-outline-variant p-8 rounded-xl flex flex-col">
-                  <h3 className="text-3xl text-white border-b border-outline-variant pb-4 mb-6 flex items-center gap-3">
-                    <span className="text-[#00bfff]">{"{ }"}</span> {card.heading}
-                  </h3>
-                  <ul className="space-y-4">
-                    {card.items.map((item, j) => (
-                      <li key={`card-item-${i}-${j}`} className="text-xl text-text-muted flex items-start">
-                        <span className="text-[#00bfff] mr-3">▹</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
-      case 'four-cards':
-        return (
-          <div className="flex flex-col h-full">
-            <h2 className="text-5xl font-bold text-[#00bfff] mb-8 border-b-2 border-[#00bfff]/30 pb-4">{slide.title}</h2>
-            <div className="grid grid-cols-4 gap-6 flex-1">
-              {slide.cards.map((card, i) => (
-                <div key={`card-4-${i}`} className="bg-surface-container-low/60 backdrop-blur-xl border-l-4 p-6 rounded-xl flex flex-col justify-center" style={{ borderLeftColor: card.color }}>
-                  <h3 className="text-2xl font-bold text-white mb-4">{card.heading}</h3>
-                  <p className="text-xl text-text-muted">{card.text}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-8 text-center bg-surface-container-low/30 p-4 rounded border border-outline-variant/30">
-              <p className="text-xl text-text-muted">{slide.footer}</p>
-            </div>
-          </div>
-        );
-
-      case 'audit':
-        return (
-          <div className="flex flex-col h-full">
-            <h2 className="text-5xl font-bold text-[#00bfff] mb-10 border-b-2 border-[#00bfff]/30 pb-4">{slide.title}</h2>
-            <div className="bg-surface-container-low/60 backdrop-blur-xl border border-outline-variant p-10 rounded-xl flex-1 flex flex-col items-center justify-center">
-              <p className="text-3xl text-text-muted mb-12 text-center">{slide.note}</p>
-              <div className="flex flex-col gap-8 w-full max-w-4xl">
-                {slide.transforms.map((t, i) => (
-                  <div key={`transform-${i}`} className="flex items-center gap-8 bg-black/30 p-6 rounded-xl border-l-4 border-error">
-                    <span className="text-3xl text-error w-40 text-center font-mono">{t.from}</span>
-                    <span className="text-3xl text-text-muted">➔</span>
-                    <span className="text-3xl text-accent-green font-mono font-bold">{t.to}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'table-only':
-        return (
-          <div className="flex flex-col h-full">
-            <h2 className="text-5xl font-bold text-[#00bfff] mb-8 border-b-2 border-[#00bfff]/30 pb-4">{slide.title}</h2>
-            <table className="w-full bg-surface-container-low/60 backdrop-blur-xl border border-outline-variant rounded-xl overflow-hidden mb-8">
-              <thead>
-                <tr>
-                  {slide.table.headers.map((h, i) => (
-                    <th key={`head-only-${i}`} className="bg-[#00bfff]/10 text-[#00bfff] font-mono text-2xl uppercase p-6 text-left border-b border-white/10">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {slide.table.rows.map((row, i) => (
-                  <tr key={`row-only-${i}`} className="border-b border-white/5 last:border-0">
-                    {row.map((cell, j) => (
-                      <td key={`cell-only-${i}-${j}`} className={`p-6 text-2xl ${j === 1 ? 'font-mono text-primary-container' : j === 0 ? 'font-bold text-white' : 'text-text-muted'}`}>{cell}</td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <ul className="space-y-4">
-              {slide.bullets.map((b, i) => (
-                <li key={`bullet-only-${i}`} className="text-2xl text-text-muted leading-relaxed flex items-center">
-                  <span className="text-[#00bfff] mr-4">●</span>
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
-
-      case 'timeline':
-        return (
-          <div className="flex flex-col h-full">
-            <h2 className="text-5xl font-bold text-[#00bfff] mb-10 border-b-2 border-[#00bfff]/30 pb-4">{slide.title}</h2>
-            <div className="bg-surface-container-low/60 backdrop-blur-xl border border-outline-variant p-10 rounded-xl flex-1 flex items-center justify-center">
-              <ul className="flex flex-col gap-8 w-full max-w-5xl">
-                {slide.items.map((item, i) => (
-                  <li key={`timeline-${i}`} className="flex items-center gap-6">
-                    <div className="font-mono text-3xl font-bold text-[#00bfff] w-48 text-right">{item.sprint}</div>
-                    <div className={`w-6 h-6 rounded-full ${item.highlight ? 'bg-accent-green shadow-[0_0_15px_#22C55E]' : 'bg-[#00bfff]'}`}></div>
-                    <div className={`text-3xl flex-1 pl-4 ${item.highlight ? 'text-white font-bold' : 'text-text-muted'}`}>{item.text}</div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        );
-
-      case 'ai-workflow':
-        return (
-          <div className="flex flex-col h-full">
-            <h2 className="text-5xl font-bold text-[#00bfff] mb-10 border-b-2 border-[#00bfff]/30 pb-4">{slide.title}</h2>
-            <div className="bg-surface-container-low/60 backdrop-blur-xl border border-outline-variant p-10 rounded-xl flex-1 flex flex-col items-center justify-center">
-              <div className="text-center mb-16">
-                <h3 className="text-4xl text-[#00bfff] mb-4">{slide.heading}</h3>
-                <p className="text-3xl text-white">{slide.subtitle}</p>
-              </div>
-              <div className="flex items-center justify-center gap-12 mb-12 w-full">
-                <div className="bg-[#00bfff]/10 border border-[#00bfff] p-8 rounded-xl text-center flex-1 max-w-sm">
-                  <p className="text-3xl font-bold text-white mb-2">{slide.left.role}</p>
-                  <p className="text-2xl text-text-muted">{slide.left.action}</p>
-                </div>
-                <div className="text-5xl text-text-muted">⇆</div>
-                <div className="bg-accent-green/10 border border-accent-green p-8 rounded-xl text-center flex-1 max-w-sm">
-                  <p className="text-3xl font-bold text-white mb-2">{slide.right.role}</p>
-                  <p className="text-2xl text-text-muted">{slide.right.action}</p>
-                </div>
-              </div>
-              <p className="text-xl text-text-muted">* AI disclosure is present in code headers / appendix per the submission checklist.</p>
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
+  const slide = slides[index];
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0D0D0D] overflow-hidden select-none font-inter">
-      {/* 1. Memoized Dynamic Starfield Background */}
-      <Background />
-
-      {/* Slide Container */}
-      <div className="absolute inset-0 flex items-center justify-center p-8">
-        <div className="relative w-full max-w-[1400px] aspect-[16/9] overflow-hidden">
-          {/* 2. Optimized AnimatePresence with GPU acceleration properties */}
-          <AnimatePresence initial={false} custom={direction} mode="wait">
-            <motion.div
-              key={currentSlide.id}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              style={{ willChange: "transform, opacity" }}
-              className="absolute inset-0 bg-[#0D0D0D]/85 backdrop-blur-md border border-outline-variant/50 rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.3)] p-16"
-            >
-              {renderContent(currentSlide)}
-
-              {/* Slide Footer */}
-              <div className="absolute bottom-8 left-16 font-mono text-xl text-white/30 uppercase">
-                DEV-COSMIC // {currentSlide.layout.replace(/-/g, '_').toUpperCase()}
-              </div>
-
-              {/* Slide Number */}
-              <div className="absolute bottom-8 right-16 font-mono text-2xl text-white/30">
-                {String(slideIndex + 1).padStart(2, '0')} / {slides.length}
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+    <div className="flex min-h-screen w-full select-none flex-col items-center justify-center px-6 py-10">
+      {/* Slide stage */}
+      <div className="flex w-full flex-1 items-center justify-center">
+        <AnimatePresence mode="wait" custom={direction} initial={false}>
+          <motion.div
+            key={slide.id}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.28, ease: 'easeOut' }}
+            style={{ willChange: 'transform, opacity' }}
+            className="flex w-full justify-center"
+          >
+            <SlideView slide={slide} />
+          </motion.div>
+        </AnimatePresence>
       </div>
 
-      {/* Navigation Controls (On-screen) */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 z-50">
-        <NeonButton 
-          variant="secondary" 
-          onClick={() => paginate(-1)} 
-          disabled={slideIndex === 0}
-          className="!px-4 !py-2 !text-lg"
-        >
-          [ PREV ]
+      {/* Controls */}
+      <div className="mt-8 flex w-full max-w-[920px] items-center justify-between gap-5">
+        <NeonButton variant="secondary" onClick={() => go(-1)} disabled={index === 0}>
+          ‹ Prev
         </NeonButton>
-        <span className="font-mono text-white/50 text-sm">USE ARROWS OR SPACE</span>
-        <NeonButton 
-          variant="primary" 
-          onClick={() => paginate(1)} 
-          disabled={slideIndex === slides.length - 1}
-          className="!px-4 !py-2 !text-lg"
-        >
-          [ NEXT ]
+
+        <div className="flex flex-1 flex-col items-center gap-2">
+          <span className="font-mono text-[12px] tracking-[0.18em] text-[#87929b]">
+            {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+          </span>
+          <div className="h-[2px] w-full bg-[#242424]">
+            <motion.div
+              className="h-full origin-left bg-[#00bfff]"
+              animate={{ scaleX: (index + 1) / total }}
+              transition={{ duration: 0.28, ease: 'easeOut' }}
+              style={{ willChange: 'transform' }}
+            />
+          </div>
+          <span className="font-mono text-[10px] tracking-[0.15em] text-[#87929b]/70">
+            ← → / SPACE TO NAVIGATE
+          </span>
+        </div>
+
+        <NeonButton variant="secondary" onClick={() => go(1)} disabled={index === total - 1}>
+          Next ›
         </NeonButton>
       </div>
     </div>
