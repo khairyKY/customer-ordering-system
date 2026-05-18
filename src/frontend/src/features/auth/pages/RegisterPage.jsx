@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { Button } from '../../../components/ui/Button';
-import { Card } from '../../../components/ui/Card';
-import { Input } from '../../../components/ui/Input';
-
 import { authApi } from '../api/authApi';
+import NeonButton from '../../../components/ui/NeonButton';
+import TerminalInput from '../../../components/ui/TerminalInput';
 
 export default function RegisterPage() {
     const navigate = useNavigate();
@@ -37,59 +35,70 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-            <Card className="w-full max-w-md">
-                <h1 className="text-2xl font-bold text-gray-900 mb-6">Create Account</h1>
+        <div className="min-h-screen flex flex-col items-center justify-center bg-[#0D0D0D] px-4">
+            <h2 className="font-mono text-[24px] font-semibold text-center text-[#e5e2e1] mb-8">
+                Create Account
+            </h2>
+
+            <div className="w-full max-w-[480px] border border-[#3d4850] bg-[#131313] p-6 flex flex-col gap-6">
+                <h3 className="font-mono text-[12px] text-[#87929b] uppercase tracking-wider">
+                    // NEW_USER_REGISTRATION
+                </h3>
 
                 <form onSubmit={submit} className="flex flex-col gap-4" data-testid="register-form">
-                    <Input
-                        label="Email"
-                        type="email"
-                        autoComplete="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        data-testid="register-email"
-                    />
-                    <Input
-                        label="Password (min 8 chars)"
-                        type="password"
-                        autoComplete="new-password"
-                        required
-                        minLength={8}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        data-testid="register-password"
-                    />
+                    <div className="flex flex-col gap-2">
+                        <label className="font-mono text-[13px] text-[#e5e2e1]">Email Address</label>
+                        <TerminalInput
+                            type="email"
+                            placeholder="user@domain.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            ariaLabel="Email"
+                            data-testid="register-email"
+                        />
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <label className="font-mono text-[13px] text-[#e5e2e1]">Password (min 8 chars)</label>
+                        <TerminalInput
+                            type="password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            ariaLabel="Password"
+                            data-testid="register-password"
+                        />
+                    </div>
 
                     {error && (
                         <div
-                            className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2"
+                            className="font-mono text-[13px] text-[#ffb4ab] bg-[#93000a]/20 border border-[#ffb4ab]/30 px-3 py-2"
                             data-testid="register-error"
                         >
                             {error}
                         </div>
                     )}
 
-                    <Button
+                    <NeonButton
                         variant="primary"
+                        fullWidth
                         disabled={submitting}
                         onClick={submit}
-                        className="mt-2 w-full"
+                        type="submit"
                     >
                         <span data-testid="register-submit">
-                            {submitting ? 'Creating…' : 'Create account'}
+                            {submitting ? '[ PROVISIONING... ]' : '[ CREATE ACCOUNT ]'}
                         </span>
-                    </Button>
+                    </NeonButton>
                 </form>
 
-                <p className="text-center mt-6 text-sm text-gray-600">
+                <p className="text-center font-mono text-[13px] text-[#87929b]">
                     Already registered?{' '}
-                    <Link to="/admin/login" className="text-blue-600 hover:underline font-medium">
+                    <Link to="/admin/login" className="text-[#00bfff] hover:underline">
                         Sign in
                     </Link>
                 </p>
-            </Card>
+            </div>
         </div>
     );
 }

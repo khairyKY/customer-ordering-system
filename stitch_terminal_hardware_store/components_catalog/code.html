@@ -1,0 +1,351 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Components | pc-parts.store</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline-variant": "#3d4850",
+                      "primary-container": "#00bfff",
+                      "surface-container-lowest": "#0e0e0e",
+                      "on-primary-fixed": "#001e2c",
+                      "primary-fixed": "#c3e8ff",
+                      "on-tertiary": "#003915",
+                      "background": "#131313",
+                      "on-secondary-fixed-variant": "#5a00c6",
+                      "tertiary-fixed": "#6bff8f",
+                      "tertiary-container": "#2ecc64",
+                      "secondary-fixed-dim": "#d2bbff",
+                      "on-tertiary-fixed": "#002109",
+                      "on-primary": "#003549",
+                      "surface-tint": "#7ad0ff",
+                      "on-tertiary-fixed-variant": "#005321",
+                      "secondary-fixed": "#eaddff",
+                      "inverse-primary": "#00668a",
+                      "on-primary-container": "#004a65",
+                      "inverse-on-surface": "#313030",
+                      "on-secondary-fixed": "#25005a",
+                      "on-error": "#690005",
+                      "on-tertiary-container": "#005020",
+                      "outline": "#87929b",
+                      "on-secondary-container": "#c9aeff",
+                      "on-secondary": "#3f008e",
+                      "surface-bright": "#3a3939",
+                      "on-background": "#e5e2e1",
+                      "secondary-container": "#6001d1",
+                      "surface-container-high": "#2a2a2a",
+                      "tertiary-fixed-dim": "#4ae176",
+                      "surface-container": "#201f1f",
+                      "primary": "#8fd6ff",
+                      "surface": "#131313",
+                      "on-error-container": "#ffdad6",
+                      "on-primary-fixed-variant": "#004c69",
+                      "error-container": "#93000a",
+                      "surface-dim": "#131313",
+                      "error": "#ffb4ab",
+                      "surface-container-highest": "#353534",
+                      "inverse-surface": "#e5e2e1",
+                      "surface-variant": "#353534",
+                      "surface-container-low": "#1c1b1b",
+                      "on-surface-variant": "#bcc8d1",
+                      "secondary": "#d2bbff",
+                      "on-surface": "#e5e2e1",
+                      "tertiary": "#53e97d",
+                      "primary-fixed-dim": "#7ad0ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "unit-1": "4px",
+                      "unit-6": "24px",
+                      "unit-2": "8px",
+                      "margin": "24px",
+                      "unit-12": "48px",
+                      "unit-4": "16px",
+                      "gutter": "16px",
+                      "base": "4px",
+                      "unit-8": "32px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "JetBrains Mono"
+                      ],
+                      "label-md": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "body-lg": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "JetBrains Mono"
+                      ],
+                      "code-snippet": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.0",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-sm": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "code-snippet": [
+                              "13px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* CosmicCanvas Background simulation */
+        .bg-cosmic {
+            background-color: #131313;
+            background-image: radial-gradient(circle at 50% 50%, rgba(0, 191, 255, 0.05) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 20%, rgba(90, 0, 198, 0.05) 0%, transparent 40%);
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-md text-body-md pt-unit-12 pb-unit-6 flex flex-col bg-cosmic">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full h-[56px] bg-[#0D0D0D] border-b border-[#222222] flex items-center justify-between px-margin z-[100]">
+    <div class="flex items-center gap-1">
+        <span class="font-['Inter','Plus_Jakarta_Sans',sans-serif] text-[18px] font-bold text-white">pc-parts</span>
+        <span class="text-[#00BFFF] text-[18px] font-bold">·</span>
+    </div>
+    <nav class="hidden md:flex items-center gap-[32px]">
+        <a href="#" class="font-['Inter','Plus_Jakarta_Sans',sans-serif] text-[14px] text-white border-b-2 border-[#00BFFF] pb-[4px] underline-offset-[4px]">Shop</a>
+        <a href="#" class="font-['Inter','Plus_Jakarta_Sans',sans-serif] text-[14px] text-[#999999] hover:text-white">Deals</a>
+        <a href="#" class="font-['Inter','Plus_Jakarta_Sans',sans-serif] text-[14px] text-[#999999] hover:text-white">Builds</a>
+        <a href="#" class="font-['Inter','Plus_Jakarta_Sans',sans-serif] text-[14px] text-[#999999] hover:text-white">Support</a>
+    </nav>
+    <div class="flex items-center gap-[32px]">
+        <button class="font-['Inter','Plus_Jakarta_Sans',sans-serif] text-[13px] text-[#999999] hover:text-[#00BFFF] transition-none">Cart (0)</button>
+        <button class="font-mono text-[13px] text-[#00BFFF] border border-[#00BFFF] px-[12px] py-[4px] hover:bg-transparent transition-none">
+            [ Sign In ]
+        </button>
+    </div>
+</header>
+<main class="flex-1 flex flex-col md:flex-row px-gutter md:px-margin mt-unit-8 w-full max-w-7xl mx-auto gap-gutter z-10">
+<!-- Sidebar Filter Panel -->
+<aside class="w-full md:w-[240px] shrink-0 flex flex-col gap-unit-6">
+<div>
+<p class="font-label-md text-label-md text-outline mb-unit-2">shop / all components</p>
+<h1 class="font-headline-lg text-headline-lg text-on-background mb-unit-2">COMPONENTS</h1>
+<p class="font-body-md text-body-md text-outline-variant mb-unit-6">Browse CPUs, GPUs, RAM, Storage, Cases and more.</p>
+</div>
+<!-- TerminalInput Search -->
+<div class="relative flex items-center bg-[#0D0D0D] border border-[#222222] focus-within:border-[#7C3AED] h-10 w-full">
+<span class="text-[#22C55E] pl-3 pr-2 font-code-snippet">&gt;_</span>
+<input class="bg-transparent border-none focus:ring-0 text-on-background font-code-snippet text-code-snippet w-full h-full placeholder-outline-variant" placeholder="Search spec..." type="text">
+</div>
+<!-- Filters -->
+<div class="flex flex-col gap-unit-4">
+<div class="flex flex-col gap-unit-2">
+<h3 class="font-headline-sm text-headline-sm text-on-background border-b border-outline-variant pb-1">CATEGORY</h3>
+<div class="flex flex-col gap-1 font-code-snippet text-code-snippet">
+<label class="flex items-center cursor-pointer hover:text-primary">
+<span class="mr-2 text-primary">[x]</span> GPU
+                        </label>
+<label class="flex items-center cursor-pointer hover:text-primary">
+<span class="mr-2 text-outline-variant">[ ]</span> CPU
+                        </label>
+<label class="flex items-center cursor-pointer hover:text-primary">
+<span class="mr-2 text-outline-variant">[ ]</span> Motherboard
+                        </label>
+<label class="flex items-center cursor-pointer hover:text-primary">
+<span class="mr-2 text-outline-variant">[ ]</span> Memory
+                        </label>
+</div>
+</div>
+<div class="flex flex-col gap-unit-2">
+<h3 class="font-headline-sm text-headline-sm text-on-background border-b border-outline-variant pb-1">BRAND</h3>
+<div class="flex flex-col gap-1 font-code-snippet text-code-snippet">
+<label class="flex items-center cursor-pointer hover:text-primary">
+<span class="mr-2 text-primary">[x]</span> NVIDIA
+                        </label>
+<label class="flex items-center cursor-pointer hover:text-primary">
+<span class="mr-2 text-outline-variant">[ ]</span> AMD
+                        </label>
+<label class="flex items-center cursor-pointer hover:text-primary">
+<span class="mr-2 text-outline-variant">[ ]</span> Intel
+                        </label>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col gap-unit-6">
+<!-- Sort Bar -->
+<div class="flex flex-wrap gap-unit-2 border-b border-outline-variant pb-unit-4">
+<span class="font-label-md text-label-md text-outline self-center mr-unit-2">SORT BY:</span>
+<button class="border border-[#222222] bg-transparent text-[#999999] hover:bg-[#E0E0E0] hover:text-[#0D0D0D] font-code-snippet text-code-snippet uppercase px-unit-2 py-1 transition-none">
+                    [ PRICE ↑ ]
+                </button>
+<button class="border border-[#222222] bg-transparent text-[#999999] hover:bg-[#E0E0E0] hover:text-[#0D0D0D] font-code-snippet text-code-snippet uppercase px-unit-2 py-1 transition-none">
+                    [ PRICE ↓ ]
+                </button>
+<button class="border border-[#00BFFF] bg-transparent text-[#00BFFF] hover:bg-[#00BFFF] hover:text-[#0D0D0D] font-code-snippet text-code-snippet uppercase px-unit-2 py-1 transition-none">
+                    [ NEWEST ]
+                </button>
+</div>
+<!-- Product Grid (CmdCard) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-unit-4">
+<!-- Card 1 -->
+<div class="border border-[#222222] bg-[#111111] flex flex-col group relative overflow-hidden">
+<div class="h-48 border-b border-[#222222] relative bg-surface-container-lowest">
+<img alt="GPU" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A high-performance modern graphics card shown in a sleek, minimalist flat-tech style. The GPU features stark geometric cooling shrouds in matte black, with subtle sharp cyan accents. The lighting is low-key, emphasizing the functional design and metallic textures against a pure black background. The overall mood conveys precision, high-end PC enthusiast hardware, and raw computational power." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrAZeFCpTS6x9_2nUkLGeb4aav1O5iBd022gWY9ACo1-VWrsNA4rXDdQBNcbVm9W9lPDs-U9zwP7S6_wJ8O3lRkMQBwKjPyBhqeFJQ2IGPSWEjwB467_FRczVwhBZFs5ScpuCtmJAf46qfApU75nkwUxugE2mosw9jNx_Y1Ntq_vGGYWu8fKXFuej3DrVaeH5vROYQrNs5mC2RNM_EFfiniWcwmGsgSzl11EwkZQDKFt0XFQ_dopdiYCKsRsPnDCDbujnyqQC68Xni">
+<div class="absolute top-2 right-2 bg-surface p-1 border border-[#222222]">
+<div class="w-3 h-3 bg-[#22C55E]" title="IN_STOCK"></div>
+</div>
+</div>
+<div class="p-unit-4 flex flex-col gap-unit-2 flex-1">
+<span class="font-code-snippet text-code-snippet text-outline-variant">// GPU</span>
+<h3 class="font-headline-sm text-headline-sm text-on-background line-clamp-2 group-hover:text-primary transition-none">NVIDIA RTX 4090 Founders Edition</h3>
+<p class="font-code-snippet text-code-snippet text-outline text-sm mt-auto">24GB GDDR6X</p>
+<div class="flex justify-between items-end mt-unit-4">
+<span class="font-headline-md text-headline-md text-on-background">$1599.99</span>
+<button class="border border-[#00BFFF] bg-transparent text-[#00BFFF] hover:bg-[#00BFFF] hover:text-[#0D0D0D] font-code-snippet text-code-snippet uppercase px-unit-2 py-1 transition-none">
+                                [ ADD ]
+                            </button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="border border-[#222222] bg-[#111111] flex flex-col group relative overflow-hidden">
+<div class="h-48 border-b border-[#222222] relative bg-surface-container-lowest">
+<img alt="CPU" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A top-tier computer processor chip sitting on an antistatic mat. The CPU heat spreader reflects harsh, cold lighting, highlighting laser-etched text. The environment is heavily inspired by developer workspaces, utilizing deep blacks, charcoal greys, and high-contrast edges. The visual language is purely functional, stripping away unnecessary embellishments to focus on the intricate details of the silicon architecture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRRa7KQ4CiZN1bA0LIeIOTMTELnEe0_-7qNITIRZAYSy-u47K15JKgm1mnNn1PKD8YhKN8hKaF69lj3eX9SnriFBDgouUEvep6aXjgjOQ2RpqwiiIMTpklpbohUorpVEkaQoZixZzp6UiqD-zTU4karoxkZh67-IDYJlZE6W-iTr5yCvtfXndty5DgPFGE3c4vxf8Uiru0YgUwifEnmW_QnuKUuyc_sijAsmiC2qpdMRdAMplXWDbZaz5GuNSO0EZJwrRTgbOJsVlb">
+<div class="absolute top-2 right-2 bg-surface p-1 border border-[#222222]">
+<div class="w-3 h-3 bg-[#22C55E]" title="IN_STOCK"></div>
+</div>
+</div>
+<div class="p-unit-4 flex flex-col gap-unit-2 flex-1">
+<span class="font-code-snippet text-code-snippet text-outline-variant">// CPU</span>
+<h3 class="font-headline-sm text-headline-sm text-on-background line-clamp-2 group-hover:text-primary transition-none">AMD Ryzen 9 7950X3D</h3>
+<p class="font-code-snippet text-code-snippet text-outline text-sm mt-auto">16-Core, 32-Thread</p>
+<div class="flex justify-between items-end mt-unit-4">
+<span class="font-headline-md text-headline-md text-on-background">$699.00</span>
+<button class="border border-[#00BFFF] bg-transparent text-[#00BFFF] hover:bg-[#00BFFF] hover:text-[#0D0D0D] font-code-snippet text-code-snippet uppercase px-unit-2 py-1 transition-none">
+                                [ ADD ]
+                            </button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="border border-[#222222] bg-[#111111] flex flex-col group relative overflow-hidden">
+<div class="h-48 border-b border-[#222222] relative bg-surface-container-lowest flex items-center justify-center p-4">
+<img alt="Motherboard" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="An advanced ATX motherboard shot from directly above, creating a flat, orthographic perspective similar to a technical blueprint. The complex circuitry, VRM heatsinks, and expansion slots are rendered in sharp detail. The color scheme is predominantly dark grey and black, punctuated by occasional silver metallic components and subtle LED trace lines in vivid cyan. The composition emphasizes density and connectivity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdzpVqxlz9uTpbFdVPVlJAJrQQhoLtQUmrKWNnUUE4jhndVa6dHMia5WcwdyBm-3svMiYyoQGHsT1srUm4EHjiqUMHv-nEneoAD-dXFPJRPrH3gHlwCVFgs5QTyhllCkASCvHvDdtjrZbErvUa1xnTWPvSdKmODujwkM7AL3c8vK7UD2d9u-2UPvIq14CESUeWu5UJc2rchJoW44AQU1_IJ0LOqX7tMTZvhcZluYQIWkU6ArTb2mN72Q9fwcSjwvrUeOW7YdtwajTK">
+<div class="absolute top-2 right-2 bg-surface p-1 border border-[#222222]">
+<div class="w-3 h-3 bg-[#F59E0B]" title="LOW_STOCK"></div>
+</div>
+</div>
+<div class="p-unit-4 flex flex-col gap-unit-2 flex-1">
+<span class="font-code-snippet text-code-snippet text-outline-variant">// MOBO</span>
+<h3 class="font-headline-sm text-headline-sm text-on-background line-clamp-2 group-hover:text-primary transition-none">ASUS ROG Crosshair X670E Hero</h3>
+<p class="font-code-snippet text-code-snippet text-outline text-sm mt-auto">AM5 ATX</p>
+<div class="flex justify-between items-end mt-unit-4">
+<span class="font-headline-md text-headline-md text-on-background">$649.99</span>
+<button class="border border-[#00BFFF] bg-transparent text-[#00BFFF] hover:bg-[#00BFFF] hover:text-[#0D0D0D] font-code-snippet text-code-snippet uppercase px-unit-2 py-1 transition-none">
+                                [ ADD ]
+                            </button>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="border border-[#222222] bg-[#111111] flex flex-col group relative overflow-hidden">
+<div class="h-48 border-b border-[#222222] relative bg-surface-container-lowest">
+<img alt="Case" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A minimalist mid-tower PC case displayed against an absolute black void. The case features clean, uninterrupted lines, a solid front panel, and a dark tinted tempered glass side panel. The lighting is highly directional, casting sharp reflections on the glass and emphasizing the case's geometric silhouette. The style is raw, digital-first, and devoid of distracting background elements, focusing solely on the hardware's form." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWUTP90s2xxr47W9NAT0jMa8tHPSkFNDgz9_b08XSUn5MnWIZqHv2LzZmSscdIqE6dBW1dpOqoFKV6NjTnG3ec1K0bSoSXPJALjzJGI4MF620zeCluLFxKNraGqPy_3aE-62ngHwNx7ljFm26-l38lyw0cReccCI-6AfUXTOpRa46YkjHHy-zRbdvjk1lWwxMtRpVYzrxnUNLdyVBnlLMeBU-gcAWSigAWN2-AvH7SP5DeNzKd2zgDv7CxKJpwB8yds4AW-RSVxgUZ">
+<div class="absolute top-2 right-2 bg-surface p-1 border border-[#222222]">
+<div class="w-3 h-3 bg-[#22C55E]" title="IN_STOCK"></div>
+</div>
+</div>
+<div class="p-unit-4 flex flex-col gap-unit-2 flex-1">
+<span class="font-code-snippet text-code-snippet text-outline-variant">// CASE</span>
+<h3 class="font-headline-sm text-headline-sm text-on-background line-clamp-2 group-hover:text-primary transition-none">Fractal Design North</h3>
+<p class="font-code-snippet text-code-snippet text-outline text-sm mt-auto">Mid Tower, Charcoal Black</p>
+<div class="flex justify-between items-end mt-unit-4">
+<span class="font-headline-md text-headline-md text-on-background">$139.99</span>
+<button class="border border-[#00BFFF] bg-transparent text-[#00BFFF] hover:bg-[#00BFFF] hover:text-[#0D0D0D] font-code-snippet text-code-snippet uppercase px-unit-2 py-1 transition-none">
+                                [ ADD ]
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low dark:bg-surface-container-low text-tertiary dark:text-tertiary font-label-md text-label-md docked full-width bottom-0 h-unit-6 border-t border-outline-variant flat no shadows fixed bottom-0 left-0 w-full flex justify-between items-center px-margin z-50">
+<div class="font-label-md text-label-md text-outline">
+            [ STATUS: STORE ONLINE ]
+        </div>
+<div class="flex space-x-unit-4">
+<span class="text-outline uppercase cursor-pointer transition-none hover:text-primary">SHIPPING: GLOBAL_PRIORITY</span>
+<span class="text-outline uppercase cursor-pointer transition-none hover:text-primary">v2.0.4-STABLE</span>
+</div>
+</footer>
+
+
+</body></html>

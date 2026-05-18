@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { Button } from '../../../components/ui/Button';
-import { Card } from '../../../components/ui/Card';
-import { Input } from '../../../components/ui/Input';
-
 import { inventoryApi } from '../api/ordersApi';
+import NeonButton from '../../../components/ui/NeonButton';
+import TerminalInput from '../../../components/ui/TerminalInput';
 
 export default function InventoryPage() {
     const [products, setProducts] = useState([]);
@@ -72,115 +70,121 @@ export default function InventoryPage() {
     }
 
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
-                <p className="text-sm text-gray-600">
-                    Low-stock threshold: <strong>5 units</strong>
+        <div className="flex flex-col gap-6">
+            {/* Page Header */}
+            <div>
+                <h1 className="font-mono text-[32px] font-bold text-[#e5e2e1] mb-2">INVENTORY MANAGEMENT</h1>
+                <p className="font-mono text-[13px] text-[#87929b]">
+                    // LOW_STOCK_THRESHOLD: 5 | SYS_STATUS: OPTIMAL
                 </p>
             </div>
 
             {error && (
-                <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2" data-testid="inventory-error">
+                <div className="font-mono text-[13px] text-[#ffb4ab] bg-[#93000a]/20 border border-[#ffb4ab]/30 px-3 py-2" data-testid="inventory-error">
                     {error}
                 </div>
             )}
 
-            <Card className="p-0 overflow-hidden">
+            {/* Inventory Table */}
+            <div className="border border-[#3d4850] bg-[#201f1f] overflow-hidden">
                 {loading ? (
-                    <div className="p-8 text-center text-gray-500" data-testid="inventory-loading">Loading…</div>
+                    <div className="p-8 text-center font-mono text-[13px] text-[#87929b]" data-testid="inventory-loading">
+                        Loading inventory data...
+                    </div>
                 ) : (
-                    <table className="w-full" data-testid="inventory-table">
-                        <thead className="bg-gray-50">
-                            <tr className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-                                <th className="px-4 py-3 text-left">Product</th>
-                                <th className="px-4 py-3 text-left">SKU</th>
-                                <th className="px-4 py-3 text-right">Stock</th>
-                                <th className="px-4 py-3 text-left">Status</th>
-                                <th className="px-4 py-3"></th>
+                    <table className="w-full text-left border-collapse" data-testid="inventory-table">
+                        <thead>
+                            <tr className="border-b border-[#3d4850] bg-[#2a2a2a]">
+                                <th className="p-3 font-mono text-[12px] text-[#87929b] uppercase">Product</th>
+                                <th className="p-3 font-mono text-[12px] text-[#87929b] uppercase">SKU</th>
+                                <th className="p-3 font-mono text-[12px] text-[#87929b] uppercase text-right">Stock</th>
+                                <th className="p-3 font-mono text-[12px] text-[#87929b] uppercase">Status</th>
+                                <th className="p-3 font-mono text-[12px] text-[#87929b] uppercase text-right">Action</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="font-mono text-[13px]">
                             {products.map((p) => (
                                 <tr
                                     key={p.id}
-                                    className="border-t border-gray-100 hover:bg-gray-50 transition-colors"
+                                    className="border-b border-[#3d4850] hover:bg-[#353534]"
                                     data-testid="product-row"
                                     data-low-stock={p.low_stock ? 'true' : 'false'}
                                 >
-                                    <td className="px-4 py-3">{p.name}</td>
-                                    <td className="px-4 py-3">
-                                        <code className="text-xs bg-gray-100 px-2 py-1 rounded">{p.sku}</code>
+                                    <td className="p-3 text-[#e5e2e1]">{p.name}</td>
+                                    <td className="p-3">
+                                        <code className="text-[11px] text-[#8fd6ff] bg-[#131313] border border-[#3d4850] px-2 py-1">{p.sku}</code>
                                     </td>
-                                    <td className="px-4 py-3 text-right" data-testid={`stock-${p.id}`}>{p.stock}</td>
-                                    <td className="px-4 py-3">
+                                    <td className="p-3 text-right text-[#e5e2e1]" data-testid={`stock-${p.id}`}>{p.stock}</td>
+                                    <td className="p-3">
                                         {p.low_stock ? (
                                             <span
-                                                className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800"
+                                                className="text-[#ffb4ab] px-2 py-1 bg-[#ffb4ab]/10 border border-[#ffb4ab]/30 text-[10px] uppercase tracking-wider"
                                                 data-testid={`low-stock-${p.id}`}
                                             >
-                                                LOW STOCK
+                                                LOW_STOCK
                                             </span>
                                         ) : (
-                                            <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                                                OK
+                                            <span className="text-[#2ecc64] px-2 py-1 bg-[#2ecc64]/10 border border-[#2ecc64]/30 text-[10px] uppercase tracking-wider">
+                                                IN_STOCK
                                             </span>
                                         )}
                                     </td>
-                                    <td className="px-4 py-3 text-right">
-                                        <Button
+                                    <td className="p-3 text-right">
+                                        <NeonButton
                                             variant="secondary"
                                             onClick={() => beginEdit(p)}
-                                            className="text-sm"
                                         >
-                                            <span data-testid={`edit-${p.id}`}>Update stock</span>
-                                        </Button>
+                                            <span data-testid={`edit-${p.id}`}>[ UPDATE ]</span>
+                                        </NeonButton>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 )}
-            </Card>
+            </div>
 
+            {/* Edit Modal */}
             {editing && (
                 <div
-                    className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+                    className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
                     onClick={cancelEdit}
                 >
                     <div
-                        className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6 flex flex-col gap-4"
+                        className="bg-[#131313] border border-[#3d4850] w-full max-w-md p-6 flex flex-col gap-4"
                         onClick={(e) => e.stopPropagation()}
                         data-testid="stock-modal"
                     >
-                        <h2 className="text-lg font-bold text-gray-900">
-                            Update stock — {editing.name}
+                        <h2 className="font-mono text-[18px] font-semibold text-[#e5e2e1]">
+                            Update stock — <span className="text-[#00bfff]">{editing.name}</span>
                         </h2>
-                        <Input
-                            label="New stock quantity (0 – 100,000)"
-                            type="number"
-                            value={stockInput}
-                            min={0}
-                            max={100_000}
-                            step={1}
-                            autoFocus
-                            onChange={(e) => setStockInput(e.target.value)}
-                            error={fieldError}
-                            data-testid="stock-input"
-                        />
-                        <div className="flex justify-end gap-2">
-                            <Button variant="secondary" disabled={submitting} onClick={cancelEdit}>
-                                Cancel
-                            </Button>
-                            <Button variant="primary" disabled={submitting} onClick={saveStock}>
-                                <span data-testid="stock-save">
-                                    {submitting ? 'Saving…' : 'Save'}
-                                </span>
-                            </Button>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="font-mono text-[13px] text-[#87929b]">New stock quantity (0 – 100,000)</label>
+                            <TerminalInput
+                                type="number"
+                                value={stockInput}
+                                onChange={(e) => setStockInput(e.target.value)}
+                                placeholder="0"
+                                ariaLabel="Stock quantity"
+                                data-testid="stock-input"
+                            />
                         </div>
+
                         {fieldError && (
-                            <p className="text-xs text-red-500" data-testid="stock-error">{fieldError}</p>
+                            <p className="font-mono text-[13px] text-[#ffb4ab]" data-testid="stock-error">{fieldError}</p>
                         )}
+
+                        <div className="flex justify-end gap-2">
+                            <NeonButton variant="secondary" disabled={submitting} onClick={cancelEdit}>
+                                [ CANCEL ]
+                            </NeonButton>
+                            <NeonButton variant="primary" disabled={submitting} onClick={saveStock}>
+                                <span data-testid="stock-save">
+                                    {submitting ? '[ SAVING... ]' : '[ SAVE ]'}
+                                </span>
+                            </NeonButton>
+                        </div>
                     </div>
                 </div>
             )}

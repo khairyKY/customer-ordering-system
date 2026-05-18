@@ -1,0 +1,240 @@
+<!DOCTYPE html><html class="dark" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>pc-parts.store - RTX 4080 SUPER</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline-variant": "#3d4850",
+                      "primary-container": "#00bfff",
+                      "surface-container-lowest": "#0e0e0e",
+                      "on-primary-fixed": "#001e2c",
+                      "primary-fixed": "#c3e8ff",
+                      "on-tertiary": "#003915",
+                      "background": "#131313",
+                      "on-secondary-fixed-variant": "#5a00c6",
+                      "tertiary-fixed": "#6bff8f",
+                      "tertiary-container": "#2ecc64",
+                      "secondary-fixed-dim": "#d2bbff",
+                      "on-tertiary-fixed": "#002109",
+                      "on-primary": "#003549",
+                      "surface-tint": "#7ad0ff",
+                      "on-tertiary-fixed-variant": "#005321",
+                      "secondary-fixed": "#eaddff",
+                      "inverse-primary": "#00668a",
+                      "on-primary-container": "#004a65",
+                      "inverse-on-surface": "#313030",
+                      "on-secondary-fixed": "#25005a",
+                      "on-error": "#690005",
+                      "on-tertiary-container": "#005020",
+                      "outline": "#87929b",
+                      "on-secondary-container": "#c9aeff",
+                      "on-secondary": "#3f008e",
+                      "surface-bright": "#3a3939",
+                      "on-background": "#e5e2e1",
+                      "secondary-container": "#6001d1",
+                      "surface-container-high": "#2a2a2a",
+                      "tertiary-fixed-dim": "#4ae176",
+                      "surface-container": "#201f1f",
+                      "primary": "#8fd6ff",
+                      "surface": "#131313",
+                      "on-error-container": "#ffdad6",
+                      "on-primary-fixed-variant": "#004c69",
+                      "error-container": "#93000a",
+                      "surface-dim": "#131313",
+                      "error": "#ffb4ab",
+                      "surface-container-highest": "#353534",
+                      "inverse-surface": "#e5e2e1",
+                      "surface-variant": "#353534",
+                      "surface-container-low": "#1c1b1b",
+                      "on-surface-variant": "#bcc8d1",
+                      "secondary": "#d2bbff",
+                      "on-surface": "#e5e2e1",
+                      "tertiary": "#53e97d",
+                      "primary-fixed-dim": "#7ad0ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "unit-1": "4px",
+                      "unit-6": "24px",
+                      "unit-2": "8px",
+                      "margin": "24px",
+                      "unit-12": "48px",
+                      "unit-4": "16px",
+                      "gutter": "16px",
+                      "base": "4px",
+                      "unit-8": "32px"
+              },
+              "fontFamily": {
+                      "headline-md": ["JetBrains Mono"],
+                      "label-md": ["JetBrains Mono"],
+                      "headline-sm": ["JetBrains Mono"],
+                      "body-lg": ["JetBrains Mono"],
+                      "headline-lg": ["JetBrains Mono"],
+                      "body-md": ["JetBrains Mono"],
+                      "code-snippet": ["JetBrains Mono"]
+              },
+              "fontSize": {
+                      "headline-md": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                      "label-md": ["12px", {"lineHeight": "1.0", "fontWeight": "500"}],
+                      "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-md": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "code-snippet": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body { background-color: #131313; color: #e5e2e1; }
+        .neon-button-primary {
+            border: 1px solid #00bfff;
+            color: #00bfff;
+            background: transparent;
+            transition: none;
+        }
+        .neon-button-primary:hover {
+            background-color: #00bfff;
+            color: #0d0d0d;
+        }
+        .terminal-input-wrap {
+            border: 1px solid #222222;
+            background-color: #0d0d0d;
+        }
+        .terminal-input-wrap:focus-within {
+            border-color: #7C3AED;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pt-unit-12 pb-unit-12">
+<!-- TopNavBar (Shared Component) -->
+<nav class="fixed top-0 left-0 w-full h-[56px] flex justify-between items-center px-6 z-50 bg-[#0D0D0D] border-b border-[#222222] font-['Inter','Plus_Jakarta_Sans',sans-serif]">
+  <div class="flex items-center">
+    <span class="text-[18px] font-bold text-[#FFFFFF]">pc-parts</span>
+    <span class="text-[18px] font-bold text-[#00BFFF] ml-0.5">·</span>
+  </div>
+  
+  <div class="hidden md:flex items-center gap-[32px]">
+    <a href="#" class="text-[14px] text-[#FFFFFF] border-b-2 border-[#00BFFF] pb-[4px] decoration-skip-ink-none">Shop</a>
+    <a href="#" class="text-[14px] text-[#999999] hover:text-[#FFFFFF] transition-colors">Deals</a>
+    <a href="#" class="text-[14px] text-[#999999] hover:text-[#FFFFFF] transition-colors">Builds</a>
+    <a href="#" class="text-[14px] text-[#999999] hover:text-[#FFFFFF] transition-colors">Support</a>
+  </div>
+
+  <div class="flex items-center gap-6">
+    <button class="text-[13px] text-[#999999] hover:text-[#00BFFF] transition-colors">Cart (0)</button>
+    <button class="neon-button-primary font-['JetBrains_Mono',monospace] text-[14px] px-4 h-[32px] uppercase">
+      [ Sign In ]
+    </button>
+  </div>
+</nav>
+<main class="max-w-[1200px] mx-auto px-margin mt-unit-8">
+<!-- Breadcrumb -->
+<div class="mb-unit-6 font-code-snippet text-code-snippet text-outline">
+            &gt; shop / gpus / nvidia-rtx-4080-super
+        </div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Image Panel (Left) -->
+<div class="md:col-span-5 flex flex-col gap-unit-2">
+<div class="bg-[#111111] border border-[#222222] p-unit-4 h-[460px] flex items-center justify-center">
+<img alt="NVIDIA RTX 4080 SUPER" class="max-w-full max-h-full object-contain" data-alt="A high-end NVIDIA RTX 4080 SUPER graphics card resting on a dark, anti-static mat in a raw, digital-first workspace. The lighting is precise and functional, highlighting the metallic textures and heatsink fins against a predominantly #0D0D0D background. Sharp, unblurred focus emphasizes technical precision, with subtle cool-toned reflections suggesting a premium hardware environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6xFpnCz-AUsY_QS6mNXE3GrIBQWdID0LUTWbGsX63rwkozR3AhT-MAm2x9rLjMqzmSo_MvhCvfE-7vvtv9h8FJGIkIvQ3Z-zD9EDEbhccosbRdHPReFtOUekYdV4bB0WAUHbUVNIG8GpuG24zK2cLN8jDGDNsoDwKQfF5wRoaeWc4ZOoLUJKd0QnH1m4s6fhNHqk1AHanj2kk0UZ7l0P3HRxIu5D_wRV82d3vMy8YSvANvQ_KGJKtQeMbOFJDsafKg0jLHXVKVwsN">
+</div>
+<!-- Thumbnail Row -->
+<div class="grid grid-cols-4 gap-unit-2">
+<div class="bg-[#111111] border border-[#00BFFF] h-[80px] flex items-center justify-center cursor-pointer">
+<img class="h-full object-cover" data-alt="Thumbnail view of the RTX 4080 SUPER main profile, highlighting the shroud design in a dark, high-contrast studio setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBl24EX_AmkbgqjE8BmyP5AWexJzh9NA_h8IH_qyFuhf15kLXbLyCnCv87-JGO50_nIaR6-4JCX-sdMV7c1AhHcGt_cFzPwzSp6oTltFMfxC1_uTazLnOR_KPmy0a2e8vg-CSiV1DmLEUFZFOI4qHvybMj_gHc6xolWJfrcUHymTb7nZXdnLr9VkAi1TJvYW7pWcPnS-pLzJKcqAaMcBdL1Y_XUwUOoxQkqVy2cjLwCc27HuaRS3R-SdFaRQbiVV7XQvH6XflKnqXRo">
+</div>
+<div class="bg-[#111111] border border-[#222222] h-[80px] flex items-center justify-center cursor-pointer hover:border-[#00BFFF]">
+<span class="material-symbols-outlined text-outline">photo_camera</span>
+</div>
+<div class="bg-[#111111] border border-[#222222] h-[80px] flex items-center justify-center cursor-pointer hover:border-[#00BFFF]">
+<span class="material-symbols-outlined text-outline">3d_rotation</span>
+</div>
+<div class="bg-[#111111] border border-[#222222] h-[80px] flex items-center justify-center cursor-pointer hover:border-[#00BFFF]">
+<span class="material-symbols-outlined text-outline">cable</span>
+</div>
+</div>
+</div>
+<!-- Info Panel (Right) -->
+<div class="md:col-span-7 flex flex-col gap-unit-6 pt-unit-4 md:pt-0">
+<div>
+<div class="font-code-snippet text-code-snippet text-outline mb-unit-1">// GPU</div>
+<h1 class="font-headline-lg text-headline-lg text-on-background uppercase">NVIDIA GeForce RTX 4080 Super 16GB</h1>
+</div>
+<div class="flex items-center gap-unit-4">
+<span class="font-headline-md text-headline-md text-primary-container">$999.99</span>
+<div class="flex items-center gap-unit-1 text-[#22C55E] font-code-snippet text-code-snippet">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">circle</span>
+<span class="">In Stock — 14 units available</span>
+</div>
+</div>
+<!-- Spec Table -->
+<div class="border border-[#222222] bg-[#111111] font-code-snippet text-code-snippet">
+<div class="grid grid-cols-2 border-b border-[#222222] p-unit-2">
+<div class="text-outline">VRAM</div>
+<div class="text-on-background text-right">16GB GDDR6X</div>
+</div>
+<div class="grid grid-cols-2 border-b border-[#222222] p-unit-2">
+<div class="text-outline">Memory Bus</div>
+<div class="text-on-background text-right">256-bit</div>
+</div>
+<div class="grid grid-cols-2 border-b border-[#222222] p-unit-2 bg-[#1A1A1A]">
+<div class="text-primary-container">&gt; Boost Clock</div>
+<div class="text-on-background text-right">2550 MHz</div>
+</div>
+<div class="grid grid-cols-2 border-b border-[#222222] p-unit-2">
+<div class="text-outline">TDP</div>
+<div class="text-on-background text-right">320W</div>
+</div>
+<div class="grid grid-cols-2 border-b border-[#222222] p-unit-2">
+<div class="text-outline">PCIe Slot</div>
+<div class="text-on-background text-right">PCIe 4.0 x16</div>
+</div>
+<div class="grid grid-cols-2 p-unit-2">
+<div class="text-outline">Display Outputs</div>
+<div class="text-on-background text-right">3x DP 1.4a, 1x HDMI 2.1a</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex gap-unit-4 mt-unit-4">
+<div class="terminal-input-wrap flex items-center px-unit-2 w-[100px] h-[40px]">
+<span class="text-[#22C55E] font-code-snippet mr-unit-2">&gt;_</span>
+<input class="bg-transparent border-none text-on-background font-code-snippet p-0 w-full focus:ring-0" max="14" min="1" type="number" value="1" placeholder="7">
+</div>
+<button class="neon-button-primary font-headline-sm text-headline-sm px-unit-6 h-[40px] uppercase flex-grow text-center flex justify-center items-center">
+                        [ ADD TO CART ]
+                    </button>
+</div>
+<!-- Compatibility Note -->
+<div class="flex items-start gap-unit-2 text-outline font-code-snippet text-code-snippet mt-unit-2">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span class="">Requires PCIe 4.0 x16 slot and 750W+ PSU. Ensure case clearance for 3-slot width.</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="fixed bottom-0 left-0 w-full flex justify-between items-center px-margin z-50 bg-surface-container-low dark:bg-surface-container-low border-t border-outline-variant h-unit-6 flat no shadows mt-unit-12">
+<span class="font-label-md text-label-md text-outline">[ STATUS: STORE ONLINE ]</span>
+<div class="flex gap-unit-4">
+<span class="font-label-md text-label-md text-outline uppercase cursor-pointer transition-none hover:text-primary">SHIPPING: GLOBAL_PRIORITY</span>
+<span class="font-label-md text-label-md text-outline uppercase cursor-pointer transition-none hover:text-primary">v2.0.4-STABLE</span>
+</div>
+</footer>
+
+
+</body></html>

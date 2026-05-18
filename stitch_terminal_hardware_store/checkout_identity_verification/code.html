@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout - Identity</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#131313",
+                        "on-secondary-fixed": "#25005a",
+                        "inverse-primary": "#00668a",
+                        "surface-container-highest": "#353534",
+                        "inverse-on-surface": "#313030",
+                        "on-secondary-fixed-variant": "#5a00c6",
+                        "surface-container": "#201f1f",
+                        "primary": "#8fd6ff",
+                        "tertiary-container": "#2ecc64",
+                        "on-primary-fixed-variant": "#004c69",
+                        "on-error": "#690005",
+                        "on-surface-variant": "#bcc8d1",
+                        "surface-container-high": "#2a2a2a",
+                        "primary-container": "#00bfff",
+                        "on-tertiary": "#003915",
+                        "background": "#131313",
+                        "surface-tint": "#7ad0ff",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-primary-fixed": "#001e2c",
+                        "surface-bright": "#3a3939",
+                        "outline-variant": "#3d4850",
+                        "error-container": "#93000a",
+                        "on-primary": "#003549",
+                        "on-tertiary-container": "#005020",
+                        "on-secondary-container": "#c9aeff",
+                        "secondary": "#d2bbff",
+                        "primary-fixed": "#c3e8ff",
+                        "on-background": "#e5e2e1",
+                        "on-secondary": "#3f008e",
+                        "on-surface": "#e5e2e1",
+                        "surface": "#131313",
+                        "on-tertiary-fixed": "#002109",
+                        "tertiary": "#53e97d",
+                        "tertiary-fixed-dim": "#4ae176",
+                        "secondary-fixed": "#eaddff",
+                        "on-tertiary-fixed-variant": "#005321",
+                        "on-primary-container": "#004a65",
+                        "secondary-fixed-dim": "#d2bbff",
+                        "tertiary-fixed": "#6bff8f",
+                        "on-error-container": "#ffdad6",
+                        "primary-fixed-dim": "#7ad0ff",
+                        "outline": "#87929b",
+                        "surface-variant": "#353534",
+                        "error": "#ffb4ab",
+                        "secondary-container": "#6001d1",
+                        "surface-container-low": "#1c1b1b",
+                        "inverse-surface": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit-8": "32px",
+                        "unit-12": "48px",
+                        "unit-4": "16px",
+                        "gutter": "16px",
+                        "unit-2": "8px",
+                        "unit-1": "4px",
+                        "unit-6": "24px",
+                        "margin": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["JetBrains Mono"],
+                        "code-snippet": ["JetBrains Mono"],
+                        "body-lg": ["JetBrains Mono"],
+                        "headline-sm": ["JetBrains Mono"],
+                        "headline-md": ["JetBrains Mono"],
+                        "label-md": ["JetBrains Mono"],
+                        "body-md": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "code-snippet": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "1.0", "fontWeight": "500"}],
+                        "body-md": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* CSS Reset for zero border radius and specific component styles */
+        * { border-radius: 0 !important; }
+        
+        .stars-bg {
+            background-color: theme('colors.background');
+            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 10px),
+                              radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 5px),
+                              radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 10px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+        }
+
+        .terminal-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .terminal-prefix {
+            position: absolute;
+            left: theme('spacing.unit-4');
+            color: theme('colors.tertiary-container'); /* Success Green */
+            font-family: 'JetBrains Mono', monospace;
+            pointer-events: none;
+        }
+
+        .terminal-input {
+            width: 100%;
+            background-color: theme('colors.surface-container-lowest');
+            border: 1px solid theme('colors.outline-variant');
+            color: theme('colors.on-surface');
+            padding: theme('spacing.unit-2') theme('spacing.unit-4') theme('spacing.unit-2') calc(theme('spacing.unit-4') + 24px);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+        }
+        
+        .terminal-input:focus {
+            outline: none;
+            border-color: theme('colors.secondary'); /* Violet */
+        }
+
+        /* Neon Buttons */
+        .neon-btn {
+            display: inline-block;
+            padding: theme('spacing.unit-2') theme('spacing.unit-4');
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid transparent;
+            background: transparent;
+            transition: none; /* 0ms instant hover */
+        }
+
+        .neon-btn-primary {
+            border-color: theme('colors.primary-container');
+            color: theme('colors.primary-container');
+        }
+        .neon-btn-primary:hover {
+            background-color: theme('colors.primary-container');
+            color: theme('colors.surface-container-lowest');
+        }
+
+        .neon-btn-secondary {
+            border-color: theme('colors.outline-variant');
+            color: theme('colors.on-surface-variant');
+        }
+        .neon-btn-secondary:hover {
+            background-color: theme('colors.on-surface');
+            color: theme('colors.surface-container-lowest');
+        }
+    </style>
+</head>
+<body class="stars-bg min-h-screen text-on-surface font-body-md text-body-md flex flex-col">
+<!-- Top Navigation (Shell suppressed for checkout, using custom Header) -->
+<header class="w-full flex justify-between items-center px-gutter h-[56px] border-b border-outline-variant bg-background/90 backdrop-blur-sm sticky top-0 z-50">
+<div class="font-headline-sm text-headline-sm text-on-surface tracking-tighter">
+            // pc-parts.store
+        </div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">lock</span>
+<span class="font-label-md text-label-md uppercase">Secure Checkout</span>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow flex flex-col items-center pt-unit-12 pb-unit-12 px-gutter">
+<!-- Center Column Container -->
+<div class="w-full max-w-[480px] flex flex-col gap-unit-8">
+<!-- Breadcrumb -->
+<nav class="w-full font-code-snippet text-code-snippet text-[11px] text-on-surface-variant flex justify-center tracking-widest">
+<span>CART</span>
+<span class="mx-2">-&gt;</span>
+<span class="text-primary-container">IDENTITY</span>
+<span class="mx-2">-&gt;</span>
+<span>SHIPPING</span>
+<span class="mx-2">-&gt;</span>
+<span>PAYMENT</span>
+<span class="mx-2">-&gt;</span>
+<span>REVIEW</span>
+</nav>
+<!-- Header -->
+<h2 class="font-headline-md text-headline-md text-center text-on-surface">
+                Sign In or Continue
+            </h2>
+<!-- Dual Panel Split -->
+<div class="w-full flex flex-col gap-unit-8 border border-outline-variant bg-surface p-unit-6 relative">
+<!-- Returning Customer -->
+<div class="flex flex-col gap-unit-4">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
+                        // RETURNING CUSTOMER
+                    </h3>
+<div class="flex flex-col gap-unit-2">
+<label class="font-code-snippet text-code-snippet text-on-surface">Email Address</label>
+<div class="terminal-input-wrapper">
+<span class="terminal-prefix">&gt;_</span>
+<input class="terminal-input" placeholder="user@domain.com" type="email"/>
+</div>
+</div>
+<div class="flex flex-col gap-unit-2">
+<label class="font-code-snippet text-code-snippet text-on-surface flex justify-between">
+                            Password
+                            <a class="text-primary-container hover:underline" href="#">Forgot?</a>
+</label>
+<div class="terminal-input-wrapper">
+<span class="terminal-prefix">&gt;_</span>
+<input class="terminal-input" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<button class="neon-btn neon-btn-primary w-full mt-unit-2">
+                        [ SIGN IN ]
+                    </button>
+</div>
+<!-- Divider -->
+<div class="w-full h-px bg-outline-variant my-unit-2 relative flex justify-center items-center">
+<span class="absolute bg-surface px-unit-2 font-code-snippet text-code-snippet text-on-surface-variant">OR</span>
+</div>
+<!-- Guest Checkout -->
+<div class="flex flex-col gap-unit-4">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
+                        // GUEST CHECKOUT
+                    </h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Proceed without an account. You can save your details later to track your order.
+                    </p>
+<div class="flex flex-col gap-unit-2">
+<label class="font-code-snippet text-code-snippet text-on-surface">Email Address for Receipt</label>
+<div class="terminal-input-wrapper">
+<span class="terminal-prefix">&gt;_</span>
+<input class="terminal-input" placeholder="guest@domain.com" type="email"/>
+</div>
+</div>
+<button class="neon-btn neon-btn-secondary w-full mt-unit-2">
+                        [ CONTINUE AS GUEST ]
+                    </button>
+</div>
+</div>
+<div class="text-center font-code-snippet text-code-snippet text-on-surface-variant mt-unit-4">
+                By continuing, you agree to our <a class="text-primary-container hover:underline" href="#">Terms of Service</a> and <a class="text-primary-container hover:underline" href="#">Privacy Policy</a>.
+            </div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 left-0 w-full flex justify-between items-center px-gutter h-8 bg-surface-container-lowest z-40 border-t border-outline-variant">
+<div class="font-label-md text-label-md text-on-surface-variant">
+            v2.4.0-stable // SYSTEM_STATUS: ONLINE
+        </div>
+<div class="flex items-center gap-unit-4 font-code-snippet text-code-snippet text-tertiary">
+<a class="text-on-surface-variant hover:text-on-surface transition-none hover:text-primary" href="#">SUPPORT</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-none hover:text-primary" href="#">WARRANTY</a>
+</div>
+</footer>
+</body></html>

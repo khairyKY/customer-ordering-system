@@ -1,0 +1,342 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>// pc-parts.store - CART &amp; CHECKOUT</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "outline-variant": "#3d4850",
+                "primary-container": "#00bfff",
+                "surface-container-lowest": "#0e0e0e",
+                "on-primary-fixed": "#001e2c",
+                "primary-fixed": "#c3e8ff",
+                "on-tertiary": "#003915",
+                "background": "#131313",
+                "on-secondary-fixed-variant": "#5a00c6",
+                "tertiary-fixed": "#6bff8f",
+                "tertiary-container": "#2ecc64",
+                "secondary-fixed-dim": "#d2bbff",
+                "on-tertiary-fixed": "#002109",
+                "on-primary": "#003549",
+                "surface-tint": "#7ad0ff",
+                "on-tertiary-fixed-variant": "#005321",
+                "secondary-fixed": "#eaddff",
+                "inverse-primary": "#00668a",
+                "on-primary-container": "#004a65",
+                "inverse-on-surface": "#313030",
+                "on-secondary-fixed": "#25005a",
+                "on-error": "#690005",
+                "on-tertiary-container": "#005020",
+                "outline": "#87929b",
+                "on-secondary-container": "#c9aeff",
+                "on-secondary": "#3f008e",
+                "surface-bright": "#3a3939",
+                "on-background": "#e5e2e1",
+                "secondary-container": "#6001d1",
+                "surface-container-high": "#2a2a2a",
+                "tertiary-fixed-dim": "#4ae176",
+                "surface-container": "#201f1f",
+                "primary": "#8fd6ff",
+                "surface": "#131313",
+                "on-error-container": "#ffdad6",
+                "on-primary-fixed-variant": "#004c69",
+                "error-container": "#93000a",
+                "surface-dim": "#131313",
+                "error": "#ffb4ab",
+                "surface-container-highest": "#353534",
+                "inverse-surface": "#e5e2e1",
+                "surface-variant": "#353534",
+                "surface-container-low": "#1c1b1b",
+                "on-surface-variant": "#bcc8d1",
+                "secondary": "#d2bbff",
+                "on-surface": "#e5e2e1",
+                "tertiary": "#53e97d",
+                "primary-fixed-dim": "#7ad0ff"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "unit-1": "4px",
+                "unit-6": "24px",
+                "unit-2": "8px",
+                "margin": "24px",
+                "unit-12": "48px",
+                "unit-4": "16px",
+                "gutter": "16px",
+                "base": "4px",
+                "unit-8": "32px"
+        },
+        "fontFamily": {
+                "headline-md": [
+                        "JetBrains Mono"
+                ],
+                "label-md": [
+                        "JetBrains Mono"
+                ],
+                "headline-sm": [
+                        "JetBrains Mono"
+                ],
+                "body-lg": [
+                        "JetBrains Mono"
+                ],
+                "headline-lg": [
+                        "JetBrains Mono"
+                ],
+                "body-md": [
+                        "JetBrains Mono"
+                ],
+                "code-snippet": [
+                        "JetBrains Mono"
+                ]
+        },
+        "fontSize": {
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-md": [
+                        "12px",
+                        {
+                                "lineHeight": "1.0",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-sm": [
+                        "18px",
+                        {
+                                "lineHeight": "1.4",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-lg": [
+                        "16px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "14px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "code-snippet": [
+                        "13px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+    /* NeonButton Styles */
+    .btn-neon-primary {
+        @apply border border-primary-container text-primary-container bg-transparent transition-none uppercase px-unit-4 py-unit-2;
+    }
+    .btn-neon-primary:hover {
+        @apply bg-primary-container text-background;
+    }
+    
+    .btn-neon-secondary {
+        @apply border border-surface-container-high text-outline bg-transparent transition-none uppercase px-unit-4 py-unit-2;
+    }
+    .btn-neon-secondary:hover {
+        @apply bg-surface-container-high text-on-surface;
+    }
+
+    .btn-neon-destructive {
+        @apply border border-error text-error bg-transparent transition-none uppercase px-unit-2 py-unit-1;
+    }
+    .btn-neon-destructive:hover {
+        @apply bg-error text-background;
+    }
+
+    /* Terminal Input */
+    .terminal-input-wrapper {
+        @apply flex items-center bg-background border border-surface-container-high;
+    }
+    .terminal-input-prefix {
+        @apply text-tertiary-container px-unit-2 font-code-snippet text-code-snippet;
+    }
+    .terminal-input {
+        @apply bg-transparent border-none text-on-surface focus:ring-0 focus:outline-none w-full font-code-snippet text-code-snippet py-unit-2 px-unit-2;
+    }
+    .terminal-input-wrapper:focus-within {
+        @apply border-secondary-container;
+    }
+</style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md text-body-md selection:bg-primary-container selection:text-background">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full flex justify-between items-center px-margin z-50 bg-[#0D0D0D] h-[56px] border-b border-[#222222]">
+  <div class="flex items-center">
+    <span class="font-['Inter',_sans-serif] text-[18px] font-bold text-[#FFFFFF]">pc-parts</span>
+    <span class="text-[#00BFFF] font-bold text-[18px]">·</span>
+  </div>
+
+  <nav class="hidden md:flex gap-[32px] items-center h-full">
+    <a class="text-[#999999] hover:text-[#FFFFFF] transition-none font-['Inter',_sans-serif] text-[14px]" href="#">Shop</a>
+    <a class="text-[#999999] hover:text-[#FFFFFF] transition-none font-['Inter',_sans-serif] text-[14px]" href="#">Deals</a>
+    <a class="text-[#999999] hover:text-[#FFFFFF] transition-none font-['Inter',_sans-serif] text-[14px]" href="#">Builds</a>
+    <a class="text-[#999999] hover:text-[#FFFFFF] transition-none font-['Inter',_sans-serif] text-[14px]" href="#">Support</a>
+  </nav>
+
+  <div class="flex items-center gap-[32px]">
+    <a class="text-[#999999] hover:text-[#00BFFF] transition-none font-['Inter',_sans-serif] text-[13px] border-b-2 border-[#00BFFF] underline-offset-[4px]" href="#">
+      Cart (0)
+    </a>
+    <button class="btn-neon-primary text-[13px] font-mono rounded-none px-4 py-1">
+      [ Sign In ]
+    </button>
+  </div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow pt-[80px] pb-[80px] px-margin max-w-[1440px] mx-auto w-full">
+<div class="mb-unit-8">
+<h1 class="font-headline-lg text-headline-lg text-on-surface uppercase border-b border-surface-container-high pb-unit-2 w-max inline-block">YOUR CART</h1>
+</div>
+<div class="flex flex-col lg:flex-row gap-gutter">
+<!-- Cart Table Area -->
+<div class="flex-grow">
+<div class="border border-surface-container-high overflow-x-auto">
+<table class="w-full text-left font-code-snippet text-code-snippet border-collapse whitespace-nowrap">
+<thead class="bg-surface-container text-outline border-b border-surface-container-high">
+<tr>
+<th class="p-unit-4 font-normal w-12">#</th>
+<th class="p-unit-4 font-normal min-w-[200px]">ITEM</th>
+<th class="p-unit-4 font-normal">SKU</th>
+<th class="p-unit-4 font-normal text-right">QTY</th>
+<th class="p-unit-4 font-normal text-right">UNIT PRICE</th>
+<th class="p-unit-4 font-normal text-right">TOTAL</th>
+<th class="p-unit-4 font-normal w-16 text-center">—</th>
+</tr>
+</thead>
+<tbody class="text-on-surface">
+<tr class="bg-surface-container-lowest border-b border-surface-container-high hover:bg-surface-container transition-none">
+<td class="p-unit-4 text-outline">01</td>
+<td class="p-unit-4 font-medium text-primary">RTX 4080 Super</td>
+<td class="p-unit-4 text-outline">GPU-4080S-01</td>
+<td class="p-unit-4 text-right">
+<div class="terminal-input-wrapper inline-flex w-16 text-right">
+<input aria-label="Quantity" class="terminal-input text-right p-1" min="1" type="number" value="1">
+</div>
+</td>
+<td class="p-unit-4 text-right">$999.99</td>
+<td class="p-unit-4 text-right text-primary-container">$999.99</td>
+<td class="p-unit-4 text-center">
+<button aria-label="Remove item" class="btn-neon-destructive">
+                                        [ × ]
+                                    </button>
+</td>
+</tr>
+<tr class="bg-surface-dim border-b border-surface-container-high hover:bg-surface-container transition-none">
+<td class="p-unit-4 text-outline">02</td>
+<td class="p-unit-4 font-medium text-primary">Ryzen 9 7950X</td>
+<td class="p-unit-4 text-outline">CPU-R9-7950X</td>
+<td class="p-unit-4 text-right">
+<div class="terminal-input-wrapper inline-flex w-16 text-right">
+<input aria-label="Quantity" class="terminal-input text-right p-1" min="1" type="number" value="1">
+</div>
+</td>
+<td class="p-unit-4 text-right">$599.00</td>
+<td class="p-unit-4 text-right text-primary-container">$599.00</td>
+<td class="p-unit-4 text-center">
+<button aria-label="Remove item" class="btn-neon-destructive">
+                                        [ × ]
+                                    </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-unit-6 flex justify-between items-center">
+<div class="terminal-input-wrapper w-72">
+<span class="terminal-input-prefix">_&gt;</span>
+<input class="terminal-input" placeholder="ENTER_PROMO_CODE" type="text">
+</div>
+<button class="btn-neon-secondary">[ APPLY CODE ]</button>
+</div>
+</div>
+<!-- Order Summary Area -->
+<div class="w-full lg:w-[320px] flex-shrink-0">
+<div class="border border-surface-container-high bg-surface-container-lowest p-unit-6">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-unit-6 uppercase">Order Summary</h2>
+<div class="flex flex-col gap-unit-4 font-code-snippet text-code-snippet mb-unit-6">
+<div class="flex items-center">
+<span class="text-outline">Subtotal</span>
+<div class="flex-grow border-b border-dotted border-surface-container-high mx-unit-2"></div>
+<span class="text-on-surface">$1,598.99</span>
+</div>
+<div class="flex items-center">
+<span class="text-outline">Shipping</span>
+<div class="flex-grow border-b border-dotted border-surface-container-high mx-unit-2"></div>
+<span class="text-on-surface">$0.00</span>
+</div>
+<div class="flex items-center">
+<span class="text-outline">Tax (Est)</span>
+<div class="flex-grow border-b border-dotted border-surface-container-high mx-unit-2"></div>
+<span class="text-on-surface">$127.92</span>
+</div>
+<div class="flex items-center text-tertiary-container">
+<span class="">Discount</span>
+<div class="flex-grow border-b border-dotted border-tertiary-container mx-unit-2 opacity-30"></div>
+<span class="">-$322.94</span>
+</div>
+</div>
+<div class="border-t border-surface-container-high pt-unit-4 mb-unit-6">
+<div class="flex justify-between items-end">
+<span class="font-headline-sm text-headline-sm text-on-surface uppercase">TOTAL</span>
+<span class="font-headline-lg text-headline-lg text-primary-container">$1,403.97</span>
+</div>
+</div>
+<button class="btn-neon-primary w-full block text-center py-unit-4 font-headline-sm text-headline-sm">
+                        [ PROCEED TO CHECKOUT ]
+                    </button>
+<div class="mt-unit-4 text-center text-outline font-label-md text-label-md flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-[14px]">lock</span> Secure checkout — 30-day returns
+                    </div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 left-0 w-full flex justify-between items-center px-margin z-50 bg-surface-container-low dark:bg-surface-container-low h-unit-6 border-t border-outline-variant flat no shadows font-label-md text-label-md">
+<div class="text-outline">
+            [ STATUS: STORE ONLINE ]
+        </div>
+<div class="flex gap-unit-6">
+<a class="text-outline uppercase hover:text-primary transition-none cursor-pointer" href="#">SHIPPING: GLOBAL_PRIORITY</a>
+<a class="text-outline uppercase hover:text-primary transition-none cursor-pointer" href="#">v2.0.4-STABLE</a>
+</div>
+</footer>
+
+
+</body></html>

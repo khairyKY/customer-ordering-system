@@ -1,0 +1,288 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>pc-parts.store - Storefront</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#242424",
+                        "primary-container": "#00bfff",
+                        "surface-container-lowest": "#0D0D0D",
+                        "on-primary-fixed": "#001e2c",
+                        "primary-fixed": "#c3e8ff",
+                        "on-tertiary": "#003915",
+                        "background": "#0D0D0D",
+                        "on-secondary-fixed-variant": "#5a00c6",
+                        "tertiary-fixed": "#6bff8f",
+                        "tertiary-container": "#2ecc64",
+                        "secondary-fixed-dim": "#d2bbff",
+                        "on-tertiary-fixed": "#002109",
+                        "on-primary": "#003549",
+                        "surface-tint": "#7ad0ff",
+                        "on-tertiary-fixed-variant": "#005321",
+                        "secondary-fixed": "#eaddff",
+                        "inverse-primary": "#00668a",
+                        "on-primary-container": "#004a65",
+                        "inverse-on-surface": "#313030",
+                        "on-secondary-fixed": "#25005a",
+                        "on-error": "#690005",
+                        "on-tertiary-container": "#005020",
+                        "outline": "#87929b",
+                        "on-secondary-container": "#c9aeff",
+                        "on-secondary": "#3f008e",
+                        "surface-bright": "#1A1A1A",
+                        "on-background": "#e5e2e1",
+                        "secondary-container": "#6001d1",
+                        "surface-container-high": "#131313",
+                        "tertiary-fixed-dim": "#4ae176",
+                        "surface-container": "#131313",
+                        "primary": "#8fd6ff",
+                        "surface": "#0D0D0D",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#004c69",
+                        "error-container": "#93000a",
+                        "surface-dim": "#0D0D0D",
+                        "error": "#ffb4ab",
+                        "surface-container-highest": "#1A1A1A",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-variant": "#1A1A1A",
+                        "surface-container-low": "#131313",
+                        "on-surface-variant": "#bcc8d1",
+                        "secondary": "#d2bbff",
+                        "on-surface": "#e5e2e1",
+                        "tertiary": "#53e97d",
+                        "primary-fixed-dim": "#7ad0ff",
+                        "accent-blue": "#00BFFF",
+                        "accent-green": "#22C55E",
+                        "accent-amber": "#F59E0B",
+                        "accent-red": "#EF4444",
+                        "border-dark": "#242424",
+                        "surface-dark": "#131313",
+                        "text-muted": "#999999"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0px",
+                        "lg": "0px",
+                        "xl": "0px",
+                        "full": "0px"
+                    },
+                    "spacing": {
+                        "unit-1": "4px",
+                        "unit-6": "24px",
+                        "unit-2": "8px",
+                        "margin": "24px",
+                        "unit-12": "48px",
+                        "unit-4": "16px",
+                        "gutter": "16px",
+                        "base": "4px",
+                        "unit-8": "32px",
+                        "section_padding_v": "48px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter", "sans-serif"],
+                        "label-md": ["Inter", "sans-serif"],
+                        "headline-sm": ["Inter", "sans-serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "headline-lg": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "1.0", "fontWeight": "500" }],
+                        "label-xs": ["11px", { "lineHeight": "1.0", "fontWeight": "500" }],
+                        "headline-sm": ["18px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #0D0D0D; color: #e5e2e1; }
+        canvas#cosmic-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            background: #0D0D0D;
+        }
+        .cmd-card:hover {
+            border-top: 2px solid #00BFFF;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased min-h-screen flex flex-col relative overflow-x-hidden">
+<canvas id="cosmic-canvas" width="1280" height="1024"></canvas>
+<div class="relative z-10 flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full h-14 flex items-center px-6 z-50 bg-[#0D0D0D] border-b border-[#222222]">
+  <div class="flex-1 flex items-center">
+    <a href="#" class="font-['Inter'] text-[18px] font-bold text-white flex items-center">
+      pc-parts<span class="w-1 h-1 bg-[#00BFFF] ml-0.5"></span>
+    </a>
+  </div>
+  <div class="flex items-center justify-center gap-8">
+    <a href="#" class="font-['Inter'] text-[14px] text-white border-b-2 border-[#00BFFF] h-14 flex items-center transition-none">Shop</a>
+    <a href="#" class="font-['Inter'] text-[14px] text-[#999999] hover:text-white h-14 flex items-center transition-none">Deals</a>
+    <a href="#" class="font-['Inter'] text-[14px] text-[#999999] hover:text-white h-14 flex items-center transition-none">Builds</a>
+    <a href="#" class="font-['Inter'] text-[14px] text-[#999999] hover:text-white h-14 flex items-center transition-none">Support</a>
+  </div>
+  <div class="flex-1 flex items-center justify-end gap-6">
+    <a href="#" class="font-['Inter'] text-[13px] text-[#999999] hover:text-white transition-none">Cart (0)</a>
+    <button class="font-mono border border-accent-blue text-accent-blue px-4 py-1.5 text-label-md hover:bg-accent-blue hover:text-[#0D0D0D] transition-none">
+      [ SIGN IN ]
+    </button>
+  </div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-14 pb-unit-12 px-margin flex flex-col gap-unit-8 w-full max-w-[1280px] mx-auto">
+<!-- Hero Banner Area -->
+<section class="w-full border border-border-dark bg-surface-dark p-unit-6 flex flex-col md:flex-row gap-unit-8 py-section_padding_v">
+<div class="flex-1 flex flex-col justify-center gap-unit-4">
+<div class="font-mono text-[13px] text-accent-green uppercase tracking-wider">&gt;_ NEW ARRIVAL</div>
+<h1 class="font-headline-lg text-headline-lg text-on-background uppercase">NVIDIA RTX 5090 FOUNDERS EDITION</h1>
+<p class="font-body-lg text-body-lg text-text-muted">The ultimate GPU for the most demanding workloads. Architected for uncompromised performance in rendering, AI, and raw computational throughput.</p>
+<div class="flex gap-unit-4 mt-unit-2">
+<button class="font-mono border border-accent-blue text-accent-blue px-[24px] py-[11px] text-label-md hover:bg-accent-blue hover:text-surface-container-lowest transition-none uppercase">
+                        [ ADD TO CART ]
+                    </button>
+<button class="font-mono border border-border-dark text-text-muted px-[24px] py-[11px] text-label-md hover:bg-on-background hover:text-surface-container-lowest transition-none uppercase">
+                        [ VIEW SPECS ]
+                    </button>
+</div>
+</div>
+<div class="flex-1 border border-border-dark bg-background h-80 relative">
+<img alt="GPU" class="w-full h-full object-cover grayscale opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDML7p9nW0mJ3ORasdokAAIsCrXonSA0mM7rByk7UPxin9OJKTWCNssG-yRw5AfCN-y51euUgaVfQh0--yWiS7wbwSkwLFcv1Ad4T_8nPe-tVRKr1l8Y1-oITYaPmDN33cpwOJg-hgi7pq1L7lsVZfzJyty2UsD-zhUnF8RdVhvxI2nJLM7FoZroXzgt8YSpb8qK3BRuwhJ_b1XcBIOp9dwq6ao623C3Ahum0xlnPe1Zd6S4y7mkFAFX1lBxjLvwaosXrxy-OvSAbzh">
+</div>
+</section>
+<!-- Featured Categories Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-gutter py-unit-4">
+<!-- Category 1 -->
+<div class="cmd-card border border-border-dark bg-surface-dark flex flex-col transition-all duration-200">
+<div class="h-40 border-b border-border-dark bg-background">
+<img alt="CPU" class="w-full h-full object-cover grayscale opacity-60 mix-blend-screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLjxaImGuwFu8-dK_PuVTOe4PGRUu0UgjfRG9A14W9CkiEySVu22iBsiYpQf7IEwqHtIO8QDlDhX7h_fzxNv_m_Ear_yQZcFeEx7A6gVUJcJa4JDkc4CikuQKVksvTv77J_lBNqy06jqvGfm0isubh_rzfNUls2eLhjn7GBiq5bfLxnueJWUkK7FemkUDHW8VtMtEC6n_G7b7cOOjJucGcUTdDpG6_u9BC8diqYuM9MF0XsWjTk0uo_g5aJvbFvgFEu9rEM7SLXy_a">
+</div>
+<div class="p-unit-4 flex flex-col gap-unit-2">
+<div class="font-body-md text-label-xs text-text-muted">// PROCESSORS</div>
+<h3 class="font-body-md text-[14px] text-on-background uppercase font-bold">Compute Cores</h3>
+<div class="flex justify-between items-center mt-auto">
+<span class="font-mono text-label-md text-accent-green flex items-center gap-1"><div class="w-2 h-2 bg-accent-green"></div> IN_STOCK</span>
+<a class="font-mono text-label-md text-accent-blue hover:text-on-background hover:bg-accent-blue px-1" href="#">&gt; BROWSE</a>
+</div>
+</div>
+</div>
+<!-- Category 2 -->
+<div class="cmd-card border border-border-dark bg-surface-dark flex flex-col transition-all duration-200">
+<div class="h-40 border-b border-border-dark bg-background">
+<img alt="RAM" class="w-full h-full object-cover grayscale opacity-60 mix-blend-screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAN-maxqKnTb1vDKyIMhGqI7NphGix5bsCmb1MtnhN7rBm8RXwcQFSuuyXdgxc93d231PGRlk7iqHhGh6iEEP41vPPNvQrQaN0LT0_B6OToG_Tgj7L2_OMaI6pPKSZKm_DHg4bLckB0pEYmW_itkz7RZdgtv4fYc4zihT58rvgQRNC1Of-lwoAZukO49ECbfJ0WwGDXqKLdQEE-3-Nf0ynbYwseN9VPh9ubispMXLruXri3M4gG5B444hLUjHZucrWhM-y2TxfRBCM">
+</div>
+<div class="p-unit-4 flex flex-col gap-unit-2">
+<div class="font-body-md text-label-xs text-text-muted">// MEMORY</div>
+<h3 class="font-body-md text-[14px] text-on-background uppercase font-bold">Volatile Storage</h3>
+<div class="flex justify-between items-center mt-auto">
+<span class="font-mono text-label-md text-accent-green flex items-center gap-1"><div class="w-2 h-2 bg-accent-green"></div> IN_STOCK</span>
+<a class="font-mono text-label-md text-accent-blue hover:text-on-background hover:bg-accent-blue px-1" href="#">&gt; BROWSE</a>
+</div>
+</div>
+</div>
+<!-- Category 3 -->
+<div class="cmd-card border border-border-dark bg-surface-dark flex flex-col transition-all duration-200">
+<div class="h-40 border-b border-border-dark bg-background">
+<img alt="Motherboard" class="w-full h-full object-cover grayscale opacity-60 mix-blend-screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9TM_Tx0SuwZClbfOOtKv7Xa1iisLP1YKEzd1b1Nm_108pX6E7-FK7XNQEOUzxYyKNrDdzCz2RcllcEc9GWYtTEt4ewmJDCJ8adlE4Qh-ToQyEfFD8UmMEmoK-LfSqF1G4WW2fkw0ZDR6vHtTKc9QM-p4hFrMvzTSJH3ajOdTWEISGD9f3YQyB4ACGLYFw2_yuXZ8YYZ9pLo76tPWCT2oRYgn5YhXmh7WSpc8pXKgDwP2WMhc-MMP_DwC2AyWMKAhIG9hnC0omTCxe">
+</div>
+<div class="p-unit-4 flex flex-col gap-unit-2">
+<div class="font-body-md text-label-xs text-text-muted">// MAINBOARDS</div>
+<h3 class="font-body-md text-[14px] text-on-background uppercase font-bold">System Logic</h3>
+<div class="flex justify-between items-center mt-auto">
+<span class="font-mono text-label-md text-accent-amber flex items-center gap-1"><div class="w-2 h-2 bg-accent-amber"></div> LOW_STOCK</span>
+<a class="font-mono text-label-md text-accent-blue hover:text-on-background hover:bg-accent-blue px-1" href="#">&gt; BROWSE</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Command Input Area -->
+<section class="mt-unit-4 pb-unit-12">
+<label class="block font-body-md text-label-md text-text-muted mb-2 ml-1">Terminal Search</label>
+<div class="bg-background border border-border-dark flex items-center px-unit-4 py-unit-2 focus-within:border-accent-blue">
+<span class="font-mono text-[13px] text-accent-green mr-2">&gt;_</span>
+<input class="bg-transparent border-none outline-none w-full font-mono text-[13px] text-on-background placeholder-text-muted p-0 focus:ring-0" placeholder="search_inventory --query='DDR5 64GB'" type="text">
+</div>
+</section>
+</main>
+<!-- Footer / Status Bar -->
+<footer class="fixed bottom-0 left-0 w-full flex justify-between items-center px-margin z-50 bg-surface-container-low border-t border-outline-variant h-unit-6">
+<div class="font-mono text-label-md text-tertiary">
+            [ STATUS: STORE ONLINE ]
+        </div>
+<div class="flex gap-unit-6">
+<span class="font-mono text-label-md text-outline uppercase cursor-pointer hover:text-primary transition-none">SHIPPING: GLOBAL_PRIORITY</span>
+<span class="font-mono text-label-md text-outline uppercase cursor-pointer hover:text-primary transition-none">v2.0.4-STABLE</span>
+</div>
+</footer>
+</div>
+<script>
+    const canvas = document.getElementById('cosmic-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+
+    const layers = [
+        { count: 200, size: 1, color: '#777777', dx: 0.04, dy: 0.12, stars: [] },
+        { count: 150, size: 2, color: '#AAAAAA', dx: 0.08, dy: 0.28, stars: [] }
+    ];
+
+    function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        
+        layers.forEach(layer => {
+            layer.stars = [];
+            for (let i = 0; i < layer.count; i++) {
+                layer.stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height
+                });
+            }
+        });
+    }
+
+    function animate() {
+        ctx.fillStyle = '#0D0D0D';
+        ctx.fillRect(0, 0, width, height);
+
+        layers.forEach(layer => {
+            ctx.fillStyle = layer.color;
+            layer.stars.forEach(star => {
+                star.x += layer.dx;
+                star.y += layer.dy;
+
+                if (star.x > width) star.x = 0;
+                if (star.y > height) star.y = 0;
+
+                ctx.fillRect(star.x, star.y, layer.size, layer.size);
+            });
+        });
+
+        requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    animate();
+</script>
+
+
+</body></html>

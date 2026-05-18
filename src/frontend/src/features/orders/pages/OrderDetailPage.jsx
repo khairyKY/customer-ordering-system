@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
-import { Button } from '../../../components/ui/Button';
-import { Card } from '../../../components/ui/Card';
-
 import { ordersApi } from '../api/ordersApi';
 import StatusBadge from '../components/StatusBadge';
+import NeonButton from '../../../components/ui/NeonButton';
 
 // Phase 2 §3.2.2 — show only transitions legal FROM the current status.
 const LEGAL_NEXT = {
@@ -54,125 +52,129 @@ export default function OrderDetailPage() {
 
     if (error && !order) {
         return (
-            <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2 max-w-lg" data-testid="order-error">
+            <div className="font-mono text-[13px] text-[#ffb4ab] bg-[#93000a]/20 border border-[#ffb4ab]/30 px-3 py-2 max-w-lg" data-testid="order-error">
                 {error}
             </div>
         );
     }
     if (!order) {
-        return <div className="text-gray-500" data-testid="order-loading">Loading…</div>;
+        return <div className="font-mono text-[13px] text-[#87929b]" data-testid="order-loading">Loading…</div>;
     }
 
     const transitions = LEGAL_NEXT[order.status] || [];
 
     return (
-        <div className="flex flex-col gap-4" data-testid="order-detail">
-            <Link to="/admin/orders" className="text-sm text-blue-600 hover:underline">
+        <div className="flex flex-col gap-6" data-testid="order-detail">
+            <Link to="/admin/orders" className="font-mono text-[13px] text-[#00bfff] hover:underline">
                 ← Back to orders
             </Link>
 
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">
-                    Order <code className="text-base bg-gray-100 px-2 py-1 rounded">{order.id}</code>
+                <h1 className="font-mono text-[24px] font-bold text-[#e5e2e1]">
+                    Order <code className="text-[14px] text-[#8fd6ff] bg-[#131313] border border-[#3d4850] px-2 py-1">{order.id}</code>
                 </h1>
                 <StatusBadge status={order.status} />
             </div>
 
             {error && (
-                <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2">
+                <div className="font-mono text-[13px] text-[#ffb4ab] bg-[#93000a]/20 border border-[#ffb4ab]/30 px-3 py-2">
                     {error}
                 </div>
             )}
 
-            <Card>
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">Summary</h2>
-                <dl className="grid grid-cols-[200px_1fr] gap-y-2 text-sm">
-                    <dt className="text-gray-600">Subtotal</dt>
-                    <dd>${order.subtotal.toFixed(2)}</dd>
-                    <dt className="text-gray-600">Discount</dt>
-                    <dd>${order.discount.toFixed(2)}</dd>
-                    <dt className="text-gray-600">Tax (10%)</dt>
-                    <dd>${order.tax.toFixed(2)}</dd>
-                    <dt className="text-gray-600">Shipping</dt>
-                    <dd>${order.shipping_cost.toFixed(2)}</dd>
-                    <dt className="text-gray-600 font-semibold">Total</dt>
-                    <dd className="font-semibold" data-testid="order-total">${order.total.toFixed(2)}</dd>
-                    <dt className="text-gray-600">Placed</dt>
-                    <dd>{new Date(order.placed_at).toLocaleString()}</dd>
-                    <dt className="text-gray-600">Last updated</dt>
-                    <dd>{new Date(order.updated_at).toLocaleString()}</dd>
-                </dl>
-            </Card>
+            {/* Summary */}
+            <div className="border border-[#3d4850] bg-[#1c1b1b] p-6">
+                <h2 className="font-mono text-[12px] text-[#87929b] uppercase tracking-wider mb-4">// ORDER_SUMMARY</h2>
+                <div className="grid grid-cols-[200px_1fr] gap-y-2 font-mono text-[13px]">
+                    <dt className="text-[#87929b]">SUBTOTAL</dt>
+                    <dd className="text-[#e5e2e1]">${order.subtotal.toFixed(2)}</dd>
+                    <dt className="text-[#87929b]">DISCOUNT</dt>
+                    <dd className="text-[#e5e2e1]">${order.discount.toFixed(2)}</dd>
+                    <dt className="text-[#87929b]">TAX (10%)</dt>
+                    <dd className="text-[#e5e2e1]">${order.tax.toFixed(2)}</dd>
+                    <dt className="text-[#87929b]">SHIPPING</dt>
+                    <dd className="text-[#e5e2e1]">${order.shipping_cost.toFixed(2)}</dd>
+                    <dt className="text-[#87929b] font-semibold border-t border-[#3d4850] pt-2 mt-2">TOTAL</dt>
+                    <dd className="font-semibold text-[#00bfff] border-t border-[#3d4850] pt-2 mt-2" data-testid="order-total">${order.total.toFixed(2)}</dd>
+                    <dt className="text-[#87929b]">PLACED_AT</dt>
+                    <dd className="text-[#e5e2e1]">{new Date(order.placed_at).toLocaleString()}</dd>
+                    <dt className="text-[#87929b]">UPDATED_AT</dt>
+                    <dd className="text-[#e5e2e1]">{new Date(order.updated_at).toLocaleString()}</dd>
+                </div>
+            </div>
 
-            <Card>
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">Customer Contact</h2>
-                <dl className="grid grid-cols-[200px_1fr] gap-y-2 text-sm">
-                    <dt className="text-gray-600">Customer ID</dt>
-                    <dd><code className="text-xs bg-gray-100 px-2 py-1 rounded">{order.customer_id}</code></dd>
-                    <dt className="text-gray-600">Email</dt>
-                    <dd data-testid="customer-email">{order.customer_email || '—'}</dd>
-                    <dt className="text-gray-600">Phone</dt>
-                    <dd data-testid="customer-phone">{order.customer_phone || '—'}</dd>
-                </dl>
-            </Card>
+            {/* Customer Contact */}
+            <div className="border border-[#3d4850] bg-[#1c1b1b] p-6">
+                <h2 className="font-mono text-[12px] text-[#87929b] uppercase tracking-wider mb-4">// CUSTOMER_CONTACT</h2>
+                <div className="grid grid-cols-[200px_1fr] gap-y-2 font-mono text-[13px]">
+                    <dt className="text-[#87929b]">CUSTOMER_ID</dt>
+                    <dd><code className="text-[11px] text-[#8fd6ff] bg-[#131313] border border-[#3d4850] px-2 py-1">{order.customer_id}</code></dd>
+                    <dt className="text-[#87929b]">EMAIL</dt>
+                    <dd className="text-[#e5e2e1]" data-testid="customer-email">{order.customer_email || '—'}</dd>
+                    <dt className="text-[#87929b]">PHONE</dt>
+                    <dd className="text-[#e5e2e1]" data-testid="customer-phone">{order.customer_phone || '—'}</dd>
+                </div>
+            </div>
 
-            <Card>
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">Shipping Address</h2>
-                <pre className="bg-gray-50 p-3 rounded text-xs overflow-auto" data-testid="shipping-address">
+            {/* Shipping Address */}
+            <div className="border border-[#3d4850] bg-[#1c1b1b] p-6">
+                <h2 className="font-mono text-[12px] text-[#87929b] uppercase tracking-wider mb-4">// SHIPPING_ADDRESS</h2>
+                <pre className="bg-[#0e0e0e] border border-[#3d4850] p-3 font-mono text-[13px] text-[#e5e2e1] overflow-auto" data-testid="shipping-address">
                     {JSON.stringify(order.shipping_address, null, 2)}
                 </pre>
-            </Card>
+            </div>
 
-            <Card>
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">
-                    Items ({order.items.length})
+            {/* Items */}
+            <div className="border border-[#3d4850] bg-[#1c1b1b] p-6">
+                <h2 className="font-mono text-[12px] text-[#87929b] uppercase tracking-wider mb-4">
+                    // ITEMS_DISPATCHED ({order.items.length})
                 </h2>
-                <table className="w-full text-sm">
-                    <thead className="text-xs uppercase tracking-wider text-gray-500">
-                        <tr>
-                            <th className="px-2 py-2 text-left">Product</th>
-                            <th className="px-2 py-2 text-right">Qty</th>
-                            <th className="px-2 py-2 text-right">Unit Price</th>
-                            <th className="px-2 py-2 text-right">Total</th>
+                <table className="w-full font-mono text-[13px]">
+                    <thead>
+                        <tr className="border-b border-[#3d4850]">
+                            <th className="px-2 py-2 text-left text-[12px] text-[#87929b] uppercase">Product</th>
+                            <th className="px-2 py-2 text-right text-[12px] text-[#87929b] uppercase">Qty</th>
+                            <th className="px-2 py-2 text-right text-[12px] text-[#87929b] uppercase">Unit Price</th>
+                            <th className="px-2 py-2 text-right text-[12px] text-[#87929b] uppercase">Total</th>
                         </tr>
                     </thead>
                     <tbody>
                         {order.items.map((i) => (
-                            <tr key={i.id} className="border-t border-gray-100" data-testid="order-item">
-                                <td className="px-2 py-2">{i.product_name}</td>
-                                <td className="px-2 py-2 text-right">{i.quantity}</td>
-                                <td className="px-2 py-2 text-right">${i.unit_price.toFixed(2)}</td>
-                                <td className="px-2 py-2 text-right font-semibold">${i.total_price.toFixed(2)}</td>
+                            <tr key={i.id} className="border-t border-[#3d4850]" data-testid="order-item">
+                                <td className="px-2 py-2 text-[#e5e2e1]">{i.product_name}</td>
+                                <td className="px-2 py-2 text-right text-[#87929b]">{i.quantity}</td>
+                                <td className="px-2 py-2 text-right text-[#e5e2e1]">${i.unit_price.toFixed(2)}</td>
+                                <td className="px-2 py-2 text-right font-semibold text-[#00bfff]">${i.total_price.toFixed(2)}</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
-            </Card>
+            </div>
 
-            <Card>
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">Change Status</h2>
+            {/* Status Transitions */}
+            <div className="border border-[#3d4850] bg-[#1c1b1b] p-6">
+                <h2 className="font-mono text-[12px] text-[#87929b] uppercase tracking-wider mb-4">// STATUS_TRANSITIONS</h2>
                 {transitions.length === 0 ? (
-                    <p className="text-sm text-gray-600" data-testid="terminal-state">
-                        No further transitions allowed from <strong>{order.status}</strong>.
+                    <p className="font-mono text-[13px] text-[#87929b]" data-testid="terminal-state">
+                        No further transitions allowed from <strong className="text-[#e5e2e1]">{order.status}</strong>.
                     </p>
                 ) : (
                     <div className="flex gap-2 flex-wrap">
                         {transitions.map((next) => (
-                            <Button
+                            <NeonButton
                                 key={next}
                                 variant={variantFor(next)}
                                 disabled={updating}
                                 onClick={() => changeStatus(next)}
-                                className="text-sm"
                             >
                                 <span data-testid={`transition-to-${next}`}>
-                                    {updating ? 'Updating…' : `→ ${next}`}
+                                    {updating ? '[ UPDATING... ]' : `[ → ${next} ]`}
                                 </span>
-                            </Button>
+                            </NeonButton>
                         ))}
                     </div>
                 )}
-            </Card>
+            </div>
         </div>
     );
 }
