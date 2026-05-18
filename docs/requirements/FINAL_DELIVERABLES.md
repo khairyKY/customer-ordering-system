@@ -28,7 +28,7 @@ to our implementation, the exact proof path for the TA, and a completion status.
 | Gherkin syntax for all user stories | Given/When/Then scenarios in Phase 2 design docs | `docs/requirements/member_b_payments_phase2_design.md`, `member_c_tickets_phase2_design.md`, `member_d_auth_phase2_design.md` | 🟢 |
 | Ambiguity Audit (replace vague adjectives) | QA Audit Log converting "fast/secure" → measurable metrics | `docs/requirements/QA_AUDIT_LOG.md` | 🟢 |
 | Edge Case Discovery (≥5 negative tests / persona) | Persona-driven edge cases & boundary analysis | `docs/requirements/member_a_edge_cases.md`, `combined_phase1.md` | 🟢 |
-| Automated Validation — Playwright POM | Python pytest-playwright POM suite (Page Object Model) | `src/backend_python/tests/playwright/` | 🟢 |
+| Automated Validation — Playwright POM | Python pytest-playwright POM suite (Page Object Model) — 18 of 25 specs green in CI (auth, orders, inventory); payment + tickets specs documented as open below | `src/backend_python/tests/playwright/`, `.github/workflows/playwright.yml` | 🟡 |
 | 70/20/10 Test Pyramid (Unit/Integration/E2E) | Test Pyramid Report | `docs/requirements/TEST_PYRAMID_REPORT.md` | 🟢 |
 | V&V Statement (Verification vs Validation) | Team-wide V vs V statement | `docs/requirements/V_VS_V_STATEMENT.md` | 🟢 |
 
@@ -86,7 +86,33 @@ Only 🟡 PARTIAL and 🔴 MISSING items below, ordered by rubric weight (heavie
 
 ## Remaining open items
 
-None auto-resolvable. The deliverables map now reads 🟢 across the board.
+### Playwright E2E coverage — 7 of 25 specs not yet green
+
+The CI pipeline (`.github/workflows/playwright.yml`) runs the full Python
+pytest-playwright suite on every PR. As of the latest run on
+`fix/ci-bcrypt-passlib-pin`:
+
+- **🟢 Passing (18):** all auth specs (register, login + JWT persistence,
+  lockout, user-enumeration), all orders specs (list, status filter,
+  detail, transitions), and all inventory specs.
+- **🟡 Open (3) — Payment:** `tests/playwright/specs/test_payment_e2e.py`.
+  The POM was converted from an earlier JavaScript suite that assumed a
+  single-form payment page with `input[name="cardNumber"]` /
+  `input[name="cvv"]` / `.payment-success`. The shipping app instead
+  exposes payment as step 5 of a 7-step `CheckoutFlow` wizard with a
+  single masked-token field and a `data-testid="checkout-success-step"`
+  end state. Reconciling the two requires rewriting the specs against
+  the wizard (semantically new tests), not a selector tweak.
+- **🟡 Open (4) — Tickets:** `tests/playwright/specs/test_tickets_e2e.py`.
+  `TicketForm.jsx` / `TicketList.jsx` / `ticketApi.js` are placeholder
+  stubs, the FastAPI app does not mount a `/api/v1/tickets` router, and
+  there are no `/tickets/new` or `/tickets/triage` routes in `App.jsx`.
+  Bringing the suite green requires building the tickets slice end to
+  end on the canonical FastAPI backend, not a CI fix.
+
+The CI workflow itself is verified — pipeline plumbing (bcrypt pin,
+CORS origin alignment, server readiness via TCP/health-GET probes,
+single-step orchestration) is in place and unrelated to these gaps.
 
 > **Review note:** the Phase 2–4 logbooks for Members A, B, C were
 > reconstructed by AI from objective evidence (git commit history, dated phase
