@@ -364,3 +364,19 @@ test('REQ_EC_2: Prevents double charges via Idempotency Key matching', async () 
 ---
 
 *Source: `md/phase2/` + `md/phase3/` — ingested & standardized 2026-05-16 | Rogue directory `md/` eliminated.*
+
+## UML Activity Diagram: Payment Process
+```mermaid
+flowchart TD
+    A[Start: Submit Payment] --> B{Valid Amount > 0?}
+    B -- No --> C[Error: Invalid Amount]
+    B -- Yes --> D{Idempotency Key Valid?}
+    D -- No --> E[Return Previous Response]
+    D -- Yes --> F[Calculate Tax 10%]
+    F --> G[Call Stripe/Mock Gateway]
+    G --> H{Authorization Success?}
+    H -- No --> I[Return Gateway Error]
+    H -- Yes --> J[Write Payment Log to DB]
+    J --> K[Emit payment.success Event]
+    K --> L[End: Success Response]
+```

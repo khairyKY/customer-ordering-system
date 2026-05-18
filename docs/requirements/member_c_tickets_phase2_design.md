@@ -346,3 +346,20 @@ graph TD
 ---
 
 *Source: `Phase 2/02a–02f` — ingested & standardized 2026-05-16 | PlantUML → Mermaid.js | Rogue directory `Phase 2/` eliminated.*
+
+## UML Activity Diagram: Ticket Triage
+```mermaid
+flowchart TD
+    A[Start: Ticket Submitted] --> B{Valid JWT?}
+    B -- No --> C[Return 401 Unauthorized]
+    B -- Yes --> D[Run HuggingFace Sentiment Scan]
+    D --> E{Score < 0.25?}
+    E -- Yes --> F[Set Priority: CRITICAL]
+    E -- No --> G{Score > 0.75?}
+    G -- Yes --> H[Set Priority: LOW]
+    G -- No --> I[Set Priority: MEDIUM]
+    F --> J[Save Ticket to Database]
+    H --> J
+    I --> J
+    J --> K[End: Ticket ID Returned]
+```
