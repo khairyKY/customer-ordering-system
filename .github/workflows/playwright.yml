@@ -75,3 +75,10 @@ jobs:
           CI: true
           PYTHON_API_BASE: http://127.0.0.1:8000/api/v1
           FRONTEND_BASE: http://127.0.0.1:5173
+          # Frontend axios client reads this at vite startup; without it,
+          # the browser (at 127.0.0.1:5173) calls http://localhost:8000 —
+          # a different origin from its page origin.
+          VITE_PYTHON_API_BASE: http://127.0.0.1:8000/api/v1
+          # Backend must accept the 127.0.0.1 page origin or every API
+          # response is CORS-blocked and the admin tables stay empty.
+          CORS_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3001"
