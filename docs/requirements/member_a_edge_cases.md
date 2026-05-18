@@ -14,3 +14,19 @@
 *   **Avatar Persona:** The Distracted Window-Shopper.
 *   **Scenario:** The customer adds the last available product to their cart, opens a new tab to check something, and leaves the checkout screen sitting there for 20 minutes. Meanwhile, someone else buys the last espresso. The customer returns and hits "Pay".
 *   **UI Requirement:** The UI cannot assume the cart is still valid. Upon hitting "Pay", if the backend throws a 409 Conflict or 400 Bad Request regarding inventory, the UI must intercept this error gracefully. Instead of crashing, it must trigger a specific modal informing the user the item sold out, and force a cart refresh.
+
+## UML Activity Diagram: Checkout Logic
+```mermaid
+flowchart TD
+    A[Start: Proceed to Checkout] --> B{User Authenticated?}
+    B -- No --> C[Redirect to Login]
+    B -- Yes --> D[Fetch Session Cart]
+    D --> E{Cart Empty?}
+    E -- Yes --> F[Display Empty Error]
+    E -- No --> G[Enter Shipping Details]
+    G --> H[Apply Promo Code Stub]
+    H --> I[Finalize Order Transaction]
+    I --> J[Write Order to DB]
+    J --> K[Clear Session Cart]
+    K --> L[End: Success Page]
+```

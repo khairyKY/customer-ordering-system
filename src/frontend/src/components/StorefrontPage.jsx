@@ -78,9 +78,10 @@ export default function StorefrontPage({ onCartUpdate }) {
 
   // ── Add to cart handler ────────────────────────────────────
   const handleAdd = async (product) => {
-    setAddingId(product.id);
+    const id = product.id;
+    setAddingId(id);
     try {
-      const updated = await addToCart(product.id);
+      const updated = await addToCart(id);
       onCartUpdate(updated);
     } catch (err) {
       console.error('[StorefrontPage] addToCart error:', err);
@@ -94,8 +95,10 @@ export default function StorefrontPage({ onCartUpdate }) {
   const query    = search.toLowerCase();
   const catLower = categoryFilter.toLowerCase();
   const filtered = products.filter(p => {
-    if (query && !p.name.toLowerCase().includes(query) && !(p.category ?? '').toLowerCase().includes(query)) return false;
-    if (catLower && (p.category ?? '').toLowerCase() !== catLower) return false;
+    const pName = (p.name || '').toLowerCase();
+    const pCat  = (p.category || '').toLowerCase();
+    if (query && !pName.includes(query) && !pCat.includes(query)) return false;
+    if (catLower && pCat !== catLower) return false;
     return true;
   });
 
@@ -111,6 +114,12 @@ export default function StorefrontPage({ onCartUpdate }) {
     if (p.stock === 0)        return 'out_stock';
     if (p.stock !== undefined && p.stock < 5) return 'low_stock';
     return 'in_stock';
+  };
+
+  const heroProduct = products.find(p => p.name.includes('5090')) || { 
+    id: 'e1a9c2f0-7b3b-4e1e-9a9a-9a9a9a9a9a9a', 
+    name: 'NVIDIA GeForce RTX 5090 Founders Edition', 
+    price: 1999.99 
   };
 
   return (
@@ -146,15 +155,15 @@ export default function StorefrontPage({ onCartUpdate }) {
               className="font-mono border border-accent-blue text-accent-blue
                          px-[24px] py-[11px] text-label-md hover:bg-accent-blue
                          hover:text-background transition-none uppercase"
-              onClick={() => handleAdd({ id: 'e1a9c2f0-7b3b-4e1e-9a9a-9a9a9a9a9a9a', name: 'NVIDIA GeForce RTX 5090 Founders Edition', price: 1999.99 })}
+              onClick={() => handleAdd(heroProduct)}
             >
-              { addingId === 'e1a9c2f0-7b3b-4e1e-9a9a-9a9a9a9a9a9a' ? '[ ADDING... ]' : '[ ADD TO CART ]' }
+              { addingId === heroProduct.id ? '[ ADDING... ]' : '[ ADD TO CART ]' }
             </button>
             <button
               className="font-mono border border-border-dark text-text-muted
                          px-[24px] py-[11px] text-label-md hover:bg-on-background
                          hover:text-background transition-none uppercase"
-              onClick={() => setSearch('RTX 5090')}
+              onClick={() => setSearch(heroProduct.name)}
             >
               [ VIEW SPECS ]
             </button>

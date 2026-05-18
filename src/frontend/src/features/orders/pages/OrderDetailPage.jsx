@@ -61,7 +61,8 @@ export default function OrderDetailPage() {
         return <div className="font-mono text-[13px] text-[#87929b]" data-testid="order-loading">Loading…</div>;
     }
 
-    const transitions = LEGAL_NEXT[order.status] || [];
+    const currentStatus = (order.status || '').toUpperCase();
+    const transitions = LEGAL_NEXT[currentStatus] || [];
 
     return (
         <div className="flex flex-col gap-6" data-testid="order-detail">

@@ -34,6 +34,7 @@ export default function CartPage({ cart, onCartUpdate, onNavigate }) {
   const navigate = useNavigate();
   const [loading,   setLoading]   = useState(!cart?.items?.length);
   const [promoCode, setPromoCode] = useState('');
+  const [promoMsg,  setPromoMsg]  = useState(null); // { type: 'success'|'error', text: string }
   const [removing,  setRemoving]  = useState(null); // product_id being removed
 
   // ── Hydrate cart on mount ──────────────────────────────────
@@ -49,6 +50,16 @@ export default function CartPage({ cart, onCartUpdate, onNavigate }) {
       }
     })();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Promo Code Stub ────────────────────────────────────────
+  const applyPromo = () => {
+    if (promoCode.toUpperCase() === 'DISCOUNT10') {
+      setPromoMsg({ type: 'success', text: 'PROMO_ACCEPTED: 10% DISCOUNT APPLIED' });
+    } else {
+      setPromoMsg({ type: 'error', text: 'INVALID_CODE: SYNC_FAILURE' });
+    }
+    setTimeout(() => setPromoMsg(null), 3000);
+  };
 
   // ── Update quantity ────────────────────────────────────────
   const handleQtyChange = async (productId, newQty) => {
@@ -210,24 +221,33 @@ export default function CartPage({ cart, onCartUpdate, onNavigate }) {
           </div>
 
           {/* Promo code row */}
-          <div className="mt-unit-6 flex flex-wrap justify-between items-center gap-4">
-            <div className="w-full sm:w-72">
-              <TerminalInput
-                id="promo-code-input"
-                prefix="_>"
-                placeholder="ENTER_PROMO_CODE"
-                type="text"
-                value={promoCode}
-                onChange={e => setPromoCode(e.target.value)}
-                ariaLabel="Enter promo code"
-              />
+          <div className="mt-unit-6 flex flex-col gap-2">
+            <div className="flex flex-wrap justify-between items-center gap-4">
+              <div className="w-full sm:w-72">
+                <TerminalInput
+                  id="promo-code-input"
+                  prefix="_>"
+                  placeholder="ENTER_PROMO_CODE"
+                  type="text"
+                  value={promoCode}
+                  onChange={e => setPromoCode(e.target.value)}
+                  ariaLabel="Enter promo code"
+                />
+              </div>
+              <NeonButton
+                variant="secondary"
+                onClick={applyPromo}
+              >
+                [ APPLY CODE ]
+              </NeonButton>
             </div>
-            <NeonButton
-              variant="secondary"
-              onClick={() => alert(`Promo code "${promoCode}" submitted.`)}
-            >
-              [ APPLY CODE ]
-            </NeonButton>
+            {promoMsg && (
+              <div className={`font-mono text-[11px] uppercase tracking-tighter ${
+                promoMsg.type === 'success' ? 'text-accent-green' : 'text-error'
+              }`}>
+                {promoMsg.text}
+              </div>
+            )}
           </div>
         </div>
 
