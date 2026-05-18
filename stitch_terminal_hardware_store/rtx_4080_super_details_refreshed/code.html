@@ -1,0 +1,249 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>pc-parts.store - RTX 4080 SUPER</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#242424",
+                        "primary-container": "#00bfff",
+                        "surface-container-lowest": "#0D0D0D",
+                        "background": "#0D0D0D",
+                        "surface": "#131313",
+                        "on-background": "#dee3e8",
+                        "on-surface": "#dee3e8",
+                        "outline": "#87929b",
+                        "primary": "#8fd6ff",
+                        "surface-container": "#131313",
+                        "surface-container-low": "#0D0D0D",
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0px",
+                        "lg": "0px",
+                        "xl": "0px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section_padding_v": "48px",
+                        "max_width": "1280px",
+                        "unit-1": "4px",
+                        "unit-2": "8px",
+                        "unit-4": "16px",
+                        "unit-6": "24px",
+                        "unit-8": "32px",
+                        "unit-12": "48px",
+                        "margin": "24px",
+                        "gutter": "20px"
+                    },
+                    "fontFamily": {
+                        "inter": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"],
+                        "headline-lg": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #0D0D0D; color: #dee3e8; }
+        
+        #cosmic-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: #0D0D0D;
+            overflow: hidden;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            width: 1px;
+            height: 1px;
+            opacity: 0.5;
+            animation: drift linear infinite;
+        }
+
+        @keyframes drift {
+            from { transform: translateY(0); }
+            to { transform: translateY(-100vh); }
+        }
+
+        .neon-button-primary {
+            border: 1px solid #00bfff;
+            color: #00bfff;
+            background: transparent;
+            transition: all 0.2s ease;
+            padding: 11px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+        }
+        
+        .neon-button-primary:hover {
+            background-color: #00bfff;
+            color: #0d0d0d;
+            box-shadow: 0 0 15px rgba(0, 191, 255, 0.3);
+        }
+
+        .terminal-input-wrap {
+            border: 1px solid #242424;
+            background-color: #131313;
+        }
+        
+        .terminal-input-wrap:focus-within {
+            border-color: #00bfff;
+        }
+
+        ::-webkit-inner-spin-button, ::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="font-body-md min-h-screen">
+<div id="cosmic-canvas">
+<!-- Stars generated via JS or simple repetition -->
+<script>
+            const canvas = document.getElementById('cosmic-canvas');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + 'vw';
+                star.style.top = Math.random() * 100 + 'vh';
+                star.style.animationDuration = (Math.random() * 50 + 50) + 's';
+                star.style.opacity = Math.random();
+                canvas.appendChild(star);
+            }
+        </script><div class="star" style="left: 92.9272vw; top: 47.1067vh; animation-duration: 74.5304s; opacity: 0.988446;"></div><div class="star" style="left: 47.6795vw; top: 13.4582vh; animation-duration: 82.0675s; opacity: 0.745758;"></div><div class="star" style="left: 92.8021vw; top: 18.7122vh; animation-duration: 68.6842s; opacity: 0.146679;"></div><div class="star" style="left: 96.8443vw; top: 73.2371vh; animation-duration: 60.617s; opacity: 0.554853;"></div><div class="star" style="left: 24.8629vw; top: 29.6423vh; animation-duration: 80.5181s; opacity: 0.00480998;"></div><div class="star" style="left: 3.08963vw; top: 59.8042vh; animation-duration: 64.6607s; opacity: 0.68867;"></div><div class="star" style="left: 67.6333vw; top: 11.5017vh; animation-duration: 64.8166s; opacity: 0.676048;"></div><div class="star" style="left: 3.52497vw; top: 5.12944vh; animation-duration: 55.0555s; opacity: 0.848324;"></div><div class="star" style="left: 36.5954vw; top: 67.5425vh; animation-duration: 64.8442s; opacity: 0.761103;"></div><div class="star" style="left: 35.0909vw; top: 69.2666vh; animation-duration: 66.5075s; opacity: 0.0524974;"></div><div class="star" style="left: 97.5385vw; top: 68.5779vh; animation-duration: 57.7463s; opacity: 0.783846;"></div><div class="star" style="left: 0.484182vw; top: 97.6329vh; animation-duration: 82.0464s; opacity: 0.11243;"></div><div class="star" style="left: 76.6232vw; top: 33.1671vh; animation-duration: 92.0985s; opacity: 0.729507;"></div><div class="star" style="left: 48.5162vw; top: 88.6021vh; animation-duration: 81.9581s; opacity: 0.253098;"></div><div class="star" style="left: 76.4677vw; top: 19.2289vh; animation-duration: 72.1944s; opacity: 0.154282;"></div><div class="star" style="left: 28.9556vw; top: 12.2853vh; animation-duration: 87.4749s; opacity: 0.290758;"></div><div class="star" style="left: 84.9409vw; top: 93.7981vh; animation-duration: 70.4311s; opacity: 0.526871;"></div><div class="star" style="left: 74.4449vw; top: 57.0954vh; animation-duration: 53.2534s; opacity: 0.480486;"></div><div class="star" style="left: 6.51533vw; top: 58.8863vh; animation-duration: 92.4848s; opacity: 0.91559;"></div><div class="star" style="left: 5.09764vw; top: 31.5282vh; animation-duration: 92.9083s; opacity: 0.843443;"></div><div class="star" style="left: 61.1682vw; top: 65.1137vh; animation-duration: 50.8839s; opacity: 0.106536;"></div><div class="star" style="left: 18.5025vw; top: 98.0905vh; animation-duration: 95.9247s; opacity: 0.20334;"></div><div class="star" style="left: 66.7885vw; top: 18.5032vh; animation-duration: 78.0742s; opacity: 0.0798002;"></div><div class="star" style="left: 51.6701vw; top: 37.2463vh; animation-duration: 71.6978s; opacity: 0.856266;"></div><div class="star" style="left: 4.64597vw; top: 7.25126vh; animation-duration: 73.7007s; opacity: 0.968509;"></div><div class="star" style="left: 27.5366vw; top: 57.9024vh; animation-duration: 64.6803s; opacity: 0.0818685;"></div><div class="star" style="left: 67.3969vw; top: 19.3636vh; animation-duration: 95.9673s; opacity: 0.520689;"></div><div class="star" style="left: 40.6214vw; top: 4.37587vh; animation-duration: 87.5579s; opacity: 0.534174;"></div><div class="star" style="left: 68.3507vw; top: 70.95vh; animation-duration: 92.8012s; opacity: 0.0474559;"></div><div class="star" style="left: 92.8775vw; top: 39.007vh; animation-duration: 77.1544s; opacity: 0.959;"></div><div class="star" style="left: 20.2935vw; top: 57.7456vh; animation-duration: 63.2099s; opacity: 0.995347;"></div><div class="star" style="left: 69.9482vw; top: 48.3462vh; animation-duration: 96.1096s; opacity: 0.394689;"></div><div class="star" style="left: 59.9478vw; top: 42.9188vh; animation-duration: 52.2882s; opacity: 0.506556;"></div><div class="star" style="left: 79.6273vw; top: 64.4277vh; animation-duration: 99.8137s; opacity: 0.274497;"></div><div class="star" style="left: 68.7929vw; top: 94.759vh; animation-duration: 58.9752s; opacity: 0.674651;"></div><div class="star" style="left: 94.5502vw; top: 12.8833vh; animation-duration: 64.1548s; opacity: 0.54767;"></div><div class="star" style="left: 82.4345vw; top: 76.9645vh; animation-duration: 95.9852s; opacity: 0.432552;"></div><div class="star" style="left: 6.94563vw; top: 90.1816vh; animation-duration: 57.7897s; opacity: 0.401989;"></div><div class="star" style="left: 22.2469vw; top: 68.1092vh; animation-duration: 83.967s; opacity: 0.238729;"></div><div class="star" style="left: 12.3934vw; top: 10.0218vh; animation-duration: 86.529s; opacity: 0.80441;"></div><div class="star" style="left: 98.0286vw; top: 25.0899vh; animation-duration: 67.6714s; opacity: 0.0493856;"></div><div class="star" style="left: 40.1527vw; top: 72.6346vh; animation-duration: 75.8439s; opacity: 0.469819;"></div><div class="star" style="left: 27.2798vw; top: 7.35436vh; animation-duration: 82.0039s; opacity: 0.164573;"></div><div class="star" style="left: 80.5501vw; top: 50.4788vh; animation-duration: 83.9584s; opacity: 0.620231;"></div><div class="star" style="left: 5.8431vw; top: 62.7461vh; animation-duration: 76.8505s; opacity: 0.707106;"></div><div class="star" style="left: 80.3898vw; top: 38.2454vh; animation-duration: 83.9822s; opacity: 0.617177;"></div><div class="star" style="left: 76.6807vw; top: 52.9856vh; animation-duration: 79.1026s; opacity: 0.0639541;"></div><div class="star" style="left: 1.10623vw; top: 29.9131vh; animation-duration: 81.6572s; opacity: 0.0160223;"></div><div class="star" style="left: 89.5302vw; top: 50.2123vh; animation-duration: 82.4672s; opacity: 0.68149;"></div><div class="star" style="left: 42.2059vw; top: 8.97899vh; animation-duration: 99.4539s; opacity: 0.301762;"></div><div class="star" style="left: 15.0138vw; top: 67.7423vh; animation-duration: 82.145s; opacity: 0.713329;"></div><div class="star" style="left: 17.0565vw; top: 73.1195vh; animation-duration: 71.0009s; opacity: 0.580813;"></div><div class="star" style="left: 12.8342vw; top: 15.5343vh; animation-duration: 73.8301s; opacity: 0.307026;"></div><div class="star" style="left: 24.3939vw; top: 93.1557vh; animation-duration: 52.454s; opacity: 0.481727;"></div><div class="star" style="left: 16.6807vw; top: 97.1974vh; animation-duration: 89.9123s; opacity: 0.832556;"></div><div class="star" style="left: 20.9179vw; top: 61.8803vh; animation-duration: 52.0189s; opacity: 0.376798;"></div><div class="star" style="left: 99.3126vw; top: 29.6423vh; animation-duration: 71.2893s; opacity: 0.335855;"></div><div class="star" style="left: 89.2382vw; top: 99.9008vh; animation-duration: 57.7071s; opacity: 0.234459;"></div><div class="star" style="left: 35.4001vw; top: 94.6759vh; animation-duration: 99.5314s; opacity: 0.18355;"></div><div class="star" style="left: 48.9622vw; top: 36.066vh; animation-duration: 71.124s; opacity: 0.108345;"></div><div class="star" style="left: 62.9919vw; top: 15.7394vh; animation-duration: 93.798s; opacity: 0.220872;"></div><div class="star" style="left: 39.878vw; top: 89.5444vh; animation-duration: 81.2493s; opacity: 0.101249;"></div><div class="star" style="left: 0.67423vw; top: 24.9756vh; animation-duration: 52.3706s; opacity: 0.0585073;"></div><div class="star" style="left: 94.4184vw; top: 25.4005vh; animation-duration: 87.8941s; opacity: 0.697139;"></div><div class="star" style="left: 78.7065vw; top: 23.6547vh; animation-duration: 52.9147s; opacity: 0.251556;"></div><div class="star" style="left: 78.0376vw; top: 23.9816vh; animation-duration: 77.5791s; opacity: 0.766688;"></div><div class="star" style="left: 15.0166vw; top: 76.1344vh; animation-duration: 79.7285s; opacity: 0.896464;"></div><div class="star" style="left: 69.2305vw; top: 23.1337vh; animation-duration: 82.0164s; opacity: 0.77599;"></div><div class="star" style="left: 67.521vw; top: 19.9467vh; animation-duration: 62.5724s; opacity: 0.0199299;"></div><div class="star" style="left: 16.3358vw; top: 74.4354vh; animation-duration: 75.8459s; opacity: 0.224997;"></div><div class="star" style="left: 87.5108vw; top: 8.19971vh; animation-duration: 58.4727s; opacity: 0.140121;"></div><div class="star" style="left: 29.6753vw; top: 10.0835vh; animation-duration: 59.9289s; opacity: 0.210119;"></div><div class="star" style="left: 60.7942vw; top: 92.8363vh; animation-duration: 96.2361s; opacity: 0.348552;"></div><div class="star" style="left: 40.7883vw; top: 63.5492vh; animation-duration: 87.2614s; opacity: 0.106937;"></div><div class="star" style="left: 38.5011vw; top: 74.7391vh; animation-duration: 77.7457s; opacity: 0.147473;"></div><div class="star" style="left: 19.3939vw; top: 22.5555vh; animation-duration: 98.4848s; opacity: 0.570036;"></div><div class="star" style="left: 88.837vw; top: 39.6827vh; animation-duration: 79.6572s; opacity: 0.157567;"></div><div class="star" style="left: 51.1955vw; top: 29.3636vh; animation-duration: 55.9786s; opacity: 0.346853;"></div><div class="star" style="left: 74.0436vw; top: 41.7182vh; animation-duration: 88.5557s; opacity: 0.69245;"></div><div class="star" style="left: 70.4462vw; top: 35.1749vh; animation-duration: 93.3028s; opacity: 0.567942;"></div><div class="star" style="left: 14.8667vw; top: 4.51767vh; animation-duration: 75.9369s; opacity: 0.0108312;"></div><div class="star" style="left: 21.6302vw; top: 66.4951vh; animation-duration: 57.5539s; opacity: 0.0181506;"></div><div class="star" style="left: 88.3806vw; top: 71.1448vh; animation-duration: 59.7526s; opacity: 0.206326;"></div><div class="star" style="left: 94.823vw; top: 30.7288vh; animation-duration: 70.8871s; opacity: 0.564321;"></div><div class="star" style="left: 21.347vw; top: 71.0521vh; animation-duration: 88.477s; opacity: 0.0949537;"></div><div class="star" style="left: 26.3876vw; top: 13.7065vh; animation-duration: 56.1214s; opacity: 0.194429;"></div><div class="star" style="left: 81.3715vw; top: 88.3737vh; animation-duration: 79.4426s; opacity: 0.205102;"></div><div class="star" style="left: 65.6857vw; top: 15.0114vh; animation-duration: 71.2096s; opacity: 0.464476;"></div><div class="star" style="left: 73.8528vw; top: 20.1374vh; animation-duration: 86.8193s; opacity: 0.648085;"></div><div class="star" style="left: 61.9504vw; top: 71.4283vh; animation-duration: 93.1806s; opacity: 0.667209;"></div><div class="star" style="left: 89.2049vw; top: 93.6531vh; animation-duration: 55.9193s; opacity: 0.912103;"></div><div class="star" style="left: 17.1618vw; top: 42.1822vh; animation-duration: 94.0104s; opacity: 0.605417;"></div><div class="star" style="left: 76.9899vw; top: 83.9589vh; animation-duration: 51.2293s; opacity: 0.741798;"></div><div class="star" style="left: 73.7556vw; top: 25.8952vh; animation-duration: 93.7298s; opacity: 0.881828;"></div><div class="star" style="left: 9.34631vw; top: 12.2301vh; animation-duration: 97.4033s; opacity: 0.223264;"></div><div class="star" style="left: 59.6679vw; top: 30.5762vh; animation-duration: 55.3374s; opacity: 0.165366;"></div><div class="star" style="left: 30.786vw; top: 34.2077vh; animation-duration: 79.2391s; opacity: 0.232079;"></div><div class="star" style="left: 23.3351vw; top: 49.2912vh; animation-duration: 97.5061s; opacity: 0.433414;"></div><div class="star" style="left: 4.83216vw; top: 21.5192vh; animation-duration: 90.052s; opacity: 0.635635;"></div><div class="star" style="left: 63.5558vw; top: 49.225vh; animation-duration: 88.4081s; opacity: 0.612802;"></div>
+</div>
+<div class="relative z-10">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full h-[56px] flex justify-between items-center px-6 z-50 bg-[#0D0D0D] border-b border-[#222222] font-inter">
+<div class="flex items-center">
+<span class="text-[18px] font-bold text-[#FFFFFF]">pc-parts</span>
+<span class="text-[18px] font-bold text-[#00BFFF] ml-0.5">.</span>
+</div>
+<div class="hidden md:flex items-center gap-[32px]">
+<a class="text-[14px] text-[#FFFFFF] border-b-2 border-[#00BFFF] pb-[4px]" href="#">Shop</a>
+<a class="text-[14px] text-[#999999] hover:text-[#FFFFFF] transition-colors" href="#">Deals</a>
+<a class="text-[14px] text-[#999999] hover:text-[#FFFFFF] transition-colors" href="#">Builds</a>
+<a class="text-[14px] text-[#999999] hover:text-[#FFFFFF] transition-colors" href="#">Support</a>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-[13px] text-[#999999] hover:text-[#FFFFFF] transition-colors">Cart (0)</button>
+<button class="neon-button-primary !py-0 h-[32px] text-[14px] font-mono">
+[ Sign In ]
+</button>
+</div>
+</nav>
+<main class="max-w-[1280px] mx-auto px-margin py-unit-12 mt-[56px]">
+<!-- Breadcrumb -->
+<div class="mb-unit-6 font-inter text-[13px] text-outline uppercase tracking-wider">
+                &gt; shop / gpus / nvidia-rtx-4080-super
+            </div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Image Panel (Left) -->
+<div class="md:col-span-5 flex flex-col gap-unit-2">
+<div class="bg-[#131313] border border-[#242424] p-unit-4 h-[460px] flex items-center justify-center">
+<img alt="NVIDIA RTX 4080 SUPER" class="max-w-full max-h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6xFpnCz-AUsY_QS6mNXE3GrIBQWdID0LUTWbGsX63rwkozR3AhT-MAm2x9rLjMqzmSo_MvhCvfE-7vvtv9h8FJGIkIvQ3Z-zD9EDEbhccosbRdHPReFtOUekYdV4bB0WAUHbUVNIG8GpuG24zK2cLN8jDGDNsoDwKQfF5wRoaeWc4ZOoLUJKd0QnH1m4s6fhNHqk1AHanj2kk0UZ7l0P3HRxIu5D_wRV82d3vMy8YSvANvQ_KGJKtQeMbOFJDsafKg0jLHXVKVwsN">
+</div>
+<!-- Thumbnail Row -->
+<div class="grid grid-cols-4 gap-unit-2">
+<div class="bg-[#131313] border border-[#00BFFF] h-[80px] flex items-center justify-center cursor-pointer">
+<img class="h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBl24EX_AmkbgqjE8BmyP5AWexJzh9NA_h8IH_qyFuhf15kLXbLyCnCv87-JGO50_nIaR6-4JCX-sdMV7c1AhHcGt_cFzPwzSp6oTltFMfxC1_uTazLnOR_KPmy0a2e8vg-CSiV1DmLEUFZFOI4qHvybMj_gHc6xolWJfrcUHymTb7nZXdnLr9VkAi1TJvYW7pWcPnS-pLzJKcqAaMcBdL1Y_XUwUOoxQkqVy2cjLwCc27HuaRS3R-SdFaRQbiVV7XQvH6XflKnqXRo">
+</div>
+<div class="bg-[#131313] border border-[#242424] h-[80px] flex items-center justify-center cursor-pointer hover:border-[#00BFFF]">
+<span class="material-symbols-outlined text-outline">photo_camera</span>
+</div>
+<div class="bg-[#131313] border border-[#242424] h-[80px] flex items-center justify-center cursor-pointer hover:border-[#00BFFF]">
+<span class="material-symbols-outlined text-outline">3d_rotation</span>
+</div>
+<div class="bg-[#131313] border border-[#242424] h-[80px] flex items-center justify-center cursor-pointer hover:border-[#00BFFF]">
+<span class="material-symbols-outlined text-outline">cable</span>
+</div>
+</div>
+</div>
+<!-- Info Panel (Right) -->
+<div class="md:col-span-7 flex flex-col gap-unit-6">
+<div>
+<div class="font-inter text-[12px] text-outline mb-unit-1 uppercase tracking-widest">// GPU</div>
+<h1 class="font-inter text-[32px] font-bold text-on-background uppercase leading-tight">NVIDIA GeForce RTX 4080 Super 16GB</h1>
+</div>
+<div class="flex items-center gap-unit-4">
+<span class="font-mono text-[28px] font-bold text-primary-container">$999.99</span>
+<div class="flex items-center gap-unit-1 text-[#22C55E] font-mono text-[13px]">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">circle</span>
+<span class="">In Stock — 14 units available</span>
+</div>
+</div>
+<!-- Spec Table -->
+<div class="border border-[#242424] bg-[#131313] font-mono text-[14px]">
+<div class="grid grid-cols-2 border-b border-[#242424] p-unit-2">
+<div class="text-outline">VRAM</div>
+<div class="text-on-background text-right">16GB GDDR6X</div>
+</div>
+<div class="grid grid-cols-2 border-b border-[#242424] p-unit-2">
+<div class="text-outline">Memory Bus</div>
+<div class="text-on-background text-right">256-bit</div>
+</div>
+<div class="grid grid-cols-2 border-b border-[#242424] p-unit-2 bg-[#1A1A1A]">
+<div class="text-primary-container">&gt; Boost Clock</div>
+<div class="text-on-background text-right">2550 MHz</div>
+</div>
+<div class="grid grid-cols-2 border-b border-[#242424] p-unit-2">
+<div class="text-outline">TDP</div>
+<div class="text-on-background text-right">320W</div>
+</div>
+<div class="grid grid-cols-2 border-b border-[#242424] p-unit-2">
+<div class="text-outline">PCIe Slot</div>
+<div class="text-on-background text-right">PCIe 4.0 x16</div>
+</div>
+<div class="grid grid-cols-2 p-unit-2">
+<div class="text-outline">Display Outputs</div>
+<div class="text-on-background text-right">3x DP 1.4a, 1x HDMI 2.1a</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex gap-unit-4 mt-unit-4">
+<div class="terminal-input-wrap flex items-center px-unit-2 w-[100px] h-[48px]">
+<span class="text-[#22C55E] font-mono mr-unit-2">&gt;_</span>
+<input class="bg-transparent border-none text-on-background font-mono p-0 w-full focus:ring-0" max="14" min="1" type="number" value="1">
+</div>
+<button class="neon-button-primary flex-grow text-[18px] font-bold">
+                            [ ADD TO CART ]
+                        </button>
+</div>
+<!-- Compatibility Note -->
+<div class="flex items-start gap-unit-2 text-outline font-inter text-[13px] mt-unit-2">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span class="">Requires PCIe 4.0 x16 slot and 750W+ PSU. Ensure case clearance for 3-slot width.</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 left-0 w-full flex justify-between items-center px-6 z-50 bg-[#0D0D0D] border-t border-[#242424] h-[32px]">
+<span class="font-mono text-[11px] text-outline uppercase">[ STATUS: STORE ONLINE ]</span>
+<div class="flex gap-unit-4">
+<span class="font-mono text-[11px] text-outline uppercase cursor-pointer hover:text-primary">SHIPPING: GLOBAL_PRIORITY</span>
+<span class="font-mono text-[11px] text-outline uppercase">v2.0.4-STABLE</span>
+</div>
+</footer>
+</div>
+
+
+</body></html>

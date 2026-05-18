@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Account - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#131313",
+                        "on-secondary-fixed": "#25005a",
+                        "inverse-primary": "#00668a",
+                        "surface-container-highest": "#353534",
+                        "inverse-on-surface": "#313030",
+                        "on-secondary-fixed-variant": "#5a00c6",
+                        "surface-container": "#201f1f",
+                        "primary": "#8fd6ff",
+                        "tertiary-container": "#2ecc64",
+                        "on-primary-fixed-variant": "#004c69",
+                        "on-error": "#690005",
+                        "on-surface-variant": "#bcc8d1",
+                        "surface-container-high": "#2a2a2a",
+                        "primary-container": "#00bfff",
+                        "on-tertiary": "#003915",
+                        "background": "#131313",
+                        "surface-tint": "#7ad0ff",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-primary-fixed": "#001e2c",
+                        "surface-bright": "#3a3939",
+                        "outline-variant": "#3d4850",
+                        "error-container": "#93000a",
+                        "on-primary": "#003549",
+                        "on-tertiary-container": "#005020",
+                        "on-secondary-container": "#c9aeff",
+                        "secondary": "#d2bbff",
+                        "primary-fixed": "#c3e8ff",
+                        "on-background": "#e5e2e1",
+                        "on-secondary": "#3f008e",
+                        "on-surface": "#e5e2e1",
+                        "surface": "#131313",
+                        "on-tertiary-fixed": "#002109",
+                        "tertiary": "#53e97d",
+                        "tertiary-fixed-dim": "#4ae176",
+                        "secondary-fixed": "#eaddff",
+                        "on-tertiary-fixed-variant": "#005321",
+                        "on-primary-container": "#004a65",
+                        "secondary-fixed-dim": "#d2bbff",
+                        "tertiary-fixed": "#6bff8f",
+                        "on-error-container": "#ffdad6",
+                        "primary-fixed-dim": "#7ad0ff",
+                        "outline": "#87929b",
+                        "surface-variant": "#353534",
+                        "error": "#ffb4ab",
+                        "secondary-container": "#6001d1",
+                        "surface-container-low": "#1c1b1b",
+                        "inverse-surface": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0px",
+                        "lg": "0px",
+                        "xl": "0px",
+                        "full": "0px"
+                    },
+                    "spacing": {
+                        "unit-8": "32px",
+                        "unit-12": "48px",
+                        "unit-4": "16px",
+                        "gutter": "16px",
+                        "unit-2": "8px",
+                        "unit-1": "4px",
+                        "unit-6": "24px",
+                        "margin": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["JetBrains Mono"],
+                        "code-snippet": ["JetBrains Mono"],
+                        "body-lg": ["JetBrains Mono"],
+                        "headline-sm": ["JetBrains Mono"],
+                        "headline-md": ["JetBrains Mono"],
+                        "label-md": ["JetBrains Mono"],
+                        "body-md": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "code-snippet": ["13px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-sm": ["18px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "1.0", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex flex-col md:flex-row">
+<!-- TopNavBar (Mobile Only) -->
+<header class="md:hidden flex justify-between items-center px-gutter w-full sticky top-0 z-50 h-[56px] bg-background border-b border-outline-variant">
+<div class="font-headline-sm text-headline-sm text-on-surface tracking-tighter">
+            // pc-parts.store
+        </div>
+<div class="flex gap-unit-4 text-primary">
+<span class="material-symbols-outlined">menu</span>
+</div>
+</header>
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex flex-col h-screen py-unit-4 bg-surface-container-low w-[220px] border-r border-outline-variant flex-shrink-0 sticky top-0">
+<div class="px-4 mb-unit-8">
+<div class="flex items-center gap-unit-4 mb-unit-6">
+<div class="w-unit-12 h-unit-12 bg-surface-container-highest border border-outline-variant flex items-center justify-center font-headline-md text-headline-md text-primary">
+                    JD
+                </div>
+<div>
+<div class="font-label-md text-label-md text-on-surface uppercase">USER_SESSION</div>
+<div class="font-code-snippet text-code-snippet text-on-surface-variant">dev_admin_01</div>
+</div>
+</div>
+</div>
+<div class="flex-1">
+<a class="flex items-center gap-2 text-primary bg-surface-container-highest px-4 py-2 border-l-2 border-primary font-label-md text-label-md uppercase" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                DASHBOARD
+            </a>
+<a class="flex items-center gap-2 text-on-surface-variant px-4 py-2 hover:bg-surface-container font-label-md text-label-md uppercase transition-none" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+                ORDERS
+            </a>
+<a class="flex items-center gap-2 text-on-surface-variant px-4 py-2 hover:bg-surface-container font-label-md text-label-md uppercase transition-none" href="#">
+<span class="material-symbols-outlined">terminal</span>
+                COMPATIBILITY
+            </a>
+<a class="flex items-center gap-2 text-on-surface-variant px-4 py-2 hover:bg-surface-container font-label-md text-label-md uppercase transition-none" href="#">
+<span class="material-symbols-outlined">key</span>
+                API_KEYS
+            </a>
+<a class="flex items-center gap-2 text-on-surface-variant px-4 py-2 hover:bg-surface-container font-label-md text-label-md uppercase transition-none" href="#">
+<span class="material-symbols-outlined">settings</span>
+                SETTINGS
+            </a>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-1 p-gutter md:p-margin flex flex-col gap-unit-8">
+<!-- Header -->
+<header>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-unit-2">DASHBOARD</h1>
+<p class="font-code-snippet text-code-snippet text-on-surface-variant">// RECENT ACTIVITY SUMMARY</p>
+</header>
+<!-- Stat Cards -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-unit-4">
+<!-- Card 1 -->
+<div class="bg-surface-dim border border-outline-variant p-unit-6 flex flex-col justify-between">
+<div class="font-label-md text-label-md text-on-surface-variant uppercase mb-unit-4">// TOTAL ORDERS</div>
+<div class="font-headline-lg text-headline-lg text-primary">0042</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-dim border border-outline-variant p-unit-6 flex flex-col justify-between">
+<div class="font-label-md text-label-md text-on-surface-variant uppercase mb-unit-4">// PENDING</div>
+<div class="font-headline-lg text-headline-lg text-tertiary-container">0003</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-dim border border-outline-variant p-unit-6 flex flex-col justify-between">
+<div class="font-label-md text-label-md text-on-surface-variant uppercase mb-unit-4">// SAVED ITEMS</div>
+<div class="font-headline-lg text-headline-lg text-on-surface">0128</div>
+</div>
+</section>
+<!-- Recent Orders Table -->
+<section class="flex flex-col gap-unit-4">
+<h2 class="font-headline-md text-headline-md text-on-surface border-b border-outline-variant pb-unit-2">// RECENT ORDERS</h2>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-body-md text-body-md">
+<thead>
+<tr class="border-b border-outline-variant bg-surface-container-low">
+<th class="p-unit-4 font-label-md text-label-md text-on-surface-variant uppercase">ORDER #</th>
+<th class="p-unit-4 font-label-md text-label-md text-on-surface-variant uppercase">DATE</th>
+<th class="p-unit-4 font-label-md text-label-md text-on-surface-variant uppercase">ITEMS</th>
+<th class="p-unit-4 font-label-md text-label-md text-on-surface-variant uppercase">TOTAL</th>
+<th class="p-unit-4 font-label-md text-label-md text-on-surface-variant uppercase">STATUS</th>
+<th class="p-unit-4 font-label-md text-label-md text-on-surface-variant uppercase text-right">ACTION</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant hover:bg-surface-container-highest transition-none">
+<td class="p-unit-4 font-code-snippet text-code-snippet text-on-surface">ORD-9921</td>
+<td class="p-unit-4 text-on-surface-variant">2023-10-27</td>
+<td class="p-unit-4 text-on-surface">3</td>
+<td class="p-unit-4 font-code-snippet text-code-snippet text-on-surface">$1,249.99</td>
+<td class="p-unit-4 font-code-snippet text-code-snippet text-tertiary-container">DELIVERED</td>
+<td class="p-unit-4 text-right">
+<button class="border border-outline-variant text-on-surface-variant px-unit-4 py-unit-2 font-label-md text-label-md uppercase hover:bg-surface-container-highest hover:text-on-surface transition-none bg-transparent">
+                                    [ VIEW ]
+                                </button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-surface-container-highest transition-none">
+<td class="p-unit-4 font-code-snippet text-code-snippet text-on-surface">ORD-9884</td>
+<td class="p-unit-4 text-on-surface-variant">2023-10-24</td>
+<td class="p-unit-4 text-on-surface">1</td>
+<td class="p-unit-4 font-code-snippet text-code-snippet text-on-surface">$499.00</td>
+<td class="p-unit-4 font-code-snippet text-code-snippet text-tertiary-container">DELIVERED</td>
+<td class="p-unit-4 text-right">
+<button class="border border-outline-variant text-on-surface-variant px-unit-4 py-unit-2 font-label-md text-label-md uppercase hover:bg-surface-container-highest hover:text-on-surface transition-none bg-transparent">
+                                    [ VIEW ]
+                                </button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-surface-container-highest transition-none">
+<td class="p-unit-4 font-code-snippet text-code-snippet text-on-surface">ORD-9750</td>
+<td class="p-unit-4 text-on-surface-variant">2023-10-15</td>
+<td class="p-unit-4 text-on-surface">5</td>
+<td class="p-unit-4 font-code-snippet text-code-snippet text-on-surface">$2,100.50</td>
+<td class="p-unit-4 font-code-snippet text-code-snippet text-outline-variant">CANCELLED</td>
+<td class="p-unit-4 text-right">
+<button class="border border-outline-variant text-on-surface-variant px-unit-4 py-unit-2 font-label-md text-label-md uppercase hover:bg-surface-container-highest hover:text-on-surface transition-none bg-transparent">
+                                    [ VIEW ]
+                                </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 left-0 w-full flex justify-between items-center px-gutter bg-surface-container-lowest z-40 h-8 border-t border-outline-variant">
+<div class="font-label-md text-label-md text-on-surface-variant">
+            v2.4.0-stable // SYSTEM_STATUS: ONLINE
+        </div>
+<div class="flex gap-unit-4">
+<a class="font-code-snippet text-code-snippet text-on-surface-variant hover:text-primary transition-none" href="#">GITHUB</a>
+<a class="font-code-snippet text-code-snippet text-on-surface-variant hover:text-primary transition-none" href="#">SPEC_SHEETS</a>
+<a class="font-code-snippet text-code-snippet text-on-surface-variant hover:text-primary transition-none" href="#">WARRANTY</a>
+<a class="font-code-snippet text-code-snippet text-on-surface-variant hover:text-primary transition-none" href="#">SUPPORT</a>
+</div>
+</footer>
+</body></html>

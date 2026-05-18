@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { Button } from '../../../components/ui/Button';
-import { Card } from '../../../components/ui/Card';
-
 import { ordersApi } from '../api/ordersApi';
 import StatusBadge from '../components/StatusBadge';
+import NeonButton from '../../../components/ui/NeonButton';
 
 const STATUS_OPTIONS = [
     '', 'PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED',
@@ -42,77 +40,82 @@ export default function OrderListPage() {
     }, [status]);
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6">
+            {/* Page Header */}
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
-                <label className="flex items-center gap-2 text-sm text-gray-600">
-                    Filter by status:
+                <div>
+                    <h1 className="font-mono text-[32px] font-bold text-[#e5e2e1] mb-2">RECENT ORDERS</h1>
+                    <p className="font-mono text-[13px] text-[#87929b]">// ADMIN_VIEW | PAGINATED</p>
+                </div>
+                <label className="flex items-center gap-2 font-mono text-[12px] text-[#87929b] uppercase">
+                    Filter:
                     <select
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                        className="bg-[#131313] border border-[#3d4850] text-[#e5e2e1] font-mono text-[13px] px-3 py-2 focus:border-[#00bfff] focus:ring-0 outline-none"
                         data-testid="status-filter"
                     >
                         {STATUS_OPTIONS.map((s) => (
-                            <option key={s} value={s}>{s || 'All'}</option>
+                            <option key={s} value={s}>{s || 'ALL'}</option>
                         ))}
                     </select>
                 </label>
             </div>
 
             {error && (
-                <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2" data-testid="orders-error">
+                <div className="font-mono text-[13px] text-[#ffb4ab] bg-[#93000a]/20 border border-[#ffb4ab]/30 px-3 py-2" data-testid="orders-error">
                     {error}
                 </div>
             )}
 
-            <Card className="p-0 overflow-hidden">
+            {/* Orders Table */}
+            <div className="border border-[#3d4850] bg-[#201f1f] overflow-x-auto">
                 {loading ? (
-                    <div className="p-8 text-center text-gray-500" data-testid="orders-loading">Loading…</div>
+                    <div className="p-8 text-center font-mono text-[13px] text-[#87929b]" data-testid="orders-loading">Loading…</div>
                 ) : (
-                    <table className="w-full" data-testid="orders-table">
-                        <thead className="bg-gray-50">
-                            <tr className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-                                <th className="px-4 py-3 text-left">Order ID</th>
-                                <th className="px-4 py-3 text-left">Status</th>
-                                <th className="px-4 py-3 text-right">Subtotal</th>
-                                <th className="px-4 py-3 text-right">Tax</th>
-                                <th className="px-4 py-3 text-right">Total</th>
-                                <th className="px-4 py-3 text-left">Placed At</th>
-                                <th className="px-4 py-3"></th>
+                    <table className="w-full text-left border-collapse" data-testid="orders-table">
+                        <thead>
+                            <tr className="border-b border-[#3d4850] bg-[#2a2a2a]">
+                                <th className="p-3 font-mono text-[12px] text-[#87929b] uppercase">ID</th>
+                                <th className="p-3 font-mono text-[12px] text-[#87929b] uppercase">Status</th>
+                                <th className="p-3 font-mono text-[12px] text-[#87929b] uppercase text-right">Subtotal</th>
+                                <th className="p-3 font-mono text-[12px] text-[#87929b] uppercase text-right">Tax</th>
+                                <th className="p-3 font-mono text-[12px] text-[#87929b] uppercase text-right">Total</th>
+                                <th className="p-3 font-mono text-[12px] text-[#87929b] uppercase">Placed At</th>
+                                <th className="p-3 font-mono text-[12px] text-[#87929b] uppercase text-right">Action</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="font-mono text-[13px]">
                             {orders.length === 0 && (
                                 <tr>
-                                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
-                                        No orders
+                                    <td colSpan={7} className="px-4 py-8 text-center text-[#87929b]">
+                                        No orders found.
                                     </td>
                                 </tr>
                             )}
                             {orders.map((o) => (
                                 <tr
                                     key={o.id}
-                                    className="border-t border-gray-100 hover:bg-gray-50 transition-colors"
+                                    className="border-b border-[#3d4850] hover:bg-[#353534]"
                                     data-testid="order-row"
                                     data-status={o.status}
                                 >
-                                    <td className="px-4 py-3">
-                                        <code className="text-xs bg-gray-100 px-2 py-1 rounded">{o.id}</code>
+                                    <td className="p-3 text-[#8fd6ff]">
+                                        <code className="text-[11px] bg-[#131313] border border-[#3d4850] px-2 py-1">{o.id}</code>
                                     </td>
-                                    <td className="px-4 py-3"><StatusBadge status={o.status} /></td>
-                                    <td className="px-4 py-3 text-right">${o.subtotal.toFixed(2)}</td>
-                                    <td className="px-4 py-3 text-right">${o.tax.toFixed(2)}</td>
-                                    <td className="px-4 py-3 text-right font-semibold">${o.total.toFixed(2)}</td>
-                                    <td className="px-4 py-3 text-sm text-gray-600">
+                                    <td className="p-3"><StatusBadge status={o.status} /></td>
+                                    <td className="p-3 text-right text-[#e5e2e1]">${o.subtotal.toFixed(2)}</td>
+                                    <td className="p-3 text-right text-[#e5e2e1]">${o.tax.toFixed(2)}</td>
+                                    <td className="p-3 text-right font-semibold text-[#00bfff]">${o.total.toFixed(2)}</td>
+                                    <td className="p-3 text-[#87929b]">
                                         {new Date(o.placed_at).toLocaleString()}
                                     </td>
-                                    <td className="px-4 py-3 text-right">
+                                    <td className="p-3 text-right">
                                         <Link
                                             to={`/admin/orders/${o.id}`}
-                                            className="text-blue-600 hover:underline text-sm font-medium"
+                                            className="text-[#00bfff] hover:text-[#8fd6ff] font-mono text-[10px] uppercase tracking-wider border border-[#3d4850] px-2 py-1 hover:border-[#00bfff] inline-block"
                                         >
-                                            View →
+                                            [ VIEW ]
                                         </Link>
                                     </td>
                                 </tr>
@@ -120,29 +123,28 @@ export default function OrderListPage() {
                         </tbody>
                     </table>
                 )}
-            </Card>
+            </div>
 
-            <div className="flex items-center justify-between text-sm" data-testid="pagination-info">
-                <Button
+            {/* Pagination */}
+            <div className="flex items-center justify-between font-mono text-[13px]" data-testid="pagination-info">
+                <NeonButton
                     variant="secondary"
                     disabled={pagination.page <= 1}
                     onClick={() => load(pagination.page - 1, status)}
-                    className="text-sm"
                 >
-                    <span data-testid="page-prev">← Prev</span>
-                </Button>
-                <span className="text-gray-600">
-                    Page <strong>{pagination.page}</strong> of <strong>{pagination.total_pages}</strong>
+                    <span data-testid="page-prev">[ ← PREV ]</span>
+                </NeonButton>
+                <span className="text-[#87929b]">
+                    Page <strong className="text-[#e5e2e1]">{pagination.page}</strong> of <strong className="text-[#e5e2e1]">{pagination.total_pages}</strong>
                     {' '}· {pagination.total_count} orders
                 </span>
-                <Button
+                <NeonButton
                     variant="secondary"
                     disabled={pagination.page >= pagination.total_pages}
                     onClick={() => load(pagination.page + 1, status)}
-                    className="text-sm"
                 >
-                    <span data-testid="page-next">Next →</span>
-                </Button>
+                    <span data-testid="page-next">[ NEXT → ]</span>
+                </NeonButton>
             </div>
         </div>
     );

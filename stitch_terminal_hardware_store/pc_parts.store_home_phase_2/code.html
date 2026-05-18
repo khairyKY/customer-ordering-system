@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>// pc-parts.store - Build Your Next Rig</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-dim": "#131313",
+                      "on-secondary-fixed": "#25005a",
+                      "inverse-primary": "#00668a",
+                      "surface-container-highest": "#353534",
+                      "inverse-on-surface": "#313030",
+                      "on-secondary-fixed-variant": "#5a00c6",
+                      "surface-container": "#201f1f",
+                      "primary": "#8fd6ff",
+                      "tertiary-container": "#2ecc64",
+                      "on-primary-fixed-variant": "#004c69",
+                      "on-error": "#690005",
+                      "on-surface-variant": "#bcc8d1",
+                      "surface-container-high": "#2a2a2a",
+                      "primary-container": "#00bfff",
+                      "on-tertiary": "#003915",
+                      "background": "#131313",
+                      "surface-tint": "#7ad0ff",
+                      "surface-container-lowest": "#0e0e0e",
+                      "on-primary-fixed": "#001e2c",
+                      "surface-bright": "#3a3939",
+                      "outline-variant": "#3d4850",
+                      "error-container": "#93000a",
+                      "on-primary": "#003549",
+                      "on-tertiary-container": "#005020",
+                      "on-secondary-container": "#c9aeff",
+                      "secondary": "#d2bbff",
+                      "primary-fixed": "#c3e8ff",
+                      "on-background": "#e5e2e1",
+                      "on-secondary": "#3f008e",
+                      "on-surface": "#e5e2e1",
+                      "surface": "#131313",
+                      "on-tertiary-fixed": "#002109",
+                      "tertiary": "#53e97d",
+                      "tertiary-fixed-dim": "#4ae176",
+                      "secondary-fixed": "#eaddff",
+                      "on-tertiary-fixed-variant": "#005321",
+                      "on-primary-container": "#004a65",
+                      "secondary-fixed-dim": "#d2bbff",
+                      "tertiary-fixed": "#6bff8f",
+                      "on-error-container": "#ffdad6",
+                      "primary-fixed-dim": "#7ad0ff",
+                      "outline": "#87929b",
+                      "surface-variant": "#353534",
+                      "error": "#ffb4ab",
+                      "secondary-container": "#6001d1",
+                      "surface-container-low": "#1c1b1b",
+                      "inverse-surface": "#e5e2e1"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0px",
+                      "lg": "0px",
+                      "xl": "0px",
+                      "full": "0px"
+              },
+              "spacing": {
+                      "unit-8": "32px",
+                      "unit-12": "48px",
+                      "unit-4": "16px",
+                      "gutter": "16px",
+                      "unit-2": "8px",
+                      "unit-1": "4px",
+                      "unit-6": "24px",
+                      "margin": "24px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "code-snippet": [
+                              "JetBrains Mono"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "52px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "code-snippet": [
+                              "13px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.0",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: #0D0D0D;
+            color: #e5e2e1;
+        }
+        .hero-stars {
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 50px 160px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 130px 80px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 160px 120px, #ffffff, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            opacity: 0.15;
+        }
+      </style>
+</head>
+<body class="bg-surface-dim min-h-screen flex flex-col font-body-md text-on-surface">
+<!-- TopNavBar from Shared Components -->
+<nav class="bg-background dark:bg-background flex justify-between items-center px-gutter w-full sticky top-0 z-50 h-[56px] rounded-none border-b border-outline-variant flat no shadows">
+<div class="flex items-center gap-6">
+<span class="font-headline-sm text-headline-sm text-on-surface tracking-tighter">// pc-parts.store</span>
+<div class="hidden md:flex gap-4">
+<a class="font-headline-sm text-headline-sm text-primary border-b border-primary pb-1" href="#">COMPONENTS</a>
+<a class="font-headline-sm text-headline-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-none px-2 py-1" href="#">SYSTEMS</a>
+<a class="font-headline-sm text-headline-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-none px-2 py-1" href="#">PERIPHERALS</a>
+<a class="font-headline-sm text-headline-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-none px-2 py-1" href="#">DOCS</a>
+</div>
+</div>
+<div class="flex items-center gap-4 text-primary dark:text-primary">
+<!-- Search bar on left logic represented here loosely as input area before icons -->
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-2 top-1.5 text-on-surface-variant" style="font-size: 16px;">search</span>
+<input class="bg-surface-container-low border border-outline-variant text-on-surface pl-8 pr-2 py-1 font-code-snippet text-code-snippet focus:border-primary-container focus:outline-none focus:ring-0 rounded-none w-48" placeholder="Search..." type="text"/>
+</div>
+<button class="hover:bg-surface-container-highest transition-none p-2 flex items-center justify-center">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<button class="hover:bg-surface-container-highest transition-none p-2 flex items-center justify-center">
+<span class="material-symbols-outlined">terminal</span>
+</button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col">
+<!-- HERO SECTION -->
+<section class="relative w-full min-h-[819px] flex items-center border-b border-outline-variant bg-surface-container-lowest overflow-hidden">
+<div class="hero-stars absolute inset-0 z-0"></div>
+<div class="container mx-auto px-gutter max-w-7xl relative z-10 grid grid-cols-1 md:grid-cols-2 gap-unit-8 items-center py-unit-12">
+<div class="flex flex-col gap-unit-6 max-w-xl">
+<span class="font-label-md text-label-md text-primary-container uppercase tracking-widest block">NEW ARRIVALS // 2025</span>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Build Your Next Rig.</h1>
+<p class="font-body-lg text-body-lg text-[#999999]">
+                        High-performance components for uncompromising builds. Engineered for precision, optimized for speed. Secure your hardware stack today.
+                    </p>
+<div class="flex flex-wrap gap-unit-4 pt-unit-2">
+<button class="border border-primary-container bg-transparent text-primary-container font-label-md text-label-md uppercase px-unit-6 py-unit-2 hover:bg-primary-container hover:text-surface-container-lowest transition-none flex items-center gap-2">
+                            [ SHOP NOW ]
+                        </button>
+<button class="border border-[#222222] bg-transparent text-[#999999] font-label-md text-label-md uppercase px-unit-6 py-unit-2 hover:bg-[#E0E0E0] hover:text-surface-container-lowest transition-none flex items-center gap-2">
+                            [ VIEW DEALS ]
+                        </button>
+</div>
+</div>
+<div class="relative h-[400px] w-full flex justify-center items-center">
+<img alt="High-end GPU flat render" class="w-full h-full object-cover border border-outline-variant filter grayscale hover:grayscale-0 transition-none" data-alt="A sleek, high-end computer graphics card (GPU) floating against a stark, pure black background. The GPU features aggressive, angular metallic heat sinks and a strictly monochromatic color palette of dark grays and deep blacks, punctuated by a single, thin, intense neon blue light strip. The lighting is harsh and directional, emphasizing the precise mechanical details and matte textures, creating a functional, highly technical, and slightly cyberpunk developer workspace aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIL2ZJfk5eTyntJJn09QMm1klCEP7rOK_ILujIfttTjyX15h8o5UkYj7jBd24C6r8dKxn6uTfvzqub_GscRcIX5VlB9Tn4261Kyz7eu-blGjC5eb6Z5jpjUnWh_54TbcBlIM359P8x7Ne28IJEUtTi-UaZsxFyOkE2vH1kfhvN_v0bueBee5K0wYXxvnOhvjZFDRlsRePhon8JmhKAL9HjcMmaCXLQzr2XopsxD6FhU1Gt2AGzr9gHjCtkq02JVB1sYB7E15MhbWU1"/>
+</div>
+</div>
+</section>
+<!-- TRENDING CATEGORIES -->
+<section class="w-full py-unit-12 border-b border-outline-variant bg-surface-container">
+<div class="container mx-auto px-gutter max-w-7xl flex flex-col gap-unit-6">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block">// BROWSE BY CATEGORY</span>
+<div class="flex flex-row overflow-x-auto gap-unit-4 pb-unit-4 snap-x">
+<!-- CPU Card -->
+<div class="min-w-[160px] h-[120px] bg-[#111111] border border-[#222222] flex flex-col hover:border-primary-container transition-none cursor-pointer snap-start group">
+<div class="h-2/3 border-b border-[#222222] p-unit-2 flex justify-center items-center relative overflow-hidden group-hover:border-primary-container">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant group-hover:text-primary-container">memory</span>
+</div>
+<div class="h-1/3 flex items-center px-unit-2">
+<span class="font-code-snippet text-code-snippet text-on-surface">__CPUS</span>
+</div>
+</div>
+<!-- GPU Card -->
+<div class="min-w-[160px] h-[120px] bg-[#111111] border border-[#222222] flex flex-col hover:border-primary-container transition-none cursor-pointer snap-start group">
+<div class="h-2/3 border-b border-[#222222] p-unit-2 flex justify-center items-center relative overflow-hidden group-hover:border-primary-container">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant group-hover:text-primary-container">developer_board</span>
+</div>
+<div class="h-1/3 flex items-center px-unit-2">
+<span class="font-code-snippet text-code-snippet text-on-surface">__GPUS</span>
+</div>
+</div>
+<!-- MB Card -->
+<div class="min-w-[160px] h-[120px] bg-[#111111] border border-[#222222] flex flex-col hover:border-primary-container transition-none cursor-pointer snap-start group">
+<div class="h-2/3 border-b border-[#222222] p-unit-2 flex justify-center items-center relative overflow-hidden group-hover:border-primary-container">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant group-hover:text-primary-container">grid_4x4</span>
+</div>
+<div class="h-1/3 flex items-center px-unit-2">
+<span class="font-code-snippet text-code-snippet text-on-surface">__MOTHERBOARDS</span>
+</div>
+</div>
+<!-- RAM Card -->
+<div class="min-w-[160px] h-[120px] bg-[#111111] border border-[#222222] flex flex-col hover:border-primary-container transition-none cursor-pointer snap-start group">
+<div class="h-2/3 border-b border-[#222222] p-unit-2 flex justify-center items-center relative overflow-hidden group-hover:border-primary-container">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant group-hover:text-primary-container">sd_card</span>
+</div>
+<div class="h-1/3 flex items-center px-unit-2">
+<span class="font-code-snippet text-code-snippet text-on-surface">__MEMORY</span>
+</div>
+</div>
+<!-- STORAGE Card -->
+<div class="min-w-[160px] h-[120px] bg-[#111111] border border-[#222222] flex flex-col hover:border-primary-container transition-none cursor-pointer snap-start group">
+<div class="h-2/3 border-b border-[#222222] p-unit-2 flex justify-center items-center relative overflow-hidden group-hover:border-primary-container">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant group-hover:text-primary-container">hard_drive</span>
+</div>
+<div class="h-1/3 flex items-center px-unit-2">
+<span class="font-code-snippet text-code-snippet text-on-surface">__STORAGE</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- FEATURED PRODUCTS Grid -->
+<section class="w-full py-unit-12 border-b border-outline-variant bg-background">
+<div class="container mx-auto px-gutter max-w-7xl flex flex-col gap-unit-6">
+<div class="flex justify-between items-end">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block">// FEATURED HARDWARE</span>
+<button class="border border-[#222222] bg-transparent text-[#999999] font-label-md text-label-md uppercase px-unit-4 py-unit-1 hover:bg-[#E0E0E0] hover:text-surface-container-lowest transition-none hidden md:block">
+                        [ VIEW ALL ]
+                    </button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-unit-4">
+<!-- Product 1 -->
+<div class="bg-[#111111] border border-[#222222] flex flex-col group hover:border-primary-container transition-none">
+<div class="h-[200px] border-b border-[#222222] relative group-hover:border-primary-container p-unit-4 flex items-center justify-center">
+<span class="absolute top-2 left-2 w-3 h-3 bg-tertiary-container block" title="IN_STOCK"></span>
+<span class="absolute top-2 right-2 font-code-snippet text-code-snippet text-on-surface-variant">// GPU</span>
+<img alt="Graphics Card" class="max-h-full object-contain filter grayscale group-hover:grayscale-0" data-alt="A close-up, stark product shot of a massive, triple-fan graphics card on a deep black background. The card is predominantly dark metallic gray with brutalist geometric heat sinks. The lighting is cold and clinical, highlighting the raw industrial design without any soft shadows or blurs, fitting a developer-focused, technical aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMovkNAbIcSa1IgQYCSW8INXP0nMEQjmCMzZ6267oCbEYUX9J7zSAkfqP1jxJJD2KPkgQiIgMTxBMCLhiO5HlKRJSbljDAOa8aurDCSYk_nIFb9HOaKHuc2ttc1w8Il55Lz7g-aFAfuMJdrNQLmbIi5hzaG8BJokkHqagaGhj7J-sAwB5VBE6FNQkMgh8ob7qzzS5NrQU5_wtFM7QMmZiDC9pHxLS8GMZmBz0sFaXDukYvNaCEpCePGewTUmb6VljIlDWymgVrUcUj"/>
+</div>
+<div class="p-unit-4 flex flex-col gap-unit-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">NVD-RTX-5090-FE</h3>
+<div class="flex justify-between items-center mt-2">
+<span class="font-code-snippet text-code-snippet text-primary-container">$1,999.00</span>
+<button class="border border-[#222222] bg-transparent text-[#999999] px-2 py-1 hover:border-primary-container hover:text-primary-container transition-none">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product 2 -->
+<div class="bg-[#111111] border border-[#222222] flex flex-col group hover:border-primary-container transition-none">
+<div class="h-[200px] border-b border-[#222222] relative group-hover:border-primary-container p-unit-4 flex items-center justify-center">
+<span class="absolute top-2 left-2 w-3 h-3 bg-[#F59E0B] block" title="LOW_STOCK"></span>
+<span class="absolute top-2 right-2 font-code-snippet text-code-snippet text-on-surface-variant">// CPU</span>
+<img alt="Processor" class="max-h-full object-contain filter grayscale group-hover:grayscale-0" data-alt="A macro shot of a high-end desktop processor (CPU) resting on an anti-static mat, set against a completely black backdrop. The processor's metallic heatspreader is starkly illuminated, revealing laser-engraved technical text. The image style is purely functional and technical, lacking any lifestyle elements, using flat, hard lighting to emphasize the precision manufacturing of the silicon component." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBwTUA6jkc6fwTFkn5n8JSTppxU_xQ4nSR3kN_mu-N9O2iBRsd0V1iPwEIcipEf3tmde1YE1pNqn6AHKpn_3jN6c8Iv7cW9cX-TPXS9tl4RMSNNWxss50v-KwAuksCh-8Pxn57yYLFS54-R-BR2N1064rQqRg6joMgFMgz__oKwmSPhMfZKrQn3m0r0cE3ZI_7RjBPuRs0vy6hKVPiliG1Y0KT1LymgLFRSwmdg_9ocn6fSbFnSYf8mBohV5fYq_aWCfa_NlKbuA50"/>
+</div>
+<div class="p-unit-4 flex flex-col gap-unit-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">AMD-R9-9950X</h3>
+<div class="flex justify-between items-center mt-2">
+<span class="font-code-snippet text-code-snippet text-primary-container">$699.00</span>
+<button class="border border-[#222222] bg-transparent text-[#999999] px-2 py-1 hover:border-primary-container hover:text-primary-container transition-none">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product 3 -->
+<div class="bg-[#111111] border border-[#222222] flex flex-col group hover:border-primary-container transition-none">
+<div class="h-[200px] border-b border-[#222222] relative group-hover:border-primary-container p-unit-4 flex items-center justify-center">
+<span class="absolute top-2 left-2 w-3 h-3 bg-tertiary-container block" title="IN_STOCK"></span>
+<span class="absolute top-2 right-2 font-code-snippet text-code-snippet text-on-surface-variant">// MB</span>
+<img alt="Motherboard" class="max-h-full object-contain filter grayscale group-hover:grayscale-0" data-alt="An expansive, flat overhead shot of a premium ATX motherboard against a dark gray grid background. The motherboard features black PCB, massive dark aluminum VRM heatsinks, and complex circuitry. The lighting is very flat and even, ensuring every capacitor and trace is visible without deep shadows, embodying a stark, developer-tool aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNhtrRLdB78ZmKcRG7uvr2v9uRyDxPhbPNvx292_WsPuZxQQU3J1xBOu5MjICy1QYetr4Jmqb_R0hsiTHp1lc2rsjMlquaVA9HLxC-c8_SMDnLpJGgST0MD7D1EV8mK06Y4gsP3w_ApVi0y3sCyHjOukeW8hi-CXSGuW2eh6WlCU3FmKsHlAXMc7zfHwRUQyqvb01TlwQAkOIgzSSTKASaRYQ58AXr0i2jZ-TZduabsGO0aASaCrdGH3OMPH3ZV5_Hp3j7jZW8pg2F"/>
+</div>
+<div class="p-unit-4 flex flex-col gap-unit-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">ROG-X870E-HERO</h3>
+<div class="flex justify-between items-center mt-2">
+<span class="font-code-snippet text-code-snippet text-primary-container">$599.00</span>
+<button class="border border-[#222222] bg-transparent text-[#999999] px-2 py-1 hover:border-primary-container hover:text-primary-container transition-none">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product 4 -->
+<div class="bg-[#111111] border border-[#222222] flex flex-col group hover:border-primary-container transition-none hidden md:flex">
+<div class="h-[200px] border-b border-[#222222] relative group-hover:border-primary-container p-unit-4 flex items-center justify-center">
+<span class="absolute top-2 left-2 w-3 h-3 bg-tertiary-container block" title="IN_STOCK"></span>
+<span class="absolute top-2 right-2 font-code-snippet text-code-snippet text-on-surface-variant">// RAM</span>
+<img alt="Memory Sticks" class="max-h-full object-contain filter grayscale group-hover:grayscale-0" data-alt="Two sleek sticks of DDR5 computer memory lying perfectly parallel on a solid black surface. They feature stark, black brushed-aluminum heat spreaders with no RGB lighting. The composition is highly structured and aligned to an invisible grid, lit harshly from one side to accentuate the metallic texture, fitting a minimalist, high-performance tech style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEJ8hLO8uDlqB0DA0aXVpC4sE8-KLYxs5FPy_9rwbrD3xK2HpVtKKkylm9nqkMHfiuRFzs2W0lm_4x_LLIIfjo2gWLED4q2J8ngg4k_t65WRAJbYxMXj1dLQ_OyW0Wn0wcVpg-B_NupGQE21YMl2LvzvqTavAdTY8dDR61uYzC-Hz3OetCAADRz4-s7QLMnRsE_DzBGPBUJsBAyAMf3VuokwYnxHLqY1Ia0T1Toxdl3mMxiUT003pzoTQ-LvYiV-oI88sG32L37eJQ"/>
+</div>
+<div class="p-unit-4 flex flex-col gap-unit-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">DOM-TITANIUM-64GB</h3>
+<div class="flex justify-between items-center mt-2">
+<span class="font-code-snippet text-code-snippet text-primary-container">$299.00</span>
+<button class="border border-[#222222] bg-transparent text-[#999999] px-2 py-1 hover:border-primary-container hover:text-primary-container transition-none">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full border border-[#222222] bg-transparent text-[#999999] font-label-md text-label-md uppercase px-unit-4 py-unit-4 hover:bg-[#E0E0E0] hover:text-surface-container-lowest transition-none block md:hidden mt-unit-4">
+                        [ VIEW ALL PRODUCTS ]
+                </button>
+</div>
+</section>
+<!-- PROMO BANNER -->
+<section class="w-full bg-[#131313] border-b border-t-0 border-outline-variant py-unit-8">
+<div class="container mx-auto px-gutter max-w-7xl flex flex-col md:flex-row items-center justify-between gap-unit-6 border border-[#222222] p-unit-6 bg-[#111111]">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-container">local_shipping</span>
+<span class="font-code-snippet text-code-snippet text-tertiary-container">STATUS: ACTIVE_PROMO</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">GLOBAL FREE SHIPPING</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">On all orders exceeding $500.00 USD. Terms apply.</p>
+</div>
+<button class="border border-primary-container bg-transparent text-primary-container font-label-md text-label-md uppercase px-unit-6 py-unit-3 hover:bg-primary-container hover:text-surface-container-lowest transition-none whitespace-nowrap">
+                    [ SHOP THE DEAL ]
+                </button>
+</div>
+</section>
+</main>
+<!-- Footer from Shared Components -->
+<footer class="fixed bottom-0 left-0 w-full flex justify-between items-center px-gutter bg-surface-container-lowest z-40 h-8 rounded-none border-t border-outline-variant flat no shadows">
+<span class="font-code-snippet text-code-snippet text-tertiary dark:text-tertiary-fixed-dim">v2.4.0-stable // SYSTEM_STATUS: ONLINE</span>
+<div class="hidden md:flex gap-6">
+<a class="font-code-snippet text-code-snippet text-on-surface-variant hover:text-primary transition-none snappy click feel" href="#">GITHUB</a>
+<a class="font-code-snippet text-code-snippet text-on-surface-variant hover:text-primary transition-none snappy click feel" href="#">SPEC_SHEETS</a>
+<a class="font-code-snippet text-code-snippet text-on-surface-variant hover:text-primary transition-none snappy click feel" href="#">WARRANTY</a>
+<a class="font-code-snippet text-code-snippet text-on-surface-variant hover:text-primary transition-none snappy click feel" href="#">SUPPORT</a>
+</div>
+</footer>
+<!-- Pad main content to account for fixed footer -->
+<div class="h-8 w-full bg-background"></div>
+</body></html>

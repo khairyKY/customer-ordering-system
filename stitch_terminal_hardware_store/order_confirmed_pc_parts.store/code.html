@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout - Order Success - // pc-parts.store</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-dim": "#131313",
+                      "on-secondary-fixed": "#25005a",
+                      "inverse-primary": "#00668a",
+                      "surface-container-highest": "#353534",
+                      "inverse-on-surface": "#313030",
+                      "on-secondary-fixed-variant": "#5a00c6",
+                      "surface-container": "#201f1f",
+                      "primary": "#8fd6ff",
+                      "tertiary-container": "#2ecc64",
+                      "on-primary-fixed-variant": "#004c69",
+                      "on-error": "#690005",
+                      "on-surface-variant": "#bcc8d1",
+                      "surface-container-high": "#2a2a2a",
+                      "primary-container": "#00bfff",
+                      "on-tertiary": "#003915",
+                      "background": "#131313",
+                      "surface-tint": "#7ad0ff",
+                      "surface-container-lowest": "#0e0e0e",
+                      "on-primary-fixed": "#001e2c",
+                      "surface-bright": "#3a3939",
+                      "outline-variant": "#3d4850",
+                      "error-container": "#93000a",
+                      "on-primary": "#003549",
+                      "on-tertiary-container": "#005020",
+                      "on-secondary-container": "#c9aeff",
+                      "secondary": "#d2bbff",
+                      "primary-fixed": "#c3e8ff",
+                      "on-background": "#e5e2e1",
+                      "on-secondary": "#3f008e",
+                      "on-surface": "#e5e2e1",
+                      "surface": "#131313",
+                      "on-tertiary-fixed": "#002109",
+                      "tertiary": "#53e97d",
+                      "tertiary-fixed-dim": "#4ae176",
+                      "secondary-fixed": "#eaddff",
+                      "on-tertiary-fixed-variant": "#005321",
+                      "on-primary-container": "#004a65",
+                      "secondary-fixed-dim": "#d2bbff",
+                      "tertiary-fixed": "#6bff8f",
+                      "on-error-container": "#ffdad6",
+                      "primary-fixed-dim": "#7ad0ff",
+                      "outline": "#87929b",
+                      "surface-variant": "#353534",
+                      "error": "#ffb4ab",
+                      "secondary-container": "#6001d1",
+                      "surface-container-low": "#1c1b1b",
+                      "inverse-surface": "#e5e2e1"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0rem",
+                      "lg": "0rem",
+                      "xl": "0rem",
+                      "full": "0rem"
+              },
+              "spacing": {
+                      "unit-8": "32px",
+                      "unit-12": "48px",
+                      "unit-4": "16px",
+                      "gutter": "16px",
+                      "unit-2": "8px",
+                      "unit-1": "4px",
+                      "unit-6": "24px",
+                      "margin": "24px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "JetBrains Mono"
+                      ],
+                      "code-snippet": [
+                              "JetBrains Mono"
+                      ],
+                      "body-lg": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-md": [
+                              "JetBrains Mono"
+                      ],
+                      "label-md": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "code-snippet": [
+                              "13px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.0",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0D0D0D;
+            color: #e5e2e1;
+        }
+        
+        /* Starfield background CSS */
+        .stars {
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 50px 160px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 130px 80px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 160px 120px, #ffffff, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 200px 200px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex flex-col relative overflow-x-hidden">
+<!-- TopNavBar (Suppressed for transactional page, keeping minimal header) -->
+<header class="h-[56px] w-full border-b border-outline-variant bg-background flex justify-center items-center px-gutter z-50">
+<div class="font-headline-sm text-headline-sm text-on-surface tracking-tighter">
+            // pc-parts.store
+        </div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow relative flex justify-center items-center py-16 px-gutter stars z-10">
+<!-- Content Container -->
+<div class="w-full max-w-[560px] bg-surface border border-outline-variant p-8 relative z-20">
+<!-- ASCII Confirmation -->
+<div class="text-[#22C55E] font-code-snippet text-code-snippet mb-8 text-center border border-[#22C55E] p-4 bg-[#0D0D0D]">
+<pre class="m-0 leading-tight">  ___  ___  ___  ___  ___    ___  ___  _  _  ___  ___  ___  __  __  ___  ___ 
+ / _ \| _ \|   \| __|| _ \  / __|/ _ \| \| || __||_ _|| _ \|  \/  || __||   \
+| (_) |   /| |) | _| |   / | (__| (_) | .` || _|  | | |   /| |\/| || _| | |) |
+ \___/|_|_\|___/|___||_\_\  \___|\___/|_|\_||_|  |___||_\_\|_|  |_||___||___/
+                                     _ 
+                                    (_)
+                                     _ 
+                                    (_)
+                                     _ 
+                                    (_)
+                                     _ 
+                                    (_)
+                                    (_)
+</pre>
+<div class="mt-4 font-headline-md text-headline-md tracking-widest uppercase">✓ ORDER CONFIRMED ✓</div>
+</div>
+<!-- Thanks & Order Info -->
+<div class="mb-12 text-center">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">Thanks for your order.</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Order <span class="text-primary-container font-code-snippet">#ORD-9982-FX</span></p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Estimated delivery: <span class="text-on-surface">Oct 24 - Oct 26</span></p>
+</div>
+<!-- Summary Box -->
+<div class="border border-outline-variant bg-surface-container-lowest p-6 mb-8">
+<div class="border-b border-outline-variant pb-4 mb-4 flex justify-between items-start">
+<div>
+<div class="font-label-md text-label-md uppercase text-on-surface-variant mb-1">// SHIPPING_TO</div>
+<div class="font-body-md text-body-md text-on-surface">
+                            J. Doe<br/>
+                            123 Sector 4<br/>
+                            Neo-Tokyo, NT 9901<br/>
+                            j.doe@example.com
+                        </div>
+</div>
+</div>
+<div>
+<div class="font-label-md text-label-md uppercase text-on-surface-variant mb-4">// ITEMS_DISPATCHED</div>
+<div class="flex justify-between items-center mb-2">
+<div class="flex items-center gap-4">
+<span class="text-tertiary-container font-code-snippet">&gt;_</span>
+<span class="font-body-md text-body-md">RTX 5090 Founders Edition</span>
+</div>
+<span class="font-code-snippet text-code-snippet">1x</span>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-4">
+<span class="text-tertiary-container font-code-snippet">&gt;_</span>
+<span class="font-body-md text-body-md">i9-14900KS Processor</span>
+</div>
+<span class="font-code-snippet text-code-snippet">1x</span>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col sm:flex-row gap-4 mb-12">
+<button class="flex-1 border border-primary-container text-primary-container bg-transparent hover:bg-primary-container hover:text-[#0D0D0D] font-label-md text-label-md uppercase py-3 transition-none">
+                    [ VIEW ORDER ]
+                </button>
+<button class="flex-1 border border-[#222222] text-[#999999] bg-transparent hover:bg-[#E0E0E0] hover:text-[#0D0D0D] font-label-md text-label-md uppercase py-3 transition-none">
+                    [ CONTINUE SHOPPING ]
+                </button>
+</div>
+<!-- Guest Account Prompt -->
+<div class="border border-outline-variant bg-surface p-6">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">person_add</span>
+<h3 class="font-headline-sm text-headline-sm">Save your info for next time</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Track your order status and checkout faster by creating an account.</p>
+<div class="flex flex-col gap-4">
+<div class="relative w-full">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="text-[#22C55E] font-code-snippet">&gt;_</span>
+</div>
+<input class="w-full bg-[#0D0D0D] border border-[#222222] focus:border-[#7C3AED] focus:ring-0 text-on-surface font-code-snippet text-code-snippet py-2 pl-10 pr-3 placeholder:text-outline-variant" placeholder="Set a secure password" type="password"/>
+</div>
+<button class="w-full border border-primary-container text-primary-container bg-transparent hover:bg-primary-container hover:text-[#0D0D0D] font-label-md text-label-md uppercase py-2 transition-none">
+                        [ CREATE ACCOUNT ]
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer (Suppressed for transactional page to maintain focus, keeping minimal version) -->
+<footer class="w-full h-8 border-t border-outline-variant bg-surface-container-lowest fixed bottom-0 left-0 flex justify-between items-center px-gutter z-40">
+<div class="font-code-snippet text-code-snippet text-on-surface-variant">v2.4.0-stable // SYSTEM_STATUS: ONLINE</div>
+</footer>
+</body></html>

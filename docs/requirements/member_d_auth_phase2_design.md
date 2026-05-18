@@ -735,3 +735,17 @@ This **information-hiding boundary** is the slice's contract. Violations are blo
 - [x] Information Hiding: 3 public surfaces (HTTP endpoints + middleware exports + JWT contract); 9 hidden details; consumption rules per consumer slice; 7 cross-slice contracts locked
 - [x] Phase 3 TDP kickoff list defined (see logbook §"Next Tasks")
 - [x] Logbook entry written (`docs/logbook/member_d_auth_phase2_agile_logbook.md`)
+
+## UML Activity Diagram: Auth & Identity
+```mermaid
+flowchart TD
+    A[Start: Auth Request] --> B{Method?}
+    B -- Register --> C[Hash Password bcrypt]
+    C --> D[Create User Record]
+    B -- Login --> E[Verify Credentials]
+    E -- Success --> F[Generate JWT HS256]
+    E -- Failure --> G[Log Lockout Attempt]
+    F --> H[Return Bearer Token]
+    D --> H
+    H --> I[End: Session Active]
+```

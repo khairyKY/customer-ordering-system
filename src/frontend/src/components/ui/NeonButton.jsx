@@ -6,6 +6,7 @@ const VARIANT_CLASSES = {
   primary:     'btn-neon-primary',
   secondary:   'btn-neon-secondary',
   destructive: 'btn-neon-destructive',
+  danger:      'btn-neon-destructive',
 };
 
 export default function NeonButton({

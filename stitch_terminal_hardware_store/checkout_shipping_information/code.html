@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout - Shipping</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-dim": "#131313",
+                    "on-secondary-fixed": "#25005a",
+                    "inverse-primary": "#00668a",
+                    "surface-container-highest": "#353534",
+                    "inverse-on-surface": "#313030",
+                    "on-secondary-fixed-variant": "#5a00c6",
+                    "surface-container": "#201f1f",
+                    "primary": "#8fd6ff",
+                    "tertiary-container": "#2ecc64",
+                    "on-primary-fixed-variant": "#004c69",
+                    "on-error": "#690005",
+                    "on-surface-variant": "#bcc8d1",
+                    "surface-container-high": "#2a2a2a",
+                    "primary-container": "#00bfff",
+                    "on-tertiary": "#003915",
+                    "background": "#131313",
+                    "surface-tint": "#7ad0ff",
+                    "surface-container-lowest": "#0e0e0e",
+                    "on-primary-fixed": "#001e2c",
+                    "surface-bright": "#3a3939",
+                    "outline-variant": "#3d4850",
+                    "error-container": "#93000a",
+                    "on-primary": "#003549",
+                    "on-tertiary-container": "#005020",
+                    "on-secondary-container": "#c9aeff",
+                    "secondary": "#d2bbff",
+                    "primary-fixed": "#c3e8ff",
+                    "on-background": "#e5e2e1",
+                    "on-secondary": "#3f008e",
+                    "on-surface": "#e5e2e1",
+                    "surface": "#131313",
+                    "on-tertiary-fixed": "#002109",
+                    "tertiary": "#53e97d",
+                    "tertiary-fixed-dim": "#4ae176",
+                    "secondary-fixed": "#eaddff",
+                    "on-tertiary-fixed-variant": "#005321",
+                    "on-primary-container": "#004a65",
+                    "secondary-fixed-dim": "#d2bbff",
+                    "tertiary-fixed": "#6bff8f",
+                    "on-error-container": "#ffdad6",
+                    "primary-fixed-dim": "#7ad0ff",
+                    "outline": "#87929b",
+                    "surface-variant": "#353534",
+                    "error": "#ffb4ab",
+                    "secondary-container": "#6001d1",
+                    "surface-container-low": "#1c1b1b",
+                    "inverse-surface": "#e5e2e1"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0px",
+                    "lg": "0px",
+                    "xl": "0px",
+                    "full": "0px"
+            },
+            "spacing": {
+                    "unit-8": "32px",
+                    "unit-12": "48px",
+                    "unit-4": "16px",
+                    "gutter": "16px",
+                    "unit-2": "8px",
+                    "unit-1": "4px",
+                    "unit-6": "24px",
+                    "margin": "24px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["JetBrains Mono"],
+                    "code-snippet": ["JetBrains Mono"],
+                    "body-lg": ["JetBrains Mono"],
+                    "headline-sm": ["JetBrains Mono"],
+                    "headline-md": ["JetBrains Mono"],
+                    "label-md": ["JetBrains Mono"],
+                    "body-md": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                    "code-snippet": ["13px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                    "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                    "headline-sm": ["18px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                    "headline-md": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                    "label-md": ["12px", { "lineHeight": "1.0", "fontWeight": "500" }],
+                    "body-md": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body {
+            background-color: #0D0D0D;
+            background-image: radial-gradient(#222222 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: #e5e2e1;
+        }
+        .neon-input:focus {
+            border-color: #7C3AED;
+            outline: none;
+        }
+        .neon-btn-primary {
+            border: 1px solid #00BFFF;
+            color: #00BFFF;
+            background-color: transparent;
+        }
+        .neon-btn-primary:hover {
+            background-color: #00BFFF;
+            color: #0D0D0D;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md text-body-md antialiased">
+<!-- TopNavBar (Shared Component - Nav hidden due to transactional intent, just showing brand/header for checkout flow if needed, but per rules, suppress nav shell on checkout. We will just show a minimal header) -->
+<header class="bg-surface-container-lowest border-b border-outline-variant h-[56px] w-full flex items-center px-gutter z-50 sticky top-0">
+<div class="font-headline-sm text-headline-sm text-on-surface tracking-tighter">
+            // pc-parts.store
+        </div>
+<div class="ml-auto flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">lock</span>
+</div>
+</header>
+<main class="flex-grow w-full max-w-7xl mx-auto px-gutter py-unit-8 flex flex-col lg:flex-row gap-unit-8">
+<!-- Left Column: Checkout Form -->
+<div class="flex-1 flex flex-col gap-unit-8">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-unit-2 font-code-snippet text-code-snippet text-on-surface-variant">
+<span>CART</span>
+<span class="text-outline-variant">&gt;</span>
+<span>INFO</span>
+<span class="text-outline-variant">&gt;</span>
+<span class="text-primary-container">SHIPPING</span>
+<span class="text-outline-variant">&gt;</span>
+<span>PAYMENT</span>
+</nav>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-unit-6 border-b border-outline-variant pb-unit-2">Shipping Address</h2>
+<form class="flex flex-col gap-unit-4">
+<!-- TerminalInput Group: Contact -->
+<div class="flex flex-col gap-unit-1">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Email Address</label>
+<div class="relative flex items-center bg-background border border-outline-variant">
+<span class="absolute left-3 font-code-snippet text-tertiary-container select-none">_&gt;</span>
+<input class="neon-input w-full bg-transparent border-none pl-10 pr-3 py-2 font-code-snippet text-code-snippet text-on-surface placeholder:text-outline-variant focus:ring-0" placeholder="user@domain.com" type="email"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-unit-4">
+<div class="flex flex-col gap-unit-1">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">First Name</label>
+<div class="relative flex items-center bg-background border border-outline-variant">
+<span class="absolute left-3 font-code-snippet text-tertiary-container select-none">_&gt;</span>
+<input class="neon-input w-full bg-transparent border-none pl-10 pr-3 py-2 font-code-snippet text-code-snippet text-on-surface placeholder:text-outline-variant focus:ring-0" type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-unit-1">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Last Name</label>
+<div class="relative flex items-center bg-background border border-outline-variant">
+<span class="absolute left-3 font-code-snippet text-tertiary-container select-none">_&gt;</span>
+<input class="neon-input w-full bg-transparent border-none pl-10 pr-3 py-2 font-code-snippet text-code-snippet text-on-surface placeholder:text-outline-variant focus:ring-0" type="text"/>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-unit-1">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Phone Number</label>
+<div class="relative flex items-center bg-background border border-outline-variant">
+<span class="absolute left-3 font-code-snippet text-tertiary-container select-none">_&gt;</span>
+<input class="neon-input w-full bg-transparent border-none pl-10 pr-3 py-2 font-code-snippet text-code-snippet text-on-surface placeholder:text-outline-variant focus:ring-0" type="tel"/>
+</div>
+</div>
+<!-- TerminalInput Group: Address -->
+<div class="flex flex-col gap-unit-1 mt-unit-4">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Street Address</label>
+<div class="relative flex items-center bg-background border border-outline-variant">
+<span class="absolute left-3 font-code-snippet text-tertiary-container select-none">_&gt;</span>
+<input class="neon-input w-full bg-transparent border-none pl-10 pr-3 py-2 font-code-snippet text-code-snippet text-on-surface placeholder:text-outline-variant focus:ring-0" type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-unit-1">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Apartment, suite, etc. (optional)</label>
+<div class="relative flex items-center bg-background border border-outline-variant">
+<span class="absolute left-3 font-code-snippet text-tertiary-container select-none">_&gt;</span>
+<input class="neon-input w-full bg-transparent border-none pl-10 pr-3 py-2 font-code-snippet text-code-snippet text-on-surface placeholder:text-outline-variant focus:ring-0" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-unit-4">
+<div class="flex flex-col gap-unit-1 md:col-span-1">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">City</label>
+<div class="relative flex items-center bg-background border border-outline-variant">
+<span class="absolute left-3 font-code-snippet text-tertiary-container select-none">_&gt;</span>
+<input class="neon-input w-full bg-transparent border-none pl-10 pr-3 py-2 font-code-snippet text-code-snippet text-on-surface placeholder:text-outline-variant focus:ring-0" type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-unit-1 md:col-span-1">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">State / Province</label>
+<div class="relative flex items-center bg-background border border-outline-variant">
+<span class="absolute left-3 font-code-snippet text-tertiary-container select-none">_&gt;</span>
+<input class="neon-input w-full bg-transparent border-none pl-10 pr-3 py-2 font-code-snippet text-code-snippet text-on-surface placeholder:text-outline-variant focus:ring-0" type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-unit-1 md:col-span-1">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">ZIP / Postal</label>
+<div class="relative flex items-center bg-background border border-outline-variant">
+<span class="absolute left-3 font-code-snippet text-tertiary-container select-none">_&gt;</span>
+<input class="neon-input w-full bg-transparent border-none pl-10 pr-3 py-2 font-code-snippet text-code-snippet text-on-surface placeholder:text-outline-variant focus:ring-0" type="text"/>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-unit-1">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase">Country</label>
+<div class="relative flex items-center bg-background border border-outline-variant">
+<span class="absolute left-3 font-code-snippet text-tertiary-container select-none">_&gt;</span>
+<select class="neon-input w-full bg-transparent border-none pl-10 pr-3 py-2 font-code-snippet text-code-snippet text-on-surface placeholder:text-outline-variant focus:ring-0 appearance-none">
+<option class="bg-surface-dim" value="us">United States</option>
+<option class="bg-surface-dim" value="ca">Canada</option>
+<option class="bg-surface-dim" value="uk">United Kingdom</option>
+</select>
+</div>
+</div>
+<div class="mt-unit-6 flex justify-end">
+<button class="neon-btn-primary font-label-md text-label-md uppercase px-unit-6 py-unit-2 transition-none" type="button">
+                            [ CONTINUE TO SHIPPING METHOD ]
+                        </button>
+</div>
+</form>
+</div>
+</div>
+<!-- Right Column: Order Summary -->
+<aside class="w-full lg:w-[400px] flex-shrink-0">
+<div class="bg-surface-dim border border-outline-variant p-unit-6 sticky top-[80px]">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-unit-4 border-b border-outline-variant pb-unit-2">Order Summary</h3>
+<div class="flex flex-col gap-unit-4 mb-unit-6">
+<!-- Item 1 -->
+<div class="flex items-start gap-unit-4">
+<div class="w-16 h-16 bg-surface-container border border-outline-variant flex items-center justify-center flex-shrink-0">
+<img alt="High performance GPU in a futuristic setup" class="w-full h-full object-cover opacity-80" data-alt="A sleek, high-performance graphics card resting on a dark, minimalist surface. The scene is lit by subtle neon blue accents reflecting off the metallic casing, evoking a premium, flat-tech aesthetic. Deep shadows contrast with bright, crisp highlights, emphasizing raw hardware power in a developer's workspace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEZdH85kP7zGijLTSLE0bbL5SCnWmlSQwZgFP8qh-mmuJIPFpzBtw2sISTuYAnULDLgMbIrSm7g2ZzVcvL8BDePJpWMijLgvxLKIa_NdOYJzjawz7Z69SQUUVCSww8skvRdTSs-2dlkuaOI7yb5Jjqlwh-UOZ6Mbe3HtMH7yD19hqvYZAD1Lw3IVNiNRXYxHeT8FT8wu6L955KotfZ7A91RnUCkZlBxLfdk7Zti0FAUnt3cUP1VtqmDs_l4Jo16Szk3YnRDrMzKaEk"/>
+</div>
+<div class="flex-1">
+<div class="font-code-snippet text-code-snippet text-on-surface-variant mb-1">// GPU</div>
+<div class="font-body-md text-body-md text-on-surface leading-tight">NVIDIA RTX 4090 Founders Edition</div>
+</div>
+<div class="font-code-snippet text-code-snippet text-on-surface text-right">
+                            $1,599.00
+                        </div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-start gap-unit-4">
+<div class="w-16 h-16 bg-surface-container border border-outline-variant flex items-center justify-center flex-shrink-0">
+<img alt="High-end CPU processor macro shot" class="w-full h-full object-cover opacity-80" data-alt="A macro shot of a modern CPU processor placed on an anti-static mat. The lighting is sterile and precise, highlighting the gold pins and etched branding. The color palette is strictly dark grey, silver, and muted gold, fitting perfectly within a functional, zero-fluff hardware enthusiast design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfW7Ma-Kiw3tUWItYw2KhNDuGBGlK4EaN-Ah4gqYoSU9QCZZYclt2c4xFylgecn7B-1obRCDo2MCR-KcBHG3hP83gJ5eVWie6IZvKC1bBMB4Z32x3H5kKVV7KYNYDMdBmtI2zzXIvHuvKYyf_W-7QtjH0ufBNTc2UF-Vj6sqpEunlQgkKsssfjrE4sOQFcd3FbK03BiFa2N5-bb3ct6Blp8f_jrgpEem5M2Y5fpwMCx90EQhc0alRpzrsge-PZCCvMR0eDFSuQJqlH"/>
+</div>
+<div class="flex-1">
+<div class="font-code-snippet text-code-snippet text-on-surface-variant mb-1">// CPU</div>
+<div class="font-body-md text-body-md text-on-surface leading-tight">AMD Ryzen 9 7950X3D</div>
+</div>
+<div class="font-code-snippet text-code-snippet text-on-surface text-right">
+                            $699.00
+                        </div>
+</div>
+</div>
+<div class="border-t border-outline-variant pt-unit-4 flex flex-col gap-unit-2 font-code-snippet text-code-snippet">
+<div class="flex justify-between text-on-surface-variant">
+<span>Subtotal</span>
+<span>$2,298.00</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span>Shipping</span>
+<span>Calculated next step</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span>Taxes</span>
+<span>$0.00</span>
+</div>
+<div class="border-t border-outline-variant mt-unit-2 pt-unit-2 flex justify-between font-headline-sm text-headline-sm text-on-surface">
+<span>Total</span>
+<span>$2,298.00</span>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- Footer (Shared Component - rendered minimal due to transactional intent) -->
+<footer class="fixed bottom-0 left-0 w-full h-8 border-t border-outline-variant bg-surface-container-lowest z-40 flex justify-between items-center px-gutter font-code-snippet text-code-snippet text-on-surface-variant">
+<span>v2.4.0-stable // SYSTEM_STATUS: ONLINE</span>
+<div class="hidden md:flex gap-4">
+<span class="hover:text-primary cursor-pointer transition-none">SUPPORT</span>
+</div>
+</footer>
+</body></html>
