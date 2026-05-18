@@ -1,175 +1,357 @@
-// Slide data for PresentationDeck
+// ============================================================
+// presentationSlides — flat, structured slide data
+// COS · CSE323 Final Presentation deck
+//
+// Each slide: { id, eyebrow?, title, subtitle?, blocks[] }
+// Block types consumed by PresentationDeck:
+//   { type: 'lead',    text }
+//   { type: 'bullets', items: string[] }
+//   { type: 'ordered', items: string[] }
+//   { type: 'group',   label, items: string[] }
+//   { type: 'table',   head: string[], rows: string[][] }
+// Inline **bold** is supported inside any string.
+// ============================================================
+
 export const slides = [
   {
     id: 1,
-    layout: 'title',
+    eyebrow: 'CSE323 · SOFTWARE ENGINEERING',
     title: 'Customer Ordering System (COS)',
-    subtitle: 'CSE323 Software Engineering — Final Presentation',
-    meta: 'Team Dev-Cosmic · Members A, B, C, D · 2026-05-18',
+    subtitle: 'Final Presentation',
+    blocks: [
+      { type: 'lead', text: 'Team Dev-Cosmic · Members A, B, C, D' },
+      { type: 'lead', text: '2026-05-18' },
+    ],
   },
   {
     id: 2,
-    layout: 'two-col',
+    eyebrow: 'OVERVIEW',
     title: 'Agenda',
-    left: ['1. Problem & Scope', '2. Architecture — Vertical Slicing', '3. Tech Stack — React / FastAPI', '4. Frontend — 4-Zone Routing', '5. Backend — FastAPI Vertical Slices', '6. Security Middleware'],
-    right: ['7. Requirements & Design (Phases 1–2)', '8. Testing — The 70/20/10 Pyramid', '9. Verification vs Validation', '10. Agile Sprint Journey', '11. Honest Status & Q&A'],
+    blocks: [
+      {
+        type: 'ordered',
+        items: [
+          'Problem & Scope',
+          'Architecture — Vertical Slicing & the Polyglot Pivot',
+          'Tech Stack — React / FastAPI',
+          'Frontend — 4-Zone Routing',
+          'Backend — FastAPI Vertical Slices',
+          'Security Middleware — Semantic Perimeter',
+          'Requirements & Design (Phases 1–2)',
+          'Testing — The 70/20/10 Pyramid',
+          'Verification vs Validation',
+          'Agile Sprint Journey & AI-Native Workflow',
+          'Honest Status & Q&A',
+        ],
+      },
+    ],
   },
   {
     id: 3,
-    layout: 'bullets',
-    title: '1. Problem & Scope',
-    bullets: [
-      { label: 'What:', text: 'A customer ordering system for a 25-product hardware catalog.' },
-      { label: 'Flow:', text: 'Storefront browse → Cart → Checkout → Payment → Admin fulfillment.' },
-      { label: 'Zones:', text: 'Storefront | Checkout | User Account | Admin Panel' },
+    eyebrow: 'SECTION 1',
+    title: 'Problem & Scope',
+    blocks: [
+      {
+        type: 'bullets',
+        items: [
+          '**What:** a customer ordering system for a 25-product hardware catalog.',
+          '**Flow:** storefront browse → cart → checkout → payment → admin fulfillment.',
+          '**Four user-facing zones:** Storefront, Checkout, User Account, Admin Panel.',
+        ],
+      },
     ],
   },
   {
     id: 4,
-    layout: 'two-col-table',
-    title: '2. Architecture — Vertical Slicing',
-    bullets: [
-      'Rejected: Horizontal slicing — high communication overhead, "chain vulnerability".',
-      'Adopted: Vertical slicing — each member owns a full-stack business sub-problem.',
-      'Human = Orchestrator (defines interfaces & API contracts).',
-      'AI = Labor (generates internal logic within bounded constraints).',
+    eyebrow: 'SECTION 2',
+    title: 'Architecture — Vertical Slicing',
+    blocks: [
+      {
+        type: 'bullets',
+        items: [
+          '**Rejected:** horizontal slicing (UI / Logic / DB per person) — high communication overhead and "chain vulnerability" (one layer fails → all fail).',
+          '**Adopted:** vertical slicing — each member is a full-stack owner of a business sub-problem.',
+          '**Human = Orchestrator** (defines interfaces & API contracts); **AI = Labor** (generates internal logic within bounded constraints).',
+        ],
+      },
+      {
+        type: 'table',
+        head: ['Member', 'Slice'],
+        rows: [
+          ['A', 'Checkout, Cart, Catalog'],
+          ['B', 'Payment'],
+          ['C', 'Tickets / Support'],
+          ['D', 'Auth, Orders, Inventory'],
+        ],
+      },
     ],
-    table: {
-      headers: ['Member', 'Slice'],
-      rows: [['A', 'Checkout, Cart, Catalog'], ['B', 'Payment'], ['C', 'Tickets / Support'], ['D', 'Auth, Orders, Inventory']],
-    },
   },
   {
     id: 5,
-    layout: 'bullets',
-    title: '2b. The Polyglot Pivot',
-    bullets: [
-      { text: 'Started as a Node.js / Express prototype.' },
-      { text: 'Pivoted canonical backend to Python / FastAPI on port 8000.' },
-      { text: 'Why safe: JWT (HS256) is language-agnostic — React frontend and either backend interoperate on the same token contract.' },
-      { text: 'Vertical slicing permits per-slice runtime choices without breaking the system.' },
+    eyebrow: 'SECTION 2B',
+    title: 'The Polyglot Pivot',
+    blocks: [
+      {
+        type: 'bullets',
+        items: [
+          'Started as a Node.js / Express prototype.',
+          'Pivoted the canonical backend to **Python / FastAPI** on port 8000.',
+          '**Why it is safe:** JWT (HS256) is language-agnostic — the React frontend and either backend interoperate on the same token contract.',
+          'Vertical slicing permits per-slice runtime choices.',
+        ],
+      },
     ],
   },
   {
     id: 6,
-    layout: 'three-cards',
-    title: '3. Tech Stack',
-    cards: [
-      { heading: 'Frontend', items: ['React 18 + Vite', 'Tailwind CSS', 'Framer Motion', '"Dev-Cosmic" liquid-glassmorphism UI library'] },
-      { heading: 'Backend (Canonical)', items: ['FastAPI (Python 3.11+)', 'SQLAlchemy ORM + SQLite', 'Bcrypt hashing + HS256 JWT', 'APScheduler (stale-order sweep)'] },
-      { heading: 'DevOps / QA', items: ['Pytest (backend)', 'Playwright POM (E2E)', 'GitHub Actions CI'] },
+    eyebrow: 'SECTION 3',
+    title: 'Tech Stack',
+    blocks: [
+      {
+        type: 'group',
+        label: 'Frontend',
+        items: [
+          'React 18 + Vite + Tailwind CSS + Framer Motion',
+          '"Dev-Cosmic" liquid-glassmorphism UI component library (mandated, centralized)',
+        ],
+      },
+      {
+        type: 'group',
+        label: 'Backend (canonical)',
+        items: [
+          'FastAPI (Python 3.11+) · SQLAlchemy ORM · SQLite',
+          'Bcrypt password hashing · HS256 JWT · APScheduler for the stale-order sweep',
+        ],
+      },
+      {
+        type: 'group',
+        label: 'DevOps / QA',
+        items: ['Pytest (backend) · Playwright Page Object Model (E2E) · GitHub Actions CI'],
+      },
     ],
   },
   {
     id: 7,
-    layout: 'four-cards',
-    title: '4. Frontend — 4-Zone Routing',
-    cards: [
-      { heading: '1. Public Storefront', text: 'Catalog browsing, product discovery, Hero CTA.', color: '#00BFFF' },
-      { heading: '2. Checkout Funnel', text: 'Session cart, shipping details, promo codes.', color: '#22C55E' },
-      { heading: '3. User Account', text: 'Authenticated order history & settings.', color: '#7C3AED' },
-      { heading: '4. Admin Panel', text: 'Role-gated fulfillment & inventory control.', color: '#EF4444' },
+    eyebrow: 'SECTION 4',
+    title: 'Frontend — 4-Zone Routing',
+    blocks: [
+      {
+        type: 'ordered',
+        items: [
+          '**Public Storefront** — catalog browsing, product discovery, Hero CTA.',
+          '**Checkout Funnel** — session cart, shipping details, promo codes.',
+          '**User Account** — authenticated order history & settings.',
+          '**Admin Panel** — role-gated fulfillment & inventory control.',
+        ],
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Orchestrated via react-router-dom.',
+          'All basic elements use the shared UI library — no raw HTML or ad-hoc Tailwind for those primitives.',
+        ],
+      },
     ],
-    footer: 'Orchestrated via react-router-dom. All elements use the shared UI library.',
   },
   {
     id: 8,
-    layout: 'two-col-table',
-    title: '5. Backend — FastAPI Vertical Slices',
-    bullets: [
-      'Routers: auth, orders, inventory, cart, catalog, payment, events.',
-      'Services layer holds business logic; routers stay thin.',
-      'Global exception handling: services raise DomainError; single handler converts to JSON.',
-      'Persistence: SQLAlchemy models, SQLite; fresh in-memory DB per test.',
+    eyebrow: 'SECTION 5',
+    title: 'Backend — FastAPI Vertical Slices',
+    blocks: [
+      {
+        type: 'bullets',
+        items: [
+          '**Routers:** auth, orders, inventory, cart, catalog, payment, events.',
+          '**Services layer** holds business logic; routers stay thin.',
+          '**Global exception handling:** services raise DomainError; a single handler converts them to consistent JSON.',
+          '**Persistence:** SQLAlchemy models, SQLite; fresh in-memory DB per test.',
+        ],
+      },
+      {
+        type: 'table',
+        head: ['Endpoint', 'Auth', 'Purpose'],
+        rows: [
+          ['POST /auth/login', 'public', 'issue Bearer JWT'],
+          ['GET /orders', 'admin', 'paginated list, ?status= filter'],
+          ['PATCH /orders/{id}/status', 'admin', 'guarded transition matrix'],
+          ['GET /inventory', 'admin', 'products with low_stock flag'],
+        ],
+      },
     ],
-    table: {
-      headers: ['Endpoint', 'Auth', 'Purpose'],
-      rows: [
-        ['POST /auth/login', 'public', 'Issue Bearer JWT'],
-        ['GET /orders', 'admin', 'Paginated list, filter'],
-        ['PATCH /orders/{id}', 'admin', 'Guarded transition matrix'],
-        ['GET /inventory', 'admin', 'Products with low_stock'],
-      ],
-    },
   },
   {
     id: 9,
-    layout: 'two-col',
-    title: '6. Security Middleware — Semantic Perimeter',
-    left: ['Prompt-Injection Guard (app/middleware/security.py)', 'Pure-ASGI middleware; buffers and replays the request body.', 'Scans POST/PUT/PATCH bodies for instruction-override / jailbreak patterns.', 'Match → HTTP 400 PROMPT_INJECTION_BLOCKED.'],
-    right: ['PII Redaction Firewall', 'RedactionFilter attached to root + uvicorn loggers.', 'Masks emails, card numbers, and sensitive key/values (password, cvv, token).', 'Secrets never reach the terminal or log files.'],
+    eyebrow: 'SECTION 6',
+    title: 'Security Middleware — Semantic Perimeter',
+    blocks: [
+      { type: 'lead', text: 'The CSE323 §3 mandate: defend at the **AI-native semantic perimeter**.' },
+      {
+        type: 'group',
+        label: 'Prompt-Injection Guard',
+        items: [
+          'Pure-ASGI middleware; buffers and replays the request body.',
+          'Scans POST / PUT / PATCH bodies for instruction-override and jailbreak patterns.',
+          'Match → HTTP 400 PROMPT_INJECTION_BLOCKED; oversized body → 413.',
+        ],
+      },
+      {
+        type: 'group',
+        label: 'PII Redaction Firewall',
+        items: [
+          'RedactionFilter attached to the root and uvicorn loggers.',
+          'Masks emails, card numbers, and sensitive key/values (password, cvv, token).',
+          'Secrets never reach the terminal or log files.',
+        ],
+      },
+    ],
   },
   {
     id: 10,
-    layout: 'two-col',
-    title: '7. Requirements & Design (Phases 1–2)',
-    left: ['Phase 1 — Requirements', 'Actor classification (Primary / Supporting / Offstage).', 'AI-as-Malicious-User edge-case discovery — ≥5 negative cases per persona.', 'Traceability heatmaps map every requirement to a test case (zero orphans).'],
-    right: ['Phase 2 — Design', 'System Sequence Diagrams (SSDs).', 'UML Activity Diagrams with explicit code decision points.', 'Gherkin scenarios (Given/When/Then) per user story.', 'API contracts locked before implementation.'],
+    eyebrow: 'SECTION 7',
+    title: 'Requirements & Design (Phases 1–2)',
+    blocks: [
+      {
+        type: 'group',
+        label: 'Phase 1 — Requirements',
+        items: [
+          'Actor classification (Primary / Supporting / Offstage).',
+          'AI-as-Malicious-User edge-case discovery — ≥5 negative cases per persona.',
+          'Traceability heatmaps map every requirement to a test case (zero orphans).',
+        ],
+      },
+      {
+        type: 'group',
+        label: 'Phase 2 — Design',
+        items: [
+          'System Sequence Diagrams (SSDs).',
+          'UML Activity Diagrams with explicit code decision points.',
+          'Gherkin scenarios (Given / When / Then) per user story.',
+          'API contracts locked before implementation.',
+        ],
+      },
+    ],
   },
   {
     id: 11,
-    layout: 'audit',
-    title: '7b. QA — The Ambiguity Audit',
-    transforms: [
-      { from: '"fast"', to: '"< 500 ms response"' },
-      { from: '"secure"', to: '"JWT-validated, Bcrypt-hashed"' },
+    eyebrow: 'SECTION 7B',
+    title: 'QA — The Ambiguity Audit',
+    blocks: [
+      {
+        type: 'bullets',
+        items: [
+          'AI acted as Senior QA to strip subjective terms from requirements.',
+          '"fast" → **"< 500 ms response"**;  "secure" → **"JWT-validated, Bcrypt-hashed"**.',
+          'Recorded in docs/requirements/QA_AUDIT_LOG.md.',
+        ],
+      },
     ],
-    note: 'AI acted as Senior QA to strip subjective terms. Recorded in docs/requirements/QA_AUDIT_LOG.md.',
   },
   {
     id: 12,
-    layout: 'table-only',
-    title: '8. Testing — The 70/20/10 Pyramid',
-    table: {
-      headers: ['Layer', 'Share', 'Tooling'],
-      rows: [
-        ['Unit', '~70%', 'Pytest — pure logic, validators, transition matrix'],
-        ['Integration', '~20%', 'Pytest + httpx — router + service + DB'],
-        ['E2E', '~10%', 'Playwright POM — real browser'],
-      ],
-    },
-    bullets: ['e2e marker isolates browser specs for separate CI jobs.'],
+    eyebrow: 'SECTION 8',
+    title: 'Testing — The 70/20/10 Pyramid',
+    blocks: [
+      {
+        type: 'table',
+        head: ['Layer', 'Share', 'Tooling'],
+        rows: [
+          ['Unit', '~70%', 'Pytest — pure logic, validators, transition matrix'],
+          ['Integration', '~20%', 'Pytest + httpx — router + service + DB'],
+          ['E2E', '~10%', 'Playwright Page Object Model — real browser'],
+        ],
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Backend specs: src/backend_python/tests/ and src/backend/features/*/tests/.',
+          'E2E specs: src/backend_python/tests/playwright/ — Playwright POM, all Python.',
+          'The e2e marker isolates browser specs for separate CI jobs.',
+        ],
+      },
+    ],
   },
   {
     id: 13,
-    layout: 'two-col',
-    title: '9. Verification vs Validation',
-    left: ['Verification', '"Are we building the product right?"', '→ Unit + Integration tests (Pytest).'],
-    right: ['Validation', '"Are we building the right product?"', '→ UAT via Playwright POM against Gherkin acceptance scenarios.'],
+    eyebrow: 'SECTION 9',
+    title: 'Verification vs Validation',
+    blocks: [
+      {
+        type: 'bullets',
+        items: [
+          '**Verification** — "are we building the product right?" → unit + integration tests (Pytest).',
+          '**Validation** — "are we building the right product?" → UAT via Playwright POM against Gherkin acceptance scenarios.',
+          'Documented team-wide in docs/requirements/V_VS_V_STATEMENT.md.',
+        ],
+      },
+    ],
   },
   {
     id: 14,
-    layout: 'timeline',
-    title: '10. Agile Sprint Journey',
-    items: [
-      { sprint: 'Sprint 0', text: 'Architectural skeleton, vertical-slicing mandate, Git rules.' },
-      { sprint: 'Sprint 1', text: 'First end-to-end cart → API → DB loop.' },
-      { sprint: 'Sprint 2', text: 'Phase 1/2 documentation, SSDs, prompt library.' },
-      { sprint: 'Sprint 3', text: 'The polyglot pivot to FastAPI; UI library lockdown.' },
-      { sprint: 'Sprint 4', text: 'System convergence, Playwright suites, rubric validation.', highlight: true },
+    eyebrow: 'SECTION 10',
+    title: 'Agile Sprint Journey',
+    blocks: [
+      {
+        type: 'bullets',
+        items: [
+          '**Sprint 0** — architectural skeleton, vertical-slicing mandate, Git rules.',
+          '**Sprint 1** — first end-to-end cart → API → DB loop.',
+          '**Sprint 2** — Phase 1/2 documentation, SSDs, prompt library.',
+          '**Sprint 3** — the polyglot pivot to FastAPI; UI library lockdown.',
+          '**Sprint 4** — system convergence, Playwright suites, rubric validation.',
+        ],
+      },
     ],
   },
   {
     id: 15,
-    layout: 'ai-workflow',
-    title: '10b. AI-Native Workflow',
-    heading: 'Test-Driven Prompting (TDP)',
-    subtitle: 'A failing test must precede implementation.',
-    left: { role: 'Human', action: 'Orchestrates' },
-    right: { role: 'AI', action: 'Generates bounded logic' },
+    eyebrow: 'SECTION 10B',
+    title: 'AI-Native Workflow',
+    blocks: [
+      {
+        type: 'bullets',
+        items: [
+          '**Test-Driven Prompting (TDP):** a failing test must precede implementation.',
+          'Human orchestrates; AI generates bounded logic.',
+          'AI disclosure is present in code headers and appendix per the submission checklist.',
+        ],
+      },
+    ],
   },
   {
     id: 16,
-    layout: 'two-col',
-    title: '11. Honest Status',
-    left: ['✅ Complete', 'All four vertical slices implemented and routed.', 'Security middleware (prompt-injection guard + PII redaction).', 'Phase 1–2 docs, QA Audit Log, Test Pyramid Report, V&V Statement.', 'Traceability heatmaps for all four members.'],
-    right: ['⏳ Open Items (Disclosed)', 'Per-member agile logbooks for Phases 2–4 (Members A/B/C) — to be authored manually.', 'A live-server smoke test of the new security middleware.'],
+    eyebrow: 'SECTION 11',
+    title: 'Honest Status',
+    blocks: [
+      {
+        type: 'group',
+        label: 'Complete',
+        items: [
+          'All four vertical slices implemented and routed.',
+          'Security middleware (prompt-injection guard + PII redaction).',
+          'Phase 1–2 docs, QA Audit Log, Test Pyramid Report, V&V Statement.',
+          'Traceability heatmaps for all four members.',
+        ],
+      },
+      {
+        type: 'group',
+        label: 'Open items (disclosed, not hidden)',
+        items: [
+          'Per-member agile logbooks for Phases 2–4 — to be authored by each member.',
+          'A live-server smoke test of the new security middleware.',
+        ],
+      },
+    ],
   },
   {
     id: 17,
-    layout: 'title',
+    eyebrow: 'CLOSING',
     title: 'Thank You',
     subtitle: 'Questions?',
-    meta: 'docs/requirements/FINAL_DELIVERABLES.md · http://localhost:8000/docs',
+    blocks: [
+      { type: 'lead', text: 'docs/requirements/FINAL_DELIVERABLES.md — full deliverables map' },
+      { type: 'lead', text: 'http://localhost:8000/docs — live FastAPI Swagger UI' },
+    ],
   },
 ];
+
+export default slides;
