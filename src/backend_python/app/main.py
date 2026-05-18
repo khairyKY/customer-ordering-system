@@ -13,10 +13,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import scheduler
 from app.db import Base, engine
 from app.exceptions import register_handlers
+from app.middleware import PromptInjectionGuard, install_pii_redaction
 from app.routers import auth, cart, catalog, events, inventory, orders, payment
 from app.settings import settings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+install_pii_redaction()
 log = logging.getLogger("app")
 
 
@@ -40,6 +42,9 @@ app = FastAPI(
 
 # Global exception handlers — DomainError → JSON response
 register_handlers(app)
+
+# Semantic-perimeter defense — reject prompt-injection payloads (CSE323 §3).
+app.add_middleware(PromptInjectionGuard)
 
 # CORS — allow the Vite frontend + Member A/B's Node backend during dev
 app.add_middleware(
