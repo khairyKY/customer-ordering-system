@@ -37,9 +37,16 @@ def login(db: Session, email: str, password: str) -> tuple[User, str, datetime]:
     user = db.execute(select(User).where(User.email == normalized)).scalar_one_or_none()
 
     # Lockout short-circuit — skip bcrypt entirely (NFR-AU4 timing + defense)
-    if user and user.locked_until and user.locked_until > datetime.now(timezone.utc):
-        minutes_left = max(1, int((user.locked_until - datetime.now(timezone.utc)).total_seconds() / 60))
-        raise AccountLockedError(minutes_left)
+    if user and user.locked_until:
+        # SQLite returns naive datetimes — coerce to UTC-aware before comparing
+        # to avoid TypeError that masks the lockout as a 500.
+        locked_until = user.locked_until
+        if locked_until.tzinfo is None:
+            locked_until = locked_until.replace(tzinfo=timezone.utc)
+        now = datetime.now(timezone.utc)
+        if locked_until > now:
+            minutes_left = max(1, int((locked_until - now).total_seconds() / 60))
+            raise AccountLockedError(minutes_left)
 
     # User-enumeration defense: same error for wrong email OR wrong password
     if user is None or not verify_password(password, user.password_hash):
