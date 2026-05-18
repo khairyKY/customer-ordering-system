@@ -1,6 +1,6 @@
 // ============================================================
 // presentationSlides — flat, structured slide data
-// Terminal · CSE323 Final Presentation deck
+// COS · CSE323 Final Presentation deck
 //
 // Each slide: { id, eyebrow?, title, subtitle?, blocks[] }
 // Block types consumed by PresentationDeck:
@@ -16,11 +16,11 @@ export const slides = [
   {
     id: 1,
     eyebrow: 'CSE323 · SOFTWARE ENGINEERING',
-    title: 'Terminal',
+    title: 'Customer Ordering System (COS)',
     subtitle: 'Final Presentation',
     blocks: [
-      { type: 'lead', text: 'Team Dev-Cosmic · Khairy · Haitham · Diaa · Mohamed' },
-      { type: 'lead', text: '2026-05-20' },
+      { type: 'lead', text: 'Team Dev-Cosmic · Members A, B, C, D' },
+      { type: 'lead', text: '2026-05-18' },
     ],
   },
   {
@@ -34,9 +34,6 @@ export const slides = [
           'Problem & Scope',
           'Architecture — Vertical Slicing & the Polyglot Pivot',
           'Tech Stack — React / FastAPI',
-          'System Architecture & ERD',
-          'The Order Life Cycle (SSD)',
-          'Traceability & Coverage Heatmap',
           'Frontend — 4-Zone Routing',
           'Backend — FastAPI Vertical Slices',
           'Security Middleware — Semantic Perimeter',
@@ -57,7 +54,7 @@ export const slides = [
       {
         type: 'bullets',
         items: [
-          '**What:** Terminal — a customer ordering system for a 25-product hardware catalog.',
+          '**What:** a customer ordering system for a 25-product hardware catalog.',
           '**Flow:** storefront browse → cart → checkout → payment → admin fulfillment.',
           '**Four user-facing zones:** Storefront, Checkout, User Account, Admin Panel.',
         ],
@@ -79,12 +76,12 @@ export const slides = [
       },
       {
         type: 'table',
-        head: ['Member', 'Name', 'Slice'],
+        head: ['Member', 'Slice'],
         rows: [
-          ['A', 'Khairy', 'Checkout, Cart, Catalog'],
-          ['B', 'Haitham', 'Payment'],
-          ['C', 'Diaa', 'Tickets / Support'],
-          ['D', 'Mohamed', 'Auth, Orders, Admin'],
+          ['A', 'Checkout, Cart, Catalog'],
+          ['B', 'Payment'],
+          ['C', 'Tickets / Support'],
+          ['D', 'Auth, Orders, Inventory'],
         ],
       },
     ],
@@ -133,106 +130,8 @@ export const slides = [
       },
     ],
   },
-  // ── NEW: architectural visualization slides (anti-clutter, theme-pinned) ──
   {
     id: 7,
-    eyebrow: 'SECTION 3B · ARCHITECTURE VISUALS',
-    title: 'System Architecture & ERD',
-    subtitle: 'Entities + cardinality — rendered in the deck table primitive',
-    blocks: [
-      {
-        type: 'lead',
-        text: 'Persistent core: USER places orders; ORDER contains many ORDER_ITEMs; PRODUCT is mirrored read-only (no FK, immutable snapshots). CART_SESSION is in-memory and materialises into ORDER + ORDER_ITEM rows at checkout.',
-      },
-      {
-        type: 'table',
-        head: ['From', 'Relationship', 'To', 'Cardinality'],
-        rows: [
-          ['USER', 'places', 'ORDER', '1 → 0..N'],
-          ['ORDER', 'contains', 'ORDER_ITEM', '1 → 1..N'],
-          ['ORDER', 'logs', 'AUDIT_LOG', '1 → 0..N'],
-          ['ORDER_ITEM', 'snapshot of (no FK)', 'PRODUCT', 'N → 1'],
-          ['CART_SESSION', 'holds', 'CART_ITEM', '1 → 1..N (in-memory)'],
-          ['CART_SESSION', 'materialises into', 'ORDER', '1 → 1 (at checkout)'],
-          ['TICKET', 'filed by', 'USER', 'N → 1 (Member C)'],
-          ['PAYMENT', 'settles', 'ORDER', '1 → 1 (Member B)'],
-        ],
-      },
-      {
-        type: 'group',
-        label: 'Why no FK between ORDER_ITEM and PRODUCT',
-        items: [
-          'Catalog is a mirror — order history must remain immutable even after a SKU is deleted.',
-          'product_name and unit_price are snapshotted at order time.',
-        ],
-      },
-    ],
-  },
-  {
-    id: 8,
-    eyebrow: 'SECTION 3C · SEQUENCE FLOW',
-    title: 'The Order Life Cycle (SSD)',
-    subtitle: 'Checkout / order submission — every cross-slice handoff in one ordered flow',
-    blocks: [
-      {
-        type: 'lead',
-        text: 'Customer drives the React checkout wizard. Frontend talks to the FastAPI router. Member B settles payment with an idempotency key. Member D opens a DB transaction, re-verifies stock, snapshots the order, and writes an audit log entry.',
-      },
-      {
-        type: 'ordered',
-        items: [
-          '**Customer → UI (CheckoutFlow.jsx):** advance through steps 1–4 (Cart → Auth → Shipping → Method).',
-          '**UI → Cart API (GET /api/v1/cart):** hydrate session cart for the Review step.',
-          '**UI:** generate Idempotency-Key (UUID v4) and state-lock the "Place Order" button.',
-          '**UI → Payment API (Member B):** POST `/api/v1/payment` with amount + idempotency_key.',
-          '**Payment API → DB:** insert payments row (PENDING) → authorise gateway → update to SUCCESS.',
-          '**UI → Orders API (Member D):** POST `/api/v1/orders` with cart snapshot + payment_id.',
-          '**Orders API:** BEGIN TXN → SELECT products FOR UPDATE → re-verify stock per line.',
-          '**Branch — stock conflict:** ROLLBACK → 409 STOCK_CONFLICT → UI refreshes cart and shows modal.',
-          '**Branch — all clear:** decrement stock → INSERT orders + order_items (price snapshots) → INSERT audit_log (PENDING → CONFIRMED, keyed by Idempotency-Key).',
-          '**Orders API → UI:** 201 Created with order_id + status "CONFIRMED".',
-          '**UI → Cart API (DELETE /api/v1/cart):** clear session cart.',
-          '**UI → Customer:** advance to Step 7 — Success screen with the new order_id.',
-        ],
-      },
-    ],
-  },
-  {
-    id: 9,
-    eyebrow: 'SECTION 3D · QA EVIDENCE',
-    title: 'Traceability & Coverage Heatmap',
-    subtitle: 'Every requirement → at least one passing test · zero orphans',
-    blocks: [
-      {
-        type: 'lead',
-        text: 'Across the four slices: every Functional Requirement and every Edge Case carries a PRIMARY test case, with related tests filling in cross-cutting coverage. The table below is the row-collapsed summary; per-slice heatmaps live in docs/requirements/.',
-      },
-      {
-        type: 'table',
-        head: ['Slice', 'FRs', 'ECs', 'Primary TCs', 'Status'],
-        rows: [
-          ['A — Checkout / Cart / Catalog (Khairy)', '5', '5', '10', '🟢'],
-          ['B — Payment (Haitham)', '4', '5', '9', '🟢'],
-          ['C — Tickets / Support (Diaa)', '5', '5', '10', '🟢'],
-          ['D — Auth, Orders, Admin (Mohamed)', '6', '8', '14', '🟢'],
-        ],
-      },
-      {
-        type: 'group',
-        label: 'Zero-orphan check (repo-wide)',
-        items: [
-          'Every Business Goal escalates to ≥1 Functional Requirement.',
-          'Every Functional Requirement maps to ≥1 Feature.',
-          'Every Feature has ≥1 verifying Test (unit, integration, or E2E).',
-          'Every NFR has ≥1 explicit verification method.',
-          'Every Persona Behaviour escalates to an Edge Case + Padlock.',
-          '**Total orphans across all four slices: 0.**',
-        ],
-      },
-    ],
-  },
-  {
-    id: 10,
     eyebrow: 'SECTION 4',
     title: 'Frontend — 4-Zone Routing',
     blocks: [
@@ -255,14 +154,14 @@ export const slides = [
     ],
   },
   {
-    id: 11,
+    id: 8,
     eyebrow: 'SECTION 5',
     title: 'Backend — FastAPI Vertical Slices',
     blocks: [
       {
         type: 'bullets',
         items: [
-          '**Routers:** auth, orders, inventory, cart, catalog, payment, tickets, events.',
+          '**Routers:** auth, orders, inventory, cart, catalog, payment, events.',
           '**Services layer** holds business logic; routers stay thin.',
           '**Global exception handling:** services raise DomainError; a single handler converts them to consistent JSON.',
           '**Persistence:** SQLAlchemy models, SQLite; fresh in-memory DB per test.',
@@ -276,13 +175,12 @@ export const slides = [
           ['GET /orders', 'admin', 'paginated list, ?status= filter'],
           ['PATCH /orders/{id}/status', 'admin', 'guarded transition matrix'],
           ['GET /inventory', 'admin', 'products with low_stock flag'],
-          ['POST /tickets', 'customer', 'AI-priority + dedup + state machine'],
         ],
       },
     ],
   },
   {
-    id: 12,
+    id: 9,
     eyebrow: 'SECTION 6',
     title: 'Security Middleware — Semantic Perimeter',
     blocks: [
@@ -308,7 +206,7 @@ export const slides = [
     ],
   },
   {
-    id: 13,
+    id: 10,
     eyebrow: 'SECTION 7',
     title: 'Requirements & Design (Phases 1–2)',
     blocks: [
@@ -334,7 +232,7 @@ export const slides = [
     ],
   },
   {
-    id: 14,
+    id: 11,
     eyebrow: 'SECTION 7B',
     title: 'QA — The Ambiguity Audit',
     blocks: [
@@ -349,7 +247,7 @@ export const slides = [
     ],
   },
   {
-    id: 15,
+    id: 12,
     eyebrow: 'SECTION 8',
     title: 'Testing — The 70/20/10 Pyramid',
     blocks: [
@@ -357,24 +255,23 @@ export const slides = [
         type: 'table',
         head: ['Layer', 'Share', 'Tooling'],
         rows: [
-          ['Unit', '~63%', 'Pytest — pure logic, validators, transition matrix'],
-          ['Integration', '~23%', 'Pytest + httpx — router + service + DB'],
-          ['E2E', '~14%', 'Playwright Page Object Model — real browser'],
+          ['Unit', '~70%', 'Pytest — pure logic, validators, transition matrix'],
+          ['Integration', '~20%', 'Pytest + httpx — router + service + DB'],
+          ['E2E', '~10%', 'Playwright Page Object Model — real browser'],
         ],
       },
       {
         type: 'bullets',
         items: [
-          'All 180 tests live under src/backend_python/tests/ (Python end-to-end).',
-          'E2E specs: src/backend_python/tests/playwright/ — Playwright POM.',
+          'Backend specs: src/backend_python/tests/ and src/backend/features/*/tests/.',
+          'E2E specs: src/backend_python/tests/playwright/ — Playwright POM, all Python.',
           'The e2e marker isolates browser specs for separate CI jobs.',
-          'Honest gap: ratio is 63/23/14 vs the 70/20/10 target — documented in TEST_PYRAMID_REPORT.md rather than padded.',
         ],
       },
     ],
   },
   {
-    id: 16,
+    id: 13,
     eyebrow: 'SECTION 9',
     title: 'Verification vs Validation',
     blocks: [
@@ -389,7 +286,7 @@ export const slides = [
     ],
   },
   {
-    id: 17,
+    id: 14,
     eyebrow: 'SECTION 10',
     title: 'Agile Sprint Journey',
     blocks: [
@@ -400,13 +297,13 @@ export const slides = [
           '**Sprint 1** — first end-to-end cart → API → DB loop.',
           '**Sprint 2** — Phase 1/2 documentation, SSDs, prompt library.',
           '**Sprint 3** — the polyglot pivot to FastAPI; UI library lockdown.',
-          '**Sprint 4** — system convergence, Playwright suites, rubric validation, Tickets migration onto the canonical core.',
+          '**Sprint 4** — system convergence, Playwright suites, rubric validation.',
         ],
       },
     ],
   },
   {
-    id: 18,
+    id: 15,
     eyebrow: 'SECTION 10B',
     title: 'AI-Native Workflow',
     blocks: [
@@ -421,7 +318,7 @@ export const slides = [
     ],
   },
   {
-    id: 19,
+    id: 16,
     eyebrow: 'SECTION 11',
     title: 'Honest Status',
     blocks: [
@@ -429,24 +326,24 @@ export const slides = [
         type: 'group',
         label: 'Complete',
         items: [
-          'All four vertical slices implemented and routed on the canonical FastAPI core.',
+          'All four vertical slices implemented and routed.',
           'Security middleware (prompt-injection guard + PII redaction).',
-          'Phase 1–4 docs, QA Audit Log, Test Pyramid Report, V&V Statement.',
-          'Traceability heatmaps for all four members; zero orphans.',
+          'Phase 1–2 docs, QA Audit Log, Test Pyramid Report, V&V Statement.',
+          'Traceability heatmaps for all four members.',
         ],
       },
       {
         type: 'group',
         label: 'Open items (disclosed, not hidden)',
         items: [
-          'Repo-wide pyramid is 63/23/14 vs 70/20/10 target — gap reported, not padded.',
-          'Screen-recording demo is scripted but not yet recorded.',
+          'Per-member agile logbooks for Phases 2–4 — to be authored by each member.',
+          'A live-server smoke test of the new security middleware.',
         ],
       },
     ],
   },
   {
-    id: 20,
+    id: 17,
     eyebrow: 'CLOSING',
     title: 'Thank You',
     subtitle: 'Questions?',
