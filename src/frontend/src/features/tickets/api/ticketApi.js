@@ -1,7 +1,21 @@
-import axios from 'axios';
+// Tickets HTTP client — uses the shared axios client (which attaches the
+// JWT from localStorage on every request and points at the FastAPI core).
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1';
+import { client } from '../../../api/client';
 
 export const ticketApi = {
-  // Placeholder for ticket-related API calls
+    async create({ subject, body }) {
+        const res = await client.post('/tickets', { subject, body });
+        return res.data;
+    },
+
+    async listTriage() {
+        const res = await client.get('/tickets/triage');
+        return res.data; // array of Ticket
+    },
+
+    async updateStatus(id, status) {
+        const res = await client.patch(`/tickets/${id}/status`, { status });
+        return res.data;
+    },
 };

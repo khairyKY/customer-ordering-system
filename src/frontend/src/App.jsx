@@ -77,6 +77,14 @@ import OrderDetailPage from './features/orders/pages/OrderDetailPage';
 import InventoryPage   from './features/orders/pages/InventoryPage';
 import ProtectedRoute  from './features/auth/components/ProtectedRoute';
 
+// Tickets — customer ticket creation + agent triage
+import TicketForm from './features/tickets/components/TicketForm';
+import TriagePage from './features/tickets/components/TicketList';
+
+// Payment — single-form view at /payment (E2E POM target; the 7-step
+// wizard at /checkout remains the canonical purchase flow)
+import QuickPaymentPage from './pages/QuickPaymentPage';
+
 // Immersive — Presentation
 import PresentationDeck from './pages/PresentationDeck';
 
@@ -161,6 +169,13 @@ function Shell({ cart, cartCount, handleCartUpdate, onClearCart }) {
               </ProtectedRoute>
             }
           />
+
+          {/* ── Tickets / Support ─────────────────────────── */}
+          <Route path="/tickets/new"    element={<TicketForm />} />
+          <Route path="/tickets/triage" element={<TriagePage />} />
+
+          {/* ── Payment (single-form alternative to /checkout) ── */}
+          <Route path="/payment"        element={<QuickPaymentPage />} />
 
           {/* ── Immersive · Presentation ─────────────────── */}
           <Route path="/presentation" element={<PresentationDeck />} />
