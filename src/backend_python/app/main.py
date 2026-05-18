@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import scheduler
 from app.db import Base, engine
 from app.exceptions import register_handlers
-from app.routers import auth, events, inventory, orders
+from app.routers import auth, cart, catalog, events, inventory, orders, payment
 from app.settings import settings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -55,6 +55,9 @@ app.include_router(auth.router, prefix=API_V1)
 app.include_router(orders.router, prefix=API_V1)
 app.include_router(inventory.router, prefix=API_V1)
 app.include_router(events.router, prefix=API_V1)
+app.include_router(cart.router, prefix=API_V1)
+app.include_router(catalog.router, prefix=API_V1)
+app.include_router(payment.router, prefix=API_V1)
 
 
 @app.get("/health", tags=["meta"])

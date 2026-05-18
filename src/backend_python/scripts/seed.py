@@ -69,16 +69,29 @@ def run() -> None:
         _ensure_user(db, email="admin@example.com", password="admin123", role=Role.ADMIN.value)
         _ensure_user(db, email="alice@example.com", password="Sup3rPass!", role=Role.CUSTOMER.value)
 
-        products = [
-            ("PROD-001", "Wireless Mouse",       "MS-001", 30, 25.00),
-            ("PROD-002", "Mechanical Keyboard",  "KB-002", 15, 89.00),
-            ("PROD-003", "27\" Gaming Monitor",  "MN-003",  3, 320.00),
-            ("PROD-004", "USB-C Hub",            "HB-004", 50, 35.00),
-            ("PROD-005", "Webcam HD",            "WC-005",  4, 45.00),
-            ("PROD-006", "Noise-Cancelling Headset", "HS-006", 12, 120.00),
-        ]
-        for pid, name, sku, stock, price in products:
-            _ensure_product(db, id_=pid, name=name, sku=sku, stock=stock, price=price)
+        # Load products from catalog_seed.json (same source as the old Node backend)
+        import json, os
+        seed_path = os.path.join(os.path.dirname(__file__), "..", "..", "database", "catalog_seed.json")
+        if os.path.exists(seed_path):
+            with open(seed_path, "r") as f:
+                catalog = json.load(f)
+            for p in catalog:
+                sku = p.get("specs", {}).get("model", p["id"][:8])
+                _ensure_product(db, id_=p["id"], name=p["name"], sku=sku,
+                                stock=p.get("stock", 10), price=p["price"])
+            log.info("loaded %d products from catalog_seed.json", len(catalog))
+        else:
+            # Fallback if seed file is missing
+            products = [
+                ("PROD-001", "Wireless Mouse",       "MS-001", 30, 25.00),
+                ("PROD-002", "Mechanical Keyboard",  "KB-002", 15, 89.00),
+                ("PROD-003", "27\" Gaming Monitor",  "MN-003",  3, 320.00),
+                ("PROD-004", "USB-C Hub",            "HB-004", 50, 35.00),
+                ("PROD-005", "Webcam HD",            "WC-005",  4, 45.00),
+                ("PROD-006", "Noise-Cancelling Headset", "HS-006", 12, 120.00),
+            ]
+            for pid, name, sku, stock, price in products:
+                _ensure_product(db, id_=pid, name=name, sku=sku, stock=stock, price=price)
 
         _ensure_order(db, id_="ord_pending_1", status_=OrderStatus.PENDING.value, age=timedelta(minutes=5))
         _ensure_order(db, id_="ord_processing_1", status_=OrderStatus.PROCESSING.value, age=timedelta(hours=2))

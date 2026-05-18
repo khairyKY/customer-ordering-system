@@ -1,24 +1,18 @@
 // ============================================================
-// paymentApi — Member B's Payment Slice client
-// Stitch-source: cart-checkout terminal | Payment step (Zone 2)
+// paymentApi — Payment processing client
+// Migrated to FastAPI backend on port 8000
 // ============================================================
 //
-// Backend contract (Member B):
-//   POST /api/payment/process
+// Backend contract:
+//   POST /api/v1/payment/process
 //   Body:  { amount, promoCode?, idempotencyKey, cartTotal }
-//   Auth:  Bearer JWT (issued by Auth slice)
 //   200 :  { status: "SUCCESS", total, transactionId }
-//   400 :  Zod validation failure (negative amount, decimal, etc.)
-//   401 :  No / invalid JWT
-//   409 :  Idempotency window collision (replay-safe)
-//   500 :  Database / gateway error
-//
-// Idempotency: client MUST generate one UUID per checkout session
-//              and reuse it on retries. We use `crypto.randomUUID()`.
+//   422 :  Pydantic validation failure
+// ============================================================
 
 import axios from 'axios';
 
-const PAYMENT_BASE = 'http://localhost:3001/api/payment';
+const PAYMENT_BASE = 'http://localhost:8000/api/v1/payment';
 
 /**
  * Submit a payment for the current cart.
@@ -44,14 +38,11 @@ export async function processPayment({ amount, cartTotal, promoCode, idempotency
 
 /**
  * Generate a fresh idempotency key for a new checkout attempt.
- * Falls back to a v4-shaped string if crypto.randomUUID is unavailable
- * (older browsers / non-secure contexts).
  */
 export function newIdempotencyKey() {
   if (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function') {
     return globalThis.crypto.randomUUID();
   }
-  // Fallback — RFC4122-shaped, not crypto-strong
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
     const v = c === 'x' ? r : (r & 0x3) | 0x8;

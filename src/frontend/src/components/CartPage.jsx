@@ -17,6 +17,7 @@
 // ============================================================
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { fetchCart, updateCartItem, removeCartItem } from '../api/cartApi';
 import NeonButton    from './ui/NeonButton';
 import TerminalInput from './ui/TerminalInput';
@@ -30,6 +31,7 @@ const TAX_RATE = 0.10; // 10% — matches Phase 3 Mathematical Boundary canonica
  * @param {function} props.onNavigate     - App-level view router
  */
 export default function CartPage({ cart, onCartUpdate, onNavigate }) {
+  const navigate = useNavigate();
   const [loading,   setLoading]   = useState(!cart?.items?.length);
   const [promoCode, setPromoCode] = useState('');
   const [removing,  setRemoving]  = useState(null); // product_id being removed
@@ -275,7 +277,7 @@ export default function CartPage({ cart, onCartUpdate, onNavigate }) {
               variant="primary"
               fullWidth
               disabled={items.length === 0}
-              onClick={() => alert('Routing to Payment slice (Member B)…')}
+              onClick={() => navigate('/checkout')}
             >
               [ PROCEED TO CHECKOUT ]
             </NeonButton>

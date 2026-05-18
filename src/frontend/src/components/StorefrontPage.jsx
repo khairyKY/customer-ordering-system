@@ -59,6 +59,8 @@ export default function StorefrontPage({ onCartUpdate }) {
   const [loading,  setLoading]  = useState(true);
   const [search,   setSearch]   = useState('');
   const [addingId, setAddingId] = useState(null); // product id currently being added
+  const [sortMode, setSortMode] = useState('newest'); // 'price_asc' | 'price_desc' | 'newest'
+  const [categoryFilter, setCategoryFilter] = useState(''); // '' = all
 
   // ── Fetch catalog on mount ─────────────────────────────────
   useEffect(() => {
@@ -88,13 +90,21 @@ export default function StorefrontPage({ onCartUpdate }) {
     }
   };
 
-  // ── Client-side search filter ──────────────────────────────
+  // ── Client-side search + category filter ───────────────────
   const query    = search.toLowerCase();
-  const filtered = products.filter(p =>
-    !query ||
-    p.name.toLowerCase().includes(query) ||
-    (p.category ?? '').toLowerCase().includes(query)
-  );
+  const catLower = categoryFilter.toLowerCase();
+  const filtered = products.filter(p => {
+    if (query && !p.name.toLowerCase().includes(query) && !(p.category ?? '').toLowerCase().includes(query)) return false;
+    if (catLower && (p.category ?? '').toLowerCase() !== catLower) return false;
+    return true;
+  });
+
+  // ── Sorting ────────────────────────────────────────────────
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortMode === 'price_asc')  return a.price - b.price;
+    if (sortMode === 'price_desc') return b.price - a.price;
+    return 0; // 'newest' = default API order
+  });
 
   // ── Derive stock status from API field ─────────────────────
   const getStockStatus = (p) => {
@@ -136,13 +146,15 @@ export default function StorefrontPage({ onCartUpdate }) {
               className="font-mono border border-accent-blue text-accent-blue
                          px-[24px] py-[11px] text-label-md hover:bg-accent-blue
                          hover:text-background transition-none uppercase"
+              onClick={() => handleAdd({ id: 'e1a9c2f0-7b3b-4e1e-9a9a-9a9a9a9a9a9a', name: 'NVIDIA GeForce RTX 5090 Founders Edition', price: 1999.99 })}
             >
-              [ ADD TO CART ]
+              { addingId === 'e1a9c2f0-7b3b-4e1e-9a9a-9a9a9a9a9a9a' ? '[ ADDING... ]' : '[ ADD TO CART ]' }
             </button>
             <button
               className="font-mono border border-border-dark text-text-muted
                          px-[24px] py-[11px] text-label-md hover:bg-on-background
                          hover:text-background transition-none uppercase"
+              onClick={() => setSearch('RTX 5090')}
             >
               [ VIEW SPECS ]
             </button>
@@ -192,7 +204,14 @@ export default function StorefrontPage({ onCartUpdate }) {
                     <span className={`inline-block w-2 h-2 ${s.cls}`} />
                     {s.label}
                   </span>
-                  <span className="font-mono text-label-md text-accent-blue hover:bg-accent-blue hover:text-background px-1 cursor-pointer">
+                  <span
+                    className="font-mono text-label-md text-accent-blue hover:bg-accent-blue hover:text-background px-1 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const catMap = { '// PROCESSORS': 'cpu', '// MEMORY': 'memory', '// MAINBOARDS': 'motherboard' };
+                      setCategoryFilter(catMap[cat.slug] || '');
+                    }}
+                  >
                     &gt; BROWSE
                   </span>
                 </div>
@@ -223,21 +242,34 @@ export default function StorefrontPage({ onCartUpdate }) {
         {/* Sort bar */}
         <div className="flex flex-wrap gap-unit-2 border-b border-outline-variant pb-unit-4 mb-unit-6">
           <span className="font-mono text-label-md text-outline self-center mr-unit-2">SORT BY:</span>
-          <button className="border border-outline-variant bg-transparent text-text-muted
-                             hover:bg-on-background hover:text-background font-mono text-label-md
-                             uppercase px-unit-2 py-1 transition-none">
+          <button className={`border bg-transparent font-mono text-label-md
+                             uppercase px-unit-2 py-1 transition-none ${
+                               sortMode === 'price_asc' ? 'border-primary-container text-primary-container' : 'border-outline-variant text-text-muted hover:bg-on-background hover:text-background'
+                             }`}
+                  onClick={() => setSortMode('price_asc')}>
             [ PRICE ↑ ]
           </button>
-          <button className="border border-outline-variant bg-transparent text-text-muted
-                             hover:bg-on-background hover:text-background font-mono text-label-md
-                             uppercase px-unit-2 py-1 transition-none">
+          <button className={`border bg-transparent font-mono text-label-md
+                             uppercase px-unit-2 py-1 transition-none ${
+                               sortMode === 'price_desc' ? 'border-primary-container text-primary-container' : 'border-outline-variant text-text-muted hover:bg-on-background hover:text-background'
+                             }`}
+                  onClick={() => setSortMode('price_desc')}>
             [ PRICE ↓ ]
           </button>
-          <button className="border border-primary-container bg-transparent text-primary-container
-                             hover:bg-primary-container hover:text-background font-mono text-label-md
-                             uppercase px-unit-2 py-1 transition-none">
+          <button className={`border bg-transparent font-mono text-label-md
+                             uppercase px-unit-2 py-1 transition-none ${
+                               sortMode === 'newest' ? 'border-primary-container text-primary-container' : 'border-outline-variant text-text-muted hover:bg-on-background hover:text-background'
+                             }`}
+                  onClick={() => setSortMode('newest')}>
             [ NEWEST ]
           </button>
+          {categoryFilter && (
+            <button className="border border-error text-error bg-transparent font-mono text-label-md
+                               uppercase px-unit-2 py-1 transition-none ml-auto"
+                    onClick={() => setCategoryFilter('')}>
+              [ CLEAR FILTER: {categoryFilter.toUpperCase()} ]
+            </button>
+          )}
         </div>
 
         {/* Loading state */}
@@ -248,16 +280,16 @@ export default function StorefrontPage({ onCartUpdate }) {
         )}
 
         {/* Empty state (after search) */}
-        {!loading && filtered.length === 0 && (
+        {!loading && sorted.length === 0 && (
           <div className="py-16 text-center font-mono text-label-md text-outline">
             NO_RESULTS — try a different query.
           </div>
         )}
 
         {/* Cards */}
-        {!loading && filtered.length > 0 && (
+        {!loading && sorted.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-unit-4">
-            {filtered.map(p => (
+            {sorted.map(p => (
               <LiquidCard
                 key={p.id}
                 category={`// ${(p.category ?? 'HARDWARE').toUpperCase()}`}
