@@ -52,7 +52,7 @@ export default function OrderHistory() {
   }
 
   return (
-    <div className="p-8 max-w-5xl mx-auto flex flex-col gap-4" data-testid="order-history">
+    <div className="p-8 max-w-7xl mx-auto px-4 flex flex-col gap-4 w-full" data-testid="order-history">
       <header className="flex items-center justify-between">
         <h1 className="font-mono text-[24px] font-bold text-on-background">// ORDER_HISTORY</h1>
         <Link to="/account" className="font-mono text-[13px] text-primary-container hover:underline">

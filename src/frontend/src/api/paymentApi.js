@@ -24,13 +24,13 @@ const PAYMENT_BASE = 'http://localhost:8000/api/v1/payment';
  * @param {string} args.idempotencyKey  - UUID v4; reuse across retries
  * @returns {Promise<{ status: 'SUCCESS', total: number, transactionId: string }>}
  */
-export async function processPayment({ amount, cartTotal, promoCode, idempotencyKey }) {
+export async function processPayment({ amount, cartTotal, promoCode, idempotencyKey, items = [], shipping = {}, customerEmail = "guest@example.com", customerId = "guest" }) {
   const token = localStorage.getItem('jwt');
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
   const res = await axios.post(
     `${PAYMENT_BASE}/process`,
-    { amount, cartTotal, promoCode, idempotencyKey },
+    { amount, cartTotal, promoCode, idempotencyKey, items, shipping, customerEmail, customerId },
     { headers },
   );
   return res.data;

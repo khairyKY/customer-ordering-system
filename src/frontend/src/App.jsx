@@ -45,6 +45,8 @@ import CartPage        from './components/CartPage';
 // Zone 1 — Public Storefront
 import ProductListing  from './pages/ProductListing';
 import ProductDetail   from './pages/ProductDetail';
+import DealsPage       from './pages/DealsPage';
+import BuildsPage      from './pages/BuildsPage';
 
 // Zone 2 — Checkout Funnel
 import CheckoutFlow    from './pages/CheckoutFlow';
@@ -52,6 +54,9 @@ import CheckoutFlow    from './pages/CheckoutFlow';
 // Zone 3 — User Account
 import AccountDashboard from './pages/AccountDashboard';
 import OrderHistory     from './pages/OrderHistory';
+import Addresses        from './pages/Addresses';
+import PaymentMethods   from './pages/PaymentMethods';
+import SecuritySettings from './pages/SecuritySettings';
 
 // Zone 4 — Admin Panel
 import AdminDashboard   from './pages/AdminDashboard';
@@ -78,7 +83,10 @@ function App() {
       {/* ── Layer 1 · Routed foreground ───────────────────── */}
       <div className="relative z-10 flex flex-col min-h-screen">
         <BrowserRouter>
-          <TopNavBar cartCount={cartCount} />
+          <TopNavBar 
+            cartCount={cartCount} 
+            onClearCart={() => setCart({ items: [], subtotal: 0, tax: 0, total: 0 })} 
+          />
 
           {/* Page area — clears fixed TopNavBar (56px) + StatusBar (24px) */}
           <div className="flex-grow pt-[56px] pb-[24px]">
@@ -87,14 +95,19 @@ function App() {
               <Route path="/"             element={<StorefrontPage onCartUpdate={handleCartUpdate} />} />
               <Route path="/products"     element={<ProductListing  onCartUpdate={handleCartUpdate} />} />
               <Route path="/products/:id" element={<ProductDetail   onCartUpdate={handleCartUpdate} />} />
+              <Route path="/deals"        element={<DealsPage />} />
+              <Route path="/builds"       element={<BuildsPage />} />
 
               {/* ── Zone 2 · Checkout Funnel ───────────────── */}
               <Route path="/cart"     element={<CartPage     cart={cart} onCartUpdate={handleCartUpdate} onNavigate={() => {}} />} />
               <Route path="/checkout" element={<CheckoutFlow cart={cart} onCartUpdate={handleCartUpdate} />} />
 
               {/* ── Zone 3 · User Account ──────────────────── */}
-              <Route path="/account"        element={<AccountDashboard />} />
-              <Route path="/account/orders" element={<OrderHistory />} />
+              <Route path="/account"                 element={<AccountDashboard />} />
+              <Route path="/account/orders"          element={<OrderHistory />} />
+              <Route path="/account/addresses"       element={<Addresses />} />
+              <Route path="/account/payment-methods" element={<PaymentMethods />} />
+              <Route path="/account/security"        element={<SecuritySettings />} />
 
               {/* ── Zone 4 · Admin Panel ───────────────────── */}
               {/* Public sub-routes (login / register stay outside the role guard) */}
