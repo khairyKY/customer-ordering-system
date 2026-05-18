@@ -51,8 +51,9 @@ to our implementation, the exact proof path for the TA, and a completion status.
 | Phase 2 — UML Activity Diagrams (decision points) | Mermaid flowcharts added to Phase 2 design docs | `docs/requirements/member_b_payments_phase2_design.md`, `member_c_tickets_phase2_design.md`, `member_d_*_phase2_design.md` | 🟢 |
 | Phase 2 — API Contracts | REST surface tables per slice | `src/backend_python/README.md`, `docs/requirements/member_d_auth_phase2_design.md` | 🟢 |
 | Phase 3 — Automated Script Generation | Pytest + Playwright specs generated and passing | `src/backend_python/tests/` (180 collected tests across unit, integration, and Playwright E2E layers) | 🟢 |
-| Phase 3 — TDP Evidence (Failing → Passing) | Test-Driven Prompting logged in agile logbooks | `docs/logbook/member_d_*_agile_logbook.md` | 🟢 |
+| Phase 3 — TDP Evidence (Failing → Passing) | Test-Driven Prompting logged in agile logbooks + standalone Phase 3 implementation reports for Members C and D | `docs/logbook/member_d_*_agile_logbook.md`, `docs/logbook/member_c_phase{3,4}_agile_logbook.md`, `docs/requirements/member_c_tickets_phase3_implementation.md`, `docs/requirements/member_d_phase3_implementation.md` | 🟢 |
 | Phase 4 — Vertical Slice Demo | 4-Zone routed React app over FastAPI backend | `src/frontend/`, `src/backend_python/app/main.py` | 🟢 |
+| Phase 4 — Validation Reports (per-slice) | Phase 4 validation report present for Members C and D | `docs/requirements/member_c_tickets_phase4_validation.md`, `docs/requirements/member_d_phase4_validation.md` | 🟢 |
 
 ## Section 5 — Submission Governance Artifacts
 
@@ -62,6 +63,7 @@ to our implementation, the exact proof path for the TA, and a completion status.
 | QA Audit Log | Present | `docs/requirements/QA_AUDIT_LOG.md` | 🟢 |
 | AI disclosure in code headers / appendix | Confirmed in final submission checklist | `PROJECT_AUDIT_AND_SPRINTS.md` §4 | 🟢 |
 | Member C — Tickets slice logic completeness | **Migrated 2026-05-20** — slice ported into the canonical FastAPI core; legacy `src/backend/` removed | `src/backend_python/app/routers/tickets.py`, `src/backend_python/app/services/tickets_service.py`, `src/backend_python/tests/test_tickets.py`, `src/backend_python/tests/test_tickets_unit.py` | 🟢 |
+| Member C — Documentation parity with Member D | Phase 1 / Phase 2 / Phase 3 / Phase 4 reports + traceability heatmap + four-sprint logbook | `docs/requirements/member_c_tickets_phase{1,2_design,3_implementation,4_validation}.md`, `member_c_traceability_heatmap.md`, `docs/logbook/member_c_phase{1-4}_agile_logbook.md` | 🟢 |
 | Final Presentation Slide Deck | Full slide-by-slide Marp deck authored; render to `.pptx` via Marp CLI | `docs/FINAL_PRESENTATION_DECK.md` | 🟢 |
 | Screen Recording Demo | Minute-by-minute script + click-path authored; recording still pending | `docs/SCREEN_RECORDING_SCRIPT.md` | 🟡 |
 
