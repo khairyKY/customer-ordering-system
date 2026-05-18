@@ -1,6 +1,6 @@
 # SYSTEM CONTEXT: CSE323 Customer Ordering System (COS)
 
-**Current Focus:** Global UI Component Standardization (One-Shot Library Lockdown) and Phase 4 Test Infrastructure setup.
+**Current Focus:** Final submission preparation — presentation deck integration, CI pipeline repair, and deliverables verification against the CSE323 rubric.
 
 ## 1. MANDATE: AI-NATIVE VERTICAL SLICING
 - **Architecture:** Feature-Based Vertical Slicing (Mandated by CSE322/323 Curriculum).
@@ -10,8 +10,8 @@
 
 ## 2. DIRECTORY STRUCTURE
 - `src/frontend/`: React/Tailwind code (Vertical slices under `features/`).
-- `src/backend/`: Node/Express code (Legacy - being replaced by Python).
-- `src/backend_python/`: FastAPI backend (Standardized project core).
+- `src/backend/`: Python feature slices — payment & tickets — with pytest suites. Began as a Node/Express prototype; now majority Python (a few legacy `.js` files remain).
+- `src/backend_python/`: Canonical FastAPI backend (standardized project core).
 - `src/database/`: Prisma models and migrations.
 - `docs/`: All project documentation.
 
@@ -133,3 +133,18 @@ All team members **MUST** use these library components. **DO NOT** use raw HTML 
 - **Storefront:** Hero CTA and Category browsing are dynamic.
 - **Cart:** Promo code validation stub active.
 - **Backend Sync:** All frontend clients now route to port 8000 (FastAPI).
+
+## Final Submission Sweep
+**Date:** 2026-05-19
+**Status:** In progress
+
+### Completed
+- **Presentation Deck:** Structured-block `PresentationDeck.jsx` + `presentationSlides.js` (17 slides) integrated on the `/presentation` route via a `Shell` wrapper that hides global chrome (TopNavBar/StatusBar) on the immersive route. Slide accent border pinned via a local inline style — no change to the global `LiquidCard`.
+- **CI Pipeline:** `.github/workflows/playwright.yml` rewritten to run the Python Playwright POM suite (`pytest -m e2e`) instead of the mismatched JS runner; adds backend/frontend server-readiness waits. Best-effort — unverified against a live run.
+- **Repo Cleanup:** Removed stale AI handoff files (`UI_AUDIT.md`, `state-transfer.md`, `ui issues.txt`, `.ai/handoff-to-claude.md`).
+- Shipped on branch `feat/presentation-and-ci-fixes`.
+
+### Deliverables audit (vs `docs/curriculum/` + `FINAL_DELIVERABLES.md`)
+- Most rubric proof paths verified present.
+- **Gap:** `tests/e2e/payment.spec.js` is referenced by `FINAL_DELIVERABLES.md` and the frontend `test:e2e` npm script but does not exist.
+- **Stale paths in `FINAL_DELIVERABLES.md`:** tickets tests are at `src/backend/features/tickets/tests/`; frontend slices are at `src/frontend/src/features/`.
