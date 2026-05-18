@@ -49,22 +49,30 @@ jobs:
         working-directory: src/backend_python
         run: python -m scripts.seed
 
-      - name: Start backend (uvicorn :8000) and wait for it
+      - name: Start backend (uvicorn :8000)
         working-directory: src/backend_python
         run: |
-          uvicorn app.main:app --port 8000 &
-          npx --yes wait-on http://localhost:8000/docs --timeout 60000
+          python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 > backend.log 2>&1 &
+          echo "started uvicorn (pid $!)"
 
-      - name: Start frontend (vite :5173) and wait for it
+      - name: Start frontend (vite :5173)
         working-directory: src/frontend
         run: |
-          npm run dev -- --port 5173 &
-          npx --yes wait-on http://localhost:5173 --timeout 60000
+          npm run dev -- --host 127.0.0.1 --port 5173 > frontend.log 2>&1 &
+          echo "started vite (pid $!)"
+
+      - name: Wait for servers (dumps logs on failure)
+        run: |
+          npx --yes wait-on http://127.0.0.1:8000/health http://127.0.0.1:5173 --timeout 120000 || {
+            echo "::group::backend.log";  cat src/backend_python/backend.log  2>/dev/null || echo "(no backend.log)";  echo "::endgroup::"
+            echo "::group::frontend.log"; cat src/frontend/frontend.log       2>/dev/null || echo "(no frontend.log)"; echo "::endgroup::"
+            exit 1
+          }
 
       - name: Run Playwright E2E specs
         working-directory: src/backend_python
         run: pytest tests/playwright/ -v -m e2e
         env:
           CI: true
-          PYTHON_API_BASE: http://localhost:8000/api/v1
-          FRONTEND_BASE: http://localhost:5173
+          PYTHON_API_BASE: http://127.0.0.1:8000/api/v1
+          FRONTEND_BASE: http://127.0.0.1:5173
