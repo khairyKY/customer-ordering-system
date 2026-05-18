@@ -27,12 +27,13 @@ class OrderListPage(BasePage):
         expect(self.status_filter).to_be_visible()
 
     def filter_by_status(self, status: OrderStatus) -> None:
-        self.status_filter.select_option(status)
-        # Wait for the resulting list-orders API call to settle
-        self.page.wait_for_response(
+        # Playwright sync API exposes `expect_response` (context manager),
+        # not `wait_for_response` — must wrap the action that triggers the fetch.
+        with self.page.expect_response(
             lambda r: "/api/v1/orders" in r.url and r.status == 200,
             timeout=3000,
-        )
+        ):
+            self.status_filter.select_option(status)
 
     def click_row_by_status(self, status: OrderStatus) -> None:
         self.page.locator(
