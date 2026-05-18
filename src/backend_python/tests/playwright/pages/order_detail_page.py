@@ -20,12 +20,16 @@ class OrderDetailPage(BasePage):
         expect(self.detail_container).to_be_visible(timeout=5000)
 
     def change_status_to(self, new_status: str) -> None:
-        """Click the transition button + wait for the PATCH response."""
-        self.page.locator(f'[data-testid="transition-to-{new_status}"]').click()
-        self.page.wait_for_response(
+        """Click the transition button + wait for the PATCH response.
+
+        Playwright sync API exposes `expect_response` (context manager), not
+        `wait_for_response` — must wrap the action that triggers the fetch.
+        """
+        with self.page.expect_response(
             lambda r: "/status" in r.url and r.request.method == "PATCH",
             timeout=3000,
-        )
+        ):
+            self.page.locator(f'[data-testid="transition-to-{new_status}"]').click()
 
     def expect_status_is(self, status: str) -> None:
         """The StatusBadge data-testid changes with the status; wait for the new one."""

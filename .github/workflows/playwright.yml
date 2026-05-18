@@ -70,7 +70,15 @@ jobs:
             exit 1
           }
 
-          cd src/backend_python && pytest tests/playwright/ -v -m e2e
+          # Capture pytest's exit code so we can ALWAYS dump backend.log
+          # (CI's `set -e` would otherwise skip the dump on test failures —
+          # exactly when we need it most to see what API calls the browser
+          # actually issued).
+          cd src/backend_python && pytest tests/playwright/ -v -m e2e; rc=$?
+          cd ../..
+          echo "=== backend.log (post-pytest) ==="
+          tail -200 backend.log || true
+          exit $rc
         env:
           CI: true
           PYTHON_API_BASE: http://127.0.0.1:8000/api/v1
