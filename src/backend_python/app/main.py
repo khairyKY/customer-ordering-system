@@ -30,12 +30,19 @@ def _seed_demo_tickets() -> None:
     priority is CRITICAL/HIGH; without this hook the HF call in CI falls
     back to MEDIUM and the assertion fails. Seeding here bypasses HF with
     fixed priorities — purely demo data, not used by real customer flows.
+
+    Skipped under pytest so the integration tests in tests/test_tickets.py
+    (which assert exact triage queue contents) aren't polluted by 2 demo
+    rows that the autouse storage-reset fixture has no way to anticipate.
     """
+    import os
     import uuid
     from datetime import datetime, timezone
     from app.services import tickets_service
     from app.schemas import Ticket, TicketPriority, TicketStatus
 
+    if os.environ.get("PYTEST_CURRENT_TEST"):
+        return
     if tickets_service.tickets:
         return
     now_iso = datetime.now(timezone.utc).isoformat()

@@ -43,11 +43,15 @@ export default function LoginPage() {
         e.preventDefault();
         setSubmitting(true);
         try {
-            const axios = require('axios');
-            const res = await axios.post('http://localhost:8000/api/v1/auth/password/forgot', { email: forgotEmail || email });
-            setForgotMsg(res.data.message);
+            // Previous implementation used `require('axios')` — a CommonJS
+            // import in an ESM Vite app, which throws ReferenceError the
+            // instant this handler runs. Route through authApi so the
+            // shared axios client (with env-configurable base URL and JWT
+            // interceptor) is reused consistently with login/register.
+            const data = await authApi.forgotPassword({ email: forgotEmail || email });
+            setForgotMsg(data.message);
         } catch (err) {
-            setForgotMsg('An error occurred.');
+            setForgotMsg(err.response?.data?.detail?.error || 'An error occurred.');
         } finally {
             setSubmitting(false);
         }

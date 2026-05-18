@@ -1,14 +1,15 @@
-import axios from 'axios';
+// Cart HTTP client — routes through the shared axios client so requests
+// pick up VITE_PYTHON_API_BASE and the JWT interceptor automatically.
 
-const API_BASE_URL = 'http://localhost:8000/api/v1/cart';
+import { client } from './client';
 
 export const fetchCart = async () => {
-  const response = await axios.get(API_BASE_URL);
+  const response = await client.get('/cart');
   return response.data;
 };
 
 export const addToCart = async (productId, quantity = 1) => {
-  const response = await axios.post(API_BASE_URL + '/add', {
+  const response = await client.post('/cart/add', {
     product_id: productId,
     quantity,
   });
@@ -16,7 +17,7 @@ export const addToCart = async (productId, quantity = 1) => {
 };
 
 export const updateCartItem = async (productId, newQuantity) => {
-  const response = await axios.put(API_BASE_URL + '/update', {
+  const response = await client.put('/cart/update', {
     product_id: productId,
     new_quantity: newQuantity,
   });
@@ -24,7 +25,7 @@ export const updateCartItem = async (productId, newQuantity) => {
 };
 
 export const removeCartItem = async (productId) => {
-  const response = await axios.delete(API_BASE_URL + '/remove', {
+  const response = await client.delete('/cart/remove', {
     data: { product_id: productId },
   });
   return response.data.cart;

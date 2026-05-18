@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import NeonButton from '../components/ui/NeonButton';
-import axios from 'axios';
+import { client } from '../api/client';
 
 export default function SecuritySettings() {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -14,14 +14,16 @@ export default function SecuritySettings() {
       setTimeout(() => setToast(null), 3000);
       return;
     }
-    
+
     try {
-      const token = localStorage.getItem('jwt');
-      await axios.put('http://localhost:8000/api/v1/auth/password/update', {
+      // Shared client routes against VITE_PYTHON_API_BASE and attaches the
+      // JWT from localStorage via interceptor — no hardcoded host, no
+      // manual Authorization header to drift out of sync.
+      await client.put('/auth/password/update', {
         current_password: currentPassword,
-        new_password: newPassword
-      }, { headers: { Authorization: `Bearer ${token}` } });
-      
+        new_password: newPassword,
+      });
+
       setToast({ type: 'success', message: 'SUCCESS: CREDENTIALS_UPDATED' });
       setCurrentPassword('');
       setNewPassword('');

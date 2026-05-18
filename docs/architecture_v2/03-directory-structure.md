@@ -1,5 +1,21 @@
 # 03 — Repository Directory Structure
 
+> **⚠️ POST-MIGRATION NOTE (read before using as a reference).**
+>
+> This document describes the **original, dev-time** layout: a JS backend
+> in `src/backend/` paired with a Python FastAPI backend in
+> `src/backend_python/`.
+>
+> As of commit `819ce7b` (Member C's tickets migration), **all backend
+> code was consolidated into `src/backend_python/` and the
+> `src/backend/` tree was deleted**. Any path starting with
+> `src/backend/` (without the `_python` suffix) in the text below no
+> longer exists; it has been folded into the corresponding slice under
+> `src/backend_python/app/`.
+>
+> The narrative is preserved verbatim as architectural history. For the
+> shipped layout, see `src/backend_python/README.md`.
+
 ## Root Layout
 
 ```

@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import NeonButton from '../components/ui/NeonButton';
 import TerminalInput from '../components/ui/TerminalInput';
-import axios from 'axios';
+import { client } from '../api/client';
 
 export default function PaymentMethods() {
   const [methods, setMethods] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ brand: 'VISA', card_number: '', exp: '', cvv: '' });
 
+  // All three handlers below went through raw axios with a hardcoded
+  // http://localhost:8000 URL and a manual Bearer header. Routing through
+  // the shared `client` picks up VITE_PYTHON_API_BASE, the JWT
+  // interceptor, and the 401-clear-token interceptor for free.
+
   const loadMethods = async () => {
     try {
-      const token = localStorage.getItem('jwt');
-      const res = await axios.get('http://localhost:8000/api/v1/payment/methods', { headers: { Authorization: `Bearer ${token}` } });
+      const res = await client.get('/payment/methods');
       setMethods(res.data);
     } catch (e) {
       console.error(e);
@@ -23,15 +27,14 @@ export default function PaymentMethods() {
   const handleSave = async () => {
     if (!formData.card_number || !formData.exp || !formData.cvv) return;
     try {
-      const token = localStorage.getItem('jwt');
       const [mm, yy] = formData.exp.split('/');
-      await axios.post('http://localhost:8000/api/v1/payment/methods', {
+      await client.post('/payment/methods', {
         brand: formData.brand,
         card_number: formData.card_number,
         exp_month: parseInt(mm, 10) || 1,
         exp_year: parseInt(yy, 10) || 28,
-        cvv: formData.cvv
-      }, { headers: { Authorization: `Bearer ${token}` } });
+        cvv: formData.cvv,
+      });
       setShowModal(false);
       setFormData({ brand: 'VISA', card_number: '', exp: '', cvv: '' });
       loadMethods();
@@ -42,8 +45,7 @@ export default function PaymentMethods() {
 
   const handleSetDefault = async (id) => {
     try {
-      const token = localStorage.getItem('jwt');
-      await axios.put(`http://localhost:8000/api/v1/payment/methods/${id}/default`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      await client.put(`/payment/methods/${id}/default`, {});
       loadMethods();
     } catch (e) {
       console.error(e);
