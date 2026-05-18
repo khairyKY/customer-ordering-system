@@ -61,3 +61,20 @@ def _record_failure(db: Session, user: User) -> None:
     if user.failed_login_count >= settings.LOCKOUT_THRESHOLD:
         user.locked_until = datetime.now(timezone.utc) + timedelta(minutes=settings.LOCKOUT_DURATION_MINUTES)
     db.commit()
+
+
+def update_password(db: Session, user_id: str, current_password: str, new_password: str) -> None:
+    user = db.get(User, user_id)
+    if not user or not verify_password(current_password, user.password_hash):
+        raise InvalidCredentialsError()
+    user.password_hash = hash_password(new_password)
+    db.commit()
+
+
+def forgot_password(email: str) -> None:
+    # Mock backend endpoint logging for Forgot Password flow
+    import logging
+    import uuid
+    log = logging.getLogger(__name__)
+    token = str(uuid.uuid4())
+    log.info(f"MOCK_EMAIL_SEND: Reset token generated for {email}. Token: {token}")

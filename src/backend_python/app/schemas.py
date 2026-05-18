@@ -45,6 +45,15 @@ class LoginResponse(BaseModel):
     user: UserPublic
 
 
+class UpdatePasswordRequest(BaseModel):
+    current_password: str
+    new_password: Annotated[str, Field(min_length=8, max_length=128)]
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
 # ─── Orders ─────────────────────────────────────────────────────────────────
 
 OrderStatusLiteral = Literal[
@@ -149,3 +158,22 @@ class PaymentSuccessEvent(BaseModel):
     idempotency_key: Annotated[str, Field(min_length=1)]
     amount: Annotated[float, Field(ge=0)]
     occurred_at: datetime
+
+
+class PaymentMethodCreate(BaseModel):
+    card_number: Annotated[str, Field(min_length=13, max_length=19)]
+    exp_month: int
+    exp_year: int
+    cvv: str
+    brand: str = "VISA"
+
+
+class PaymentMethodOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: str
+    brand: str
+    last4: str
+    exp_month: int
+    exp_year: int
+    is_default: bool

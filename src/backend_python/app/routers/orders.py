@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.dependencies import CurrentUser, require_admin
+from app.dependencies import CurrentUser, get_current_user, require_admin
 from app.schemas import (
     OrderDetail,
     OrderListResponse,
@@ -28,9 +28,10 @@ def list_orders(
     limit: int = Query(20, ge=1, le=100),
     status_filter: str | None = Query(None, alias="status", min_length=1, max_length=20),
     db: Session = Depends(get_db),
-    _admin: CurrentUser = Depends(require_admin),
+    user: CurrentUser = Depends(get_current_user),
 ) -> OrderListResponse:
-    result = orders_service.find_all(db, page=page, limit=limit, status_filter=status_filter)
+    customer_filter = None if user.role == "admin" else user.user_id
+    result = orders_service.find_all(db, page=page, limit=limit, status_filter=status_filter, customer_filter=customer_filter)
     return OrderListResponse(
         orders=[OrderSummary.model_validate(o) for o in result["orders"]],
         pagination=Pagination(**result["pagination"]),
@@ -45,9 +46,12 @@ def list_orders(
 def get_order(
     order_id: str,
     db: Session = Depends(get_db),
-    _admin: CurrentUser = Depends(require_admin),
+    user: CurrentUser = Depends(get_current_user),
 ) -> OrderDetail:
     order = orders_service.find_by_id(db, order_id)
+    if user.role != "admin" and order.customer_id != user.user_id:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="Not authorized to view this order")
     return OrderDetail.model_validate(order)
 
 
