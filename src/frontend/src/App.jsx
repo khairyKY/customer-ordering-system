@@ -68,6 +68,9 @@ import OrderDetailPage from './features/orders/pages/OrderDetailPage';
 import InventoryPage   from './features/orders/pages/InventoryPage';
 import ProtectedRoute  from './features/auth/components/ProtectedRoute';
 
+// Zone 5 — Presentation Deck
+import PresentationDeck from './pages/PresentationDeck';
+
 function App() {
   // Cart state stays lifted at the root so TopNavBar's counter and the
   // checkout funnel see the same snapshot.
@@ -155,6 +158,9 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              {/* ── Zone 5 · Presentation Deck ──────────────── */}
+              <Route path="/presentation" element={<PresentationDeck />} />
 
               {/* ── Fallback ─────────────────────────────────── */}
               <Route
