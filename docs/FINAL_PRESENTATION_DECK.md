@@ -11,7 +11,7 @@ theme: default
 
 ### CSE323 Software Engineering — Final Presentation
 
-**Team Shaheen Dynamics** · Members A, B, C, D
+**Team Dev-Cosmic Ordering System** · Members A, B, C, D
 2026-05-18
 
 <!-- Open confidently: state the team, that COS is a polyglot e-commerce ordering system, and that this deck walks architecture → implementation → security → testing → process. -->
