@@ -50,7 +50,7 @@ to our implementation, the exact proof path for the TA, and a completion status.
 | Phase 2 — SSDs (System Sequence Diagrams) | SSDs in all Phase 2 design docs | `docs/requirements/member_*_phase2*.md`, `combined_phase2.md` | 🟢 |
 | Phase 2 — UML Activity Diagrams (decision points) | Mermaid flowcharts added to Phase 2 design docs | `docs/requirements/member_b_payments_phase2_design.md`, `member_c_tickets_phase2_design.md`, `member_d_*_phase2_design.md` | 🟢 |
 | Phase 2 — API Contracts | REST surface tables per slice | `src/backend_python/README.md`, `docs/requirements/member_d_auth_phase2_design.md` | 🟢 |
-| Phase 3 — Automated Script Generation | Pytest + Playwright specs generated and passing | `src/backend_python/tests/`, `src/backend/features/tickets/tests/` | 🟢 |
+| Phase 3 — Automated Script Generation | Pytest + Playwright specs generated and passing | `src/backend_python/tests/` (180 collected tests across unit, integration, and Playwright E2E layers) | 🟢 |
 | Phase 3 — TDP Evidence (Failing → Passing) | Test-Driven Prompting logged in agile logbooks | `docs/logbook/member_d_*_agile_logbook.md` | 🟢 |
 | Phase 4 — Vertical Slice Demo | 4-Zone routed React app over FastAPI backend | `src/frontend/`, `src/backend_python/app/main.py` | 🟢 |
 
@@ -61,7 +61,7 @@ to our implementation, the exact proof path for the TA, and a completion status.
 | Agile Logbooks (all members, all phases) | All four members now have Phase 1–4 logbooks | `docs/logbook/member_{a,b,c,d}_phase{1-4}_agile_logbook.md` | 🟢 |
 | QA Audit Log | Present | `docs/requirements/QA_AUDIT_LOG.md` | 🟢 |
 | AI disclosure in code headers / appendix | Confirmed in final submission checklist | `PROJECT_AUDIT_AND_SPRINTS.md` §4 | 🟢 |
-| Member C — Tickets slice logic completeness | **Verified 2026-05-18** — fully implemented (routes/service/models + passing tests); May-16 "stubbed" note was stale | `src/backend/features/tickets/`, `src/backend/features/tickets/tests/test_tickets.py` | 🟢 |
+| Member C — Tickets slice logic completeness | **Migrated 2026-05-20** — slice ported into the canonical FastAPI core; legacy `src/backend/` removed | `src/backend_python/app/routers/tickets.py`, `src/backend_python/app/services/tickets_service.py`, `src/backend_python/tests/test_tickets.py`, `src/backend_python/tests/test_tickets_unit.py` | 🟢 |
 | Final Presentation Slide Deck | Full slide-by-slide Marp deck authored; render to `.pptx` via Marp CLI | `docs/FINAL_PRESENTATION_DECK.md` | 🟢 |
 | Screen Recording Demo | Minute-by-minute script + click-path authored; recording still pending | `docs/SCREEN_RECORDING_SCRIPT.md` | 🟡 |
 
@@ -70,6 +70,22 @@ to our implementation, the exact proof path for the TA, and a completion status.
 # Targeted Action Plan (Gap Analysis)
 
 Only 🟡 PARTIAL and 🔴 MISSING items below, ordered by rubric weight (heaviest first).
+
+## Resolved in the 2026-05-20 tickets-migration sweep
+
+- **🟢 Member C — Tickets FastAPI migration** — slice ported from the
+  standalone module at `src/backend/features/tickets/` into the canonical
+  backend_python core (`app/routers/tickets.py`,
+  `app/services/tickets_service.py`, `app/schemas.py` additions). Auth
+  switched from a header-injected mock to the canonical JWT bearer flow
+  (`app.dependencies.require_agent`).
+- **🟢 Legacy `src/backend/` deleted** — the Cleanup Audit had flagged the
+  folder as superseded; with the tickets migration complete, it has been
+  removed.
+- **🟢 Test pyramid recount** — 180 tests collected, ratio 63/23/14
+  (was 61/25/14). 48 new unit tests on the ported tickets service cover
+  score boundaries, NaN/non-dict HF payloads, dedup-window expiry, and
+  state-machine 404 vs 422 — branches the legacy suite did not exercise.
 
 ## Resolved in the 2026-05-18 rubric-completion sweep
 
@@ -104,11 +120,13 @@ pytest-playwright suite on every PR. As of the latest run on
   end state. Reconciling the two requires rewriting the specs against
   the wizard (semantically new tests), not a selector tweak.
 - **🟡 Open (4) — Tickets:** `tests/playwright/specs/test_tickets_e2e.py`.
-  `TicketForm.jsx` / `TicketList.jsx` / `ticketApi.js` are placeholder
-  stubs, the FastAPI app does not mount a `/api/v1/tickets` router, and
-  there are no `/tickets/new` or `/tickets/triage` routes in `App.jsx`.
-  Bringing the suite green requires building the tickets slice end to
-  end on the canonical FastAPI backend, not a CI fix.
+  The FastAPI side is now resolved — as of 2026-05-20 the tickets router
+  is mounted at `/api/v1/tickets` with backing service + 60 passing
+  pytest cases (12 integration + 48 unit). The remaining E2E gap is the
+  React side: `TicketForm.jsx` / `TicketList.jsx` / `ticketApi.js` are
+  still stubs, and there are no `/tickets/new` or `/tickets/triage`
+  routes wired into `App.jsx`. Bringing the Playwright suite green now
+  requires only the frontend work, not backend changes.
 
 The CI workflow itself is verified — pipeline plumbing (bcrypt pin,
 CORS origin alignment, server readiness via TCP/health-GET probes,

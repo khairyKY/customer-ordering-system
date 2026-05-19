@@ -71,3 +71,54 @@ def admin_headers(client, db):
     })
     assert r.status_code == 200, r.text
     return {"Authorization": f"Bearer {r.json()['token']}"}
+
+
+def _login_as(client, db, *, email: str, password: str, role: str) -> dict[str, str]:
+    """Helper: register a user with the given role, log in, return Bearer header."""
+    from app.models import Role, User
+    from app.security import hash_password
+
+    db.add(User(email=email, password_hash=hash_password(password), role=role))
+    db.commit()
+    r = client.post("/api/v1/auth/login", json={"email": email, "password": password})
+    assert r.status_code == 200, r.text
+    return {"Authorization": f"Bearer {r.json()['token']}"}
+
+
+@pytest.fixture
+def customer_headers(client, db):
+    from app.models import Role
+    return _login_as(client, db, email="customer@example.com", password="custPass!1", role=Role.CUSTOMER.value)
+
+
+@pytest.fixture
+def customer2_headers(client, db):
+    from app.models import Role
+    return _login_as(client, db, email="customer2@example.com", password="custPass!2", role=Role.CUSTOMER.value)
+
+
+@pytest.fixture
+def agent_headers(client, db):
+    from app.models import Role
+    return _login_as(client, db, email="agent@example.com", password="agntPass!1", role=Role.AGENT.value)
+
+
+@pytest.fixture
+def jwt_user_id(client):
+    """Decode the user_id out of a Bearer header (tests assert userId on tickets)."""
+
+    def _decoder(headers: dict[str, str]) -> str:
+        from app.security import verify_token
+        token = headers["Authorization"].split(" ", 1)[1]
+        return verify_token(token)["sub"]
+
+    return _decoder
+
+
+@pytest.fixture(autouse=True)
+def _reset_tickets_storage():
+    """Tickets storage is module-level in-memory; reset between every test."""
+    from app.services.tickets_service import TicketService
+    TicketService.reset()
+    yield
+    TicketService.reset()

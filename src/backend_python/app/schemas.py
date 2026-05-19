@@ -1,12 +1,14 @@
 """All Pydantic v2 request/response schemas.
 
-Keep these in one file for quick navigation — there are < 20 of them total.
+Keep these in one file for quick navigation — there are < 30 of them total.
 """
 
+import re
 from datetime import datetime
+from enum import Enum
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 # ─── Auth ───────────────────────────────────────────────────────────────────
 
@@ -170,10 +172,81 @@ class PaymentMethodCreate(BaseModel):
 
 class PaymentMethodOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: str
     brand: str
     last4: str
     exp_month: int
     exp_year: int
     is_default: bool
+
+
+# ─── Tickets (Member C slice) ───────────────────────────────────────────────
+
+
+class TicketPriority(str, Enum):
+    CRITICAL = "CRITICAL"
+    HIGH = "HIGH"
+    MEDIUM = "MEDIUM"
+    LOW = "LOW"
+
+
+class TicketStatus(str, Enum):
+    OPEN = "OPEN"
+    IN_PROGRESS = "IN_PROGRESS"
+    RESOLVED = "RESOLVED"
+
+
+_SCRIPT_RE = re.compile(r"<script\b[^>]*>([\s\S]*?)</script>", re.IGNORECASE)
+_ANY_TAG_RE = re.compile(r"<[^>]*>")
+
+
+def sanitize_html(text: str) -> str:
+    """Strip <script>…</script> blocks first, then any remaining HTML tags.
+
+    Used by both request validation (`TicketBase.sanitize_fields`) and the
+    service layer when raw strings need cleaning. Pure function: no IO.
+    """
+    text = _SCRIPT_RE.sub("", text)
+    text = _ANY_TAG_RE.sub("", text)
+    return text.strip()
+
+
+class TicketBase(BaseModel):
+    subject: Annotated[str, Field(min_length=5, max_length=120)]
+    body: Annotated[str, Field(min_length=10, max_length=2000)]
+
+    @field_validator("subject", "body")
+    @classmethod
+    def _sanitize(cls, v: str) -> str:
+        return sanitize_html(v)
+
+
+class TicketCreate(TicketBase):
+    pass
+
+
+class TicketUpdateStatus(BaseModel):
+    status: TicketStatus
+
+
+class Ticket(TicketBase):
+    id: str
+    userId: str
+    priority: TicketPriority
+    status: TicketStatus
+    sentiment_source: str
+    created_at: str
+    updated_at: str | None = None
+
+
+class TicketPagination(BaseModel):
+    totalTickets: int
+    totalPages: int
+    currentPage: int
+    limit: int
+
+
+class TicketListResponse(BaseModel):
+    tickets: list[Ticket]
+    pagination: TicketPagination
