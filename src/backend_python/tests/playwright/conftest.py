@@ -64,8 +64,14 @@ def test_customer(api_client) -> dict[str, str]:
 
 @pytest.fixture
 def fresh_page(page: Page) -> Page:
-    """Page with localStorage explicitly cleared. Use for tests that exercise login flow."""
-    page.add_init_script("localStorage.clear()")
+    """Page for tests that exercise the login flow.
+
+    pytest-playwright already provides a fresh BrowserContext per test, so
+    localStorage is empty at start. The previous implementation called
+    `page.add_init_script("localStorage.clear()")`, which re-runs on EVERY
+    navigation — including the one that follows a successful login — and
+    wiped the JWT immediately after the app persisted it.
+    """
     return page
 
 

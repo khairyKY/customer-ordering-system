@@ -55,6 +55,9 @@ export default function TerminalInput({
   className     = '',
   inputClassName = '',
   textAlign     = 'left',
+  // Forward passthrough attributes (e.g. data-testid, autoComplete) onto
+  // the underlying <input> — additive, so storefront usages are unaffected.
+  ...rest
 }) {
   return (
     <div className={`terminal-input-wrapper ${className}`}>
@@ -84,6 +87,7 @@ export default function TerminalInput({
         ]
           .filter(Boolean)
           .join(' ')}
+        {...rest}
       />
     </div>
   );

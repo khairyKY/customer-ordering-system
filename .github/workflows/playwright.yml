@@ -49,22 +49,46 @@ jobs:
         working-directory: src/backend_python
         run: python -m scripts.seed
 
-      - name: Start backend (uvicorn :8000) and wait for it
-        working-directory: src/backend_python
+      - name: Run Playwright E2E (servers + suite, single step)
         run: |
-          uvicorn app.main:app --port 8000 &
-          npx --yes wait-on http://localhost:8000/docs --timeout 60000
+          # Servers + wait + pytest run in ONE step so the backgrounded
+          # processes never cross a step boundary (npm->vite gets reaped
+          # otherwise). Each server runs in a subshell so its CWD is
+          # correct — the backend must share the seed step's working
+          # dir to open the same SQLite file.
+          ( cd src/backend_python && python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 ) > backend.log 2>&1 &
+          ( cd src/frontend && npm run dev -- --host 127.0.0.1 --port 5173 ) > frontend.log 2>&1 &
 
-      - name: Start frontend (vite :5173) and wait for it
-        working-directory: src/frontend
-        run: |
-          npm run dev -- --port 5173 &
-          npx --yes wait-on http://localhost:5173 --timeout 60000
+          # Backend: http-get:// forces a GET probe (FastAPI's @app.get
+          # rejects wait-on's default HEAD with 405).
+          # Frontend: plain tcp: probe — an HTTP GET against the vite dev
+          # server's root proved unreliable here; a listening socket is
+          # all Playwright needs to navigate.
+          npx --yes wait-on http-get://127.0.0.1:8000/health tcp:127.0.0.1:5173 --timeout 120000 || {
+            echo "=== backend.log ===";  cat backend.log  2>/dev/null || echo "(none)"
+            echo "=== frontend.log ==="; cat frontend.log 2>/dev/null || echo "(none)"
+            exit 1
+          }
 
-      - name: Run Playwright E2E specs
-        working-directory: src/backend_python
-        run: pytest tests/playwright/ -v -m e2e
+          # Capture pytest's exit code so we can ALWAYS dump backend.log
+          # (CI's `set -e` would otherwise skip the dump on test failures —
+          # exactly when we need it most to see what API calls the browser
+          # actually issued). The `|| rc=$?` form keeps set -e from killing
+          # the script when pytest fails; `; rc=$?` alone does NOT, because
+          # set -e exits before the trailing statement runs.
+          rc=0
+          ( cd src/backend_python && pytest tests/playwright/ -v -m e2e ) || rc=$?
+          echo "=== backend.log (post-pytest) ==="
+          tail -200 backend.log 2>/dev/null || echo "(backend.log missing)"
+          exit $rc
         env:
           CI: true
-          PYTHON_API_BASE: http://localhost:8000/api/v1
-          FRONTEND_BASE: http://localhost:5173
+          PYTHON_API_BASE: http://127.0.0.1:8000/api/v1
+          FRONTEND_BASE: http://127.0.0.1:5173
+          # Frontend axios client reads this at vite startup; without it,
+          # the browser (at 127.0.0.1:5173) calls http://localhost:8000 —
+          # a different origin from its page origin.
+          VITE_PYTHON_API_BASE: http://127.0.0.1:8000/api/v1
+          # Backend must accept the 127.0.0.1 page origin or every API
+          # response is CORS-blocked and the admin tables stay empty.
+          CORS_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3001"
