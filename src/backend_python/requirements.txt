@@ -5,6 +5,7 @@ pydantic==2.9.2
 pydantic-settings==2.5.2
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+bcrypt==4.0.1  # pin: passlib 1.7.4 breaks on bcrypt >= 4.1 (reads removed __about__; 72-byte probe raises)
 python-multipart==0.0.10
 apscheduler==3.10.4
 psycopg2-binary==2.9.9
