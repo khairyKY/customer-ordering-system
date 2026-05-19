@@ -57,7 +57,11 @@ def test_happy_customer_login_persists_jwt(fresh_page: Page, test_customer) -> N
     login.submit()
 
     # Customer redirects to / (Member A's cart). Admin would go to /admin/orders.
-    fresh_page.wait_for_url(re.compile(r".*/(?!admin).*"), timeout=5_000)
+    # The original regex `.*/(?!admin).*` was broken: re.search matches it
+    # against /admin/login immediately (the `/` after http:// satisfies the
+    # negative lookahead), so wait_for_url returned before the async submit
+    # finished and localStorage was read empty. Use a predicate instead.
+    fresh_page.wait_for_url(lambda url: "/admin" not in url, timeout=5_000)
     token = fresh_page.evaluate("() => localStorage.getItem('jwt')")
     assert token and len(token) > 20, "JWT not persisted in localStorage"
 

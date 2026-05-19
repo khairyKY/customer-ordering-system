@@ -73,11 +73,13 @@ jobs:
           # Capture pytest's exit code so we can ALWAYS dump backend.log
           # (CI's `set -e` would otherwise skip the dump on test failures —
           # exactly when we need it most to see what API calls the browser
-          # actually issued).
-          cd src/backend_python && pytest tests/playwright/ -v -m e2e; rc=$?
-          cd ../..
+          # actually issued). The `|| rc=$?` form keeps set -e from killing
+          # the script when pytest fails; `; rc=$?` alone does NOT, because
+          # set -e exits before the trailing statement runs.
+          rc=0
+          ( cd src/backend_python && pytest tests/playwright/ -v -m e2e ) || rc=$?
           echo "=== backend.log (post-pytest) ==="
-          tail -200 backend.log || true
+          tail -200 backend.log 2>/dev/null || echo "(backend.log missing)"
           exit $rc
         env:
           CI: true
