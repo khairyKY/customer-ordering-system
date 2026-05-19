@@ -1,40 +1,70 @@
-name: Playwright Tests
+# ============================================================
+# Playwright E2E — Python POM suite (src/backend_python/tests/playwright)
+#
+# NOTE: best-effort rewrite. The previous workflow ran the JavaScript
+# `npx playwright test` runner, but this repo's E2E suite is *Python*
+# Playwright driven by pytest (pytest.ini marker `e2e`, conftest at
+# src/backend_python/tests/playwright/conftest.py). This file targets
+# the real suite and waits for both servers before running tests.
+# May need iteration once observed against a live CI run.
+# ============================================================
+name: Playwright E2E
+
 on:
   push:
-    branches: [ main, release/* ]
+    branches: [ main, "release/*", "feat/*" ]
   pull_request:
     branches: [ main ]
+
 jobs:
-  test:
-    timeout-minutes: 60
+  e2e:
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 18
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-    
-    - name: Install dependencies
-      run: |
-        npm install --prefix src/frontend
-        pip install -r src/backend_python/requirements.txt
-        
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps chromium
-      
-    - name: Run Backend
-      run: |
-        cd src/backend_python
-        python -m scripts.seed
-        uvicorn app.main:app --port 8000 &
-        
-    - name: Run Playwright tests
-      run: |
-        cd src/frontend
-        npm run dev -- --port 5173 &
-        npx playwright test
-      env:
-        CI: true
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install backend dependencies
+        working-directory: src/backend_python
+        run: pip install -r requirements.txt
+
+      - name: Install frontend dependencies
+        working-directory: src/frontend
+        run: npm install
+
+      - name: Install Playwright browser (Chromium)
+        working-directory: src/backend_python
+        run: python -m playwright install --with-deps chromium
+
+      - name: Seed database
+        working-directory: src/backend_python
+        run: python -m scripts.seed
+
+      - name: Start backend (uvicorn :8000) and wait for it
+        working-directory: src/backend_python
+        run: |
+          uvicorn app.main:app --port 8000 &
+          npx --yes wait-on http://localhost:8000/docs --timeout 60000
+
+      - name: Start frontend (vite :5173) and wait for it
+        working-directory: src/frontend
+        run: |
+          npm run dev -- --port 5173 &
+          npx --yes wait-on http://localhost:5173 --timeout 60000
+
+      - name: Run Playwright E2E specs
+        working-directory: src/backend_python
+        run: pytest tests/playwright/ -v -m e2e
+        env:
+          CI: true
+          PYTHON_API_BASE: http://localhost:8000/api/v1
+          FRONTEND_BASE: http://localhost:5173
