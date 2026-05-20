@@ -17,7 +17,11 @@ export default function ProtectedRoute({ role, children }) {
         return <Navigate to="/admin/login" replace state={{ from: location }} />;
     }
     if (role && user?.role !== role) {
-        // Hierarchy: admin can access agent routes, etc. — but we keep it strict here.
+        // Strict equality on purpose — no role hierarchy. An "admin" user
+        // does NOT automatically satisfy `role="agent"` (or vice versa);
+        // if you wrap /tickets/triage with <ProtectedRoute role="agent"/>
+        // an admin will be sent to /forbidden. Decide at the call site
+        // which role the route requires.
         return <Navigate to="/forbidden" replace />;
     }
     return children ?? null;

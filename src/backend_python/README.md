@@ -1,14 +1,20 @@
-# Member D — Python Backend (FastAPI)
+# Canonical Backend — FastAPI (Python)
 
-Auth + Orders + Inventory slices, in Python. Sister service to Member A and Member B's Node.js backend.
+All four slices now live in this single FastAPI app on `:8000`. The earlier
+Node prototype at `src/backend/` was deleted in commit `819ce7b` (Member C's
+tickets migration); the dev-time polyglot split (`:8000` + `:3001`) is
+historical and any reference to it elsewhere in the docs describes the
+original architecture, not the shipped one.
 
-## Why two backends?
+## Slices mounted under `/api/v1`
 
-Vertical slicing permits per-slice runtime choices. JWT (HS256) is language-agnostic, so:
-- React frontend (Member A) at `:5173` talks to either backend
-- Member A's checkout/cart + Member B's payment at `:3001` (Node)
-- Member D's auth + orders + inventory at `:8000` (this — Python)
-- Cross-slice events ride HTTP — Member B posts to `/api/v1/events/payment.success`
+| Owner | Slice | Routes |
+|---|---|---|
+| Member A | Cart, Catalog | `/cart/*`, `/catalog/*`, `/products` |
+| Member B | Payment | `/payment/process`, `/payment/methods/*` |
+| Member C | Tickets | `/tickets`, `/tickets/triage`, `/tickets/{id}/status` |
+| Member D | Auth, Orders, Inventory | `/auth/*`, `/orders/*`, `/inventory/*` |
+| shared | Events | `/events/payment.success` and other cross-slice webhooks |
 
 ## Quick start (SQLite — no Docker)
 
