@@ -1,61 +1,132 @@
 # Phase 2 — Design & Specification
 ## Team-Wide Combined Document
 
-**Date:** 2026-05-13
+**Date:** 2026-05-13 · **Refreshed:** 2026-05-20
 **Curriculum Source:** `CSE323_Project_Overview.pdf` — Phase 2
-**Scope:** Unified view of every team member's Phase 2 deliverables (Gherkin, Refinement Loop, UML, Information Hiding).
+**Scope:** Gherkin, the QA refinement loop, ERD, UML (SSDs + Activity Diagrams), and API contracts. **All diagrams are Mermaid** so they render natively on GitHub (the earlier PlantUML blocks have been converted).
+
+> **Stack note:** validation is **Pydantic v2**, persistence is **SQLAlchemy + SQLite**, the AI dependency is the **HuggingFace** inference API, and the canonical API prefix is **`/api/v1`** on port **8000**. Earlier drafts referencing Zod / Prisma / port 3001 were prototype-era and are superseded.
 
 ---
 
 ## Team Status
 
-| Slice | Owner | Folder | Phase 2 Status |
-|---|---|---|---|
-| Checkout | Member A | `docs/architecture_v2/` (07, 08, 09, 11, 12) | ✅ Complete — encoded as architecture spec |
-| Payment | Member B | `md/phase2/` | ✅ Complete |
-| Tickets + Auth | Member C | `Phase 2/` (root) — includes OpenAPI YAML | ✅ Tickets complete; Auth pending |
-| Orders | Member D | `docs/requirements/member_d_phase2_design.md` | ✅ Complete (v2.1) |
+| Slice | Owner | Phase 2 Status |
+|---|---|---|
+| Checkout, Cart, Catalog | Member A (Khairy) | ✅ Complete — `docs/requirements/MEMBER_A_DESIGN_ARTIFACTS.md` (ERD + SSD + Activity + Gherkin) |
+| Payment | Member B (Haitham) | ✅ Complete — `member_b_payments_phase2_design.md` |
+| Tickets / Support | Member C (Diaa) | ✅ Complete — `member_c_tickets_phase2_design.md` |
+| Auth, Orders, Admin | Member D (Mohamed) | ✅ Complete — `member_d_phase2_design.md`, `member_d_auth_phase2_design.md` |
 
 ---
 
-# §1 — Gherkin Scripting (Combined)
+# §1 — Entity Relationship Diagram (System-Wide)
 
-Per PDF: *"Translate all core user stories into structured Gherkin syntax (Given/When/Then)."*
+The persisted core, owned across slices. The **cart** is session-scoped in-memory state (FastAPI `cart` router), not a SQL table; it materialises into `ORDER` + `ORDER_ITEM` rows at checkout. **Tickets** are likewise in-memory module state in the current build.
+
+```mermaid
+erDiagram
+    USER ||--o{ ORDER : places
+    ORDER ||--|{ ORDER_ITEM : contains
+    ORDER ||--o{ AUDIT_LOG : "logs transitions"
+    ORDER ||--o| PAYMENT : "settled by"
+    ORDER_ITEM }o..|| PRODUCT : "snapshot of (no FK)"
+    USER ||--o{ PAYMENT_METHOD : "saves"
+
+    USER {
+        string id PK
+        string email UK
+        string password_hash
+        string role "customer|agent|admin"
+        int failed_login_count
+        datetime locked_until
+    }
+    PRODUCT {
+        string id PK
+        string name
+        string sku UK
+        int stock
+        float price
+    }
+    ORDER {
+        string id PK
+        string status "PENDING..REFUNDED"
+        string customer_id FK
+        float subtotal
+        float discount
+        float tax
+        float total
+        json shipping_address
+        datetime placed_at
+        datetime updated_at
+    }
+    ORDER_ITEM {
+        string id PK
+        string order_id FK
+        string product_id "value-copy, no FK"
+        string product_name "snapshot"
+        int quantity
+        float unit_price "snapshot"
+        float total_price
+    }
+    AUDIT_LOG {
+        string id PK
+        string order_id FK
+        string from_status
+        string to_status
+        string actor
+        string idempotency_key UK
+        datetime occurred_at
+    }
+    PAYMENT {
+        string id PK
+        string order_id FK
+        string status "PENDING|SUCCESS|FAILED"
+        float amount
+        string idempotency_key UK
+    }
+    PAYMENT_METHOD {
+        string id PK
+        string customer_id FK
+        string brand
+        string last4
+        int exp_month
+        int exp_year
+        bool is_default
+    }
+```
+
+**Design note:** `ORDER_ITEM.product_id` deliberately has **no foreign key** to `PRODUCT` — the catalog is a mirror, and order history must stay immutable even if a SKU is deleted. `product_name` and `unit_price` are snapshotted at order time.
 
 ---
 
-## 1.1 Checkout — Member A
+# §2 — Gherkin Scripting (Combined)
 
-Member A's Phase 2 design is structured as an architectural spec rather than Gherkin. Acceptance criteria live in `docs/architecture_v2/11-sprint-1-checkout-execution.md` and `12-sprint-2-catalog-execution.md` as **Definition of Done** checklists:
+## 2.1 Checkout — Member A
 
-**Sprint 1 DoD (excerpt):**
-- Backend: `GET /api/cart` returns empty cart state with `subtotal: 0, tax: 0, total: 0`.
-- Backend: `POST /api/cart/add` accepts `{ product_id }` and returns updated cart with 10 % tax recalculated.
-- Frontend: `CartWidget.jsx` fetches `/api/cart` on mount; displays an "Add Test Item" button that triggers `POST /add`.
+Full Gherkin (Add-to-Cart, Checkout-with-idempotency, Promo validation) lives in `docs/requirements/MEMBER_A_DESIGN_ARTIFACTS.md` §4. Representative scenario:
 
-**Sprint 2 DoD (excerpt):**
-- `GET /api/products` returns 6 mock products with stock limits.
-- Cart updates recalculate subtotal AND 10 % tax on every change.
-- Stock-limit attempt returns `400 Bad Request`.
+```gherkin
+Feature: Checkout — Place Order with idempotency
+  Scenario: Replayed click with same idempotency key is a no-op
+    Given I am logged in and my cart contains "GPU-9000" x2
+    And I have already submitted checkout with key "IDEM-002" -> order "ord_42"
+    When I submit checkout again with key "IDEM-002"
+    Then the returned order_id should be "ord_42"
+    And only 1 row should exist in "orders" for that key
+    And product stock should not be decremented a second time
+```
 
-> Member A's Gherkin equivalent is implicit in these DoD checklists. A formal Gherkin pass remains optional unless A-tier persona-driven scenarios are required.
+## 2.2 Payment — Member B
 
----
-
-## 1.2 Payment — Member B
-
-*Source: `md/phase2/Phase2_GherkinScripting.md`*
-
-### Scenario 1 — Credit Card Processing (Scenario Outline)
 ```gherkin
 Feature: Payment Processing
-  Scenario Outline: Process credit card payments with various card states
+  Scenario Outline: Process credit-card payments with various card states
     Given a Customer is logged in with a valid JWT
-    And the Cart contains items with a subtotal of $100.00
-    And the mandatory tax rate is 10%
+    And the cart subtotal is $100.00 with a mandatory 10% tax
     When the Customer submits a payment with <card_status> credentials
-    Then the system should return a <response_type> response
-    And the transaction status should be "<final_status>"
+    Then the system returns a <response_type> response
+    And the transaction status is "<final_status>"
 
     Examples:
       | card_status        | response_type     | final_status |
@@ -63,519 +134,320 @@ Feature: Payment Processing
       | expired            | 422 Unprocessable | FAILED       |
       | insufficient_funds | 422 Unprocessable | FAILED       |
       | stolen             | 403 Forbidden     | REJECTED     |
+
+  Scenario: Promo code exceeding the subtotal is clamped to zero
+    Given a cart subtotal of $40.00
+    And a promo "GIANT_DISCOUNT" worth $50.00
+    When the Customer applies the promo
+    Then the taxable subtotal is clamped to $0.00
+    And the 10% tax is $0.00 and the final total is $0.00
 ```
 
-### Scenario 2 — Promo Stack-Overflow Edge Case
-```gherkin
-Scenario: Apply a promo code that exceeds the cart subtotal
-  Given a Cart subtotal is $40.00
-  And a Promo Code "GIANT_DISCOUNT" provides $50.00 off
-  When the Customer applies the Promo Code
-  Then the taxable subtotal should be clamped to $0.00
-  And the 10% tax should be $0.00
-  And the final total should be $0.00
-```
+## 2.3 Tickets — Member C
 
-### Scenario 3 — Mandatory Tax Calculation
-```gherkin
-Scenario: Explicit verification of 10% tax application
-  Given a Cart subtotal is $200.00 after discounts
-  When the Payment calculation engine runs
-  Then the calculated tax must be exactly $20.00
-  And the total amount charged to the Customer must be $220.00
-```
-
----
-
-## 1.3 Tickets — Member C
-
-*Source: `Phase 2/02a_GHERKIN_TEAM.md`*
-
-> Score → Priority Mapping: `< 0.25` → CRITICAL · `0.25–0.49` → HIGH · `0.50–0.74` → MEDIUM · `≥ 0.75` → LOW
+> Score → Priority: `< 0.25` CRITICAL · `0.25–0.49` HIGH · `0.50–0.74` MEDIUM · `≥ 0.75` LOW
 
 ```gherkin
 Feature: Ticket System Vertical Slice
   Background:
-    Given the backend service is running at "http://localhost:3001"
-    And the database has been seeded with "default_roles"
+    Given the FastAPI backend is running at "http://localhost:8000"
 
   @FR-01 @Auth
-  Scenario: Successfully create a ticket (Happy Path)
-    Given the user is authenticated with a valid "Customer" JWT
-    When they POST to "/api/v1/tickets" with:
-      | field   | value                                              |
-      | subject | "Missing Item"                                     |
-      | body    | "My order #12345 is missing the wireless mouse."   |
-    Then the response status should be 201
-    And the response should contain a "ticketId"
-    And the ticket "status" should be "OPEN"
-    And the ticket "userId" should match the JWT "sub" claim
+  Scenario: Successfully create a ticket (happy path)
+    Given the user is authenticated with a valid "customer" JWT
+    When they POST to "/api/v1/tickets" with subject "Missing Item"
+      and body "My order #12345 is missing the wireless mouse."
+    Then the response status is 201
+    And the ticket "status" is "OPEN"
+    And the ticket "userId" matches the JWT "sub" claim
 
-  @FR-02 @AI @Triage
-  Scenario Outline: Sentiment Scoring and Priority Assignment
-    Given the user is authenticated as a "Customer"
-    When they submit a ticket with body <message_content>
-    Then the HuggingFace API returns a positivity score of <sentiment_score>
-    And the ticket should be assigned priority <priority_band>
-
-    Examples:
-      | message_content                                | sentiment_score | priority_band |
-      | "EXTREMELY ANGRY! Order is 10 days late!!"     | 0.05            | "CRITICAL"    |
-      | "The product is broken and I want a refund."   | 0.25            | "HIGH"        |
-      | "How do I track my shipping status?"           | 0.55            | "MEDIUM"      |
-      | "Thanks for the great service, love it!"       | 0.92            | "LOW"         |
-
-  @FR-05 @StateMachine
-  Scenario: Ticket status lifecycle OPEN to IN_PROGRESS to RESOLVED
-    Given a ticket exists with status "OPEN"
-    And the user is authenticated as "Support_Agent"
-    When they PATCH "/api/v1/tickets/{id}/status" with body "IN_PROGRESS"
-    Then the ticket status should become "IN_PROGRESS"
-    When they PATCH "/api/v1/tickets/{id}/status" with body "RESOLVED"
-    Then the ticket status should become "RESOLVED"
-    When they attempt to PATCH status back to "OPEN" from "RESOLVED"
-    Then the response status should be 422
-    And the error message should be "Illegal status regression: RESOLVED to OPEN"
-
-  @EC-01 @Security
-  Scenario: Sanitize XSS and SQL Injection payloads ...
-
-  @EC-02 @Deduplication
-  Scenario: Prevent duplicate submission within 10-minute window ...
+  @FR-04 @RoleGate
+  Scenario: Agent retrieves the triage queue sorted by priority
+    Given the user is authenticated as an "agent"
+    When they GET "/api/v1/tickets/triage"
+    Then the response status is 200
+    And tickets are sorted CRITICAL > HIGH > MEDIUM > LOW
+    And equal-priority tickets are ordered oldest-first
 
   @EC-03 @Fallback
-  Scenario: HuggingFace API timeout fallback ...
-
-  @EC-04 @Boundary @Negative
-  Scenario Outline: Reject extreme payloads before AI processing ...
-
-  @EC-05 @AI @Robustness
-  Scenario: Handle tokenizer failure caused by emoji-only body ...
+  Scenario: HuggingFace timeout falls back to MEDIUM
+    Given the HuggingFace API does not respond within 5000ms
+    When a customer submits a new ticket
+    Then the response status is 201
+    And the ticket "priority" is "MEDIUM"
+    And the ticket "sentiment_source" is "fallback"
 ```
 
-(Edge-case scenarios elided here for brevity — full text in `Phase 2/02a_GHERKIN_TEAM.md`.)
-
----
-
-## 1.4 Orders — Member D
-
-*Source: `docs/requirements/member_d_phase2_design.md` §1*
-
-6 stories (D-1 … D-6). Highlights:
+## 2.4 Orders — Member D
 
 ```gherkin
 Scenario: Admin fetches the paginated order list (D-1)
   Given I hold a JWT with claim role = "admin"
-  And 25 Order records exist in the database
-  When I send GET /api/v1/orders?page=1&limit=20
-  Then I receive HTTP 200 OK
-  And the response body contains an "orders" array of 20 items
-  And a "pagination" object contains: page=1, limit=20, totalCount=25, totalPages=2
-  And all orders are sorted by placedAt DESC
+  And 25 Order records exist
+  When I GET /api/v1/orders?page=1&limit=20
+  Then I receive 200 OK with an "orders" array of 20 items
+  And "pagination" = { page:1, limit:20, total_count:25, total_pages:2 }
+  And orders are sorted by placed_at DESC
 
-Scenario: Admin advances order PENDING → PROCESSING (D-2)
-  Given an Order exists with id = "ord_abc123" and status = "PENDING"
-  When I send PATCH /api/v1/orders/ord_abc123/status with body { "status": "PROCESSING" }
-  Then I receive HTTP 200 OK
-  And the Order record reflects status = "PROCESSING"
-
-Scenario: Stale order with successful payment is advanced, not cancelled (D-6 / HR-8)
-  Given an Order exists with status = "PENDING"
-  And the order's placedAt is 16 minutes before NOW
-  And a Payment record exists with status = "SUCCESS" for this order
-  When the cron job sweepStalePendingOrders runs
-  Then the order status is updated to "CONFIRMED" (not "CANCELLED")
+Scenario: Stale paid order is advanced, not cancelled (D-6 / HR-8)
+  Given an Order with status "PENDING" placed 16 minutes ago
+  And a Payment with status "SUCCESS" for this order
+  When the sweep job runs
+  Then the order status becomes "CONFIRMED" (not "CANCELLED")
   And the action is idempotent on repeat runs
 ```
 
-Full scenarios (incl. D-3 order detail, D-4 inventory, D-5 stock update with HR-4 upper bound) in source doc.
-
 ---
 
-# §2 — The Refinement Loop (Combined QA Audit)
+# §3 — The Refinement Loop (Combined QA Audit)
 
-Per PDF: *"Conduct a 'Senior QA Audit' to eliminate unquantifiable adjectives like 'fast' or 'secure' and replace them with measurable technical metrics."*
+Per PDF: eliminate unquantifiable adjectives, replace with measurable metrics.
 
----
-
-## 2.1 Payment Refinement — Member B
-
-*Source: `md/phase2/Phase2_RefinementLoop.md`*
-
-| Vague Term | Measurable Replacement |
-|---|---|
-| "Fast Processing" | API TTFB `< 200ms` at P95 |
-| "Secure Transactions" | `TLS 1.3` + `AES-256-GCM`; PII redacted in logs |
-| "Reliable Gateway" | `99.9 %` uptime SLA + Circuit Breaker (3 retries, exponential backoff) |
-
----
-
-## 2.2 Tickets Refinement — Member C
-
-*Source: `Phase 2/02b_QA_AUDIT.md` (12-row audit)*
-
-| Vague Term | Measurable Replacement |
-|---|---|
-| "Efficiently" | API response ≤ 1500 ms at P95 |
-| "Urgency" | Priority ENUM `CRITICAL / HIGH / MEDIUM / LOW` |
-| "Successfully" | HTTP `201 Created` |
-| "Valid" (JWT) | Non-expired `exp` claim + verified `HS256` signature |
-| "Extremely Angry" | HF positivity score `< 0.25` → CRITICAL |
-| "Love it" | HF score `> 0.75` → LOW |
-| "Exactly" | `response.body.tickets.length === 10` assertion |
-| "Unresponsive" | Socket timeout `> 5000 ms` triggers AbortController fallback |
-| "Extreme" | `body > 2000` chars OR `subject > 120` chars |
-| "Meaningful" | Tokenizer produces `≥ 1` non-punctuation, non-emoji token |
-| "Securely" | DOMPurify HTML encoding + Prisma parameterized queries |
-| "Duplicate" | Identical `userId + body` hash within 600 seconds |
-
----
-
-## 2.3 Orders Refinement — Member D
-
-*Source: `docs/requirements/member_d_phase2_design.md` §2*
-
-| Vague Term | Measurable Replacement | Verification |
+| Vague Term | Measurable Replacement | Slice |
 |---|---|---|
-| "fast" / "immediately" | p95 < 500 ms API response → DOM repaint | Playwright `toBeVisible({ timeout: 500 })` |
-| "secure" | JWT `Bearer` + `role === "admin"` claim | Supertest 401/403 cases |
-| "low-stock" | `stock < 5` strict integer compare | Vitest unit on `flagLowStock()` |
-| "sorted recently" | `ORDER BY placedAt DESC` | Integration test on response order |
-| "grand total" | `subtotal + (subtotal × 0.10)` | Unit test on tax calc |
-| "race-safe" | Optimistic concurrency: `If-Match: <updatedAt>` → 409 on mismatch | Integration with 2 concurrent PATCHes |
-| "stale" / "zombie order" | `Order.status === "PENDING" AND placedAt < NOW() - INTERVAL '15 minutes'` | Vitest with frozen clock |
-| "idempotent" | Replaying same event/key within 300s produces zero side effects | Integration: invoke same sweep twice |
-
-### Banned-Word List (Orders slice)
-`fast`, `slow`, `quick`, `responsive`, `smooth`, `secure`, `safe`, `proper`, `correct`, `clean`, `simple`, `nice`, `good`, `intuitive`, `user-friendly`, `low-stock` (without `< 5`), `high-volume`, `soon` — all forbidden in Phase 3 artifacts unless paired with a measurable substitute.
-
----
-
-## 2.4 Combined Adjective Replacement Index
-
-| Vague Term | Best Numeric Form | Sourced From |
-|---|---|---|
-| "Fast" | TTFB < 200 ms P95 (Payment); UI repaint < 500 ms P95 (Orders); API ≤ 1500 ms P95 (Tickets) | B, C, D |
-| "Secure" | TLS 1.3 + AES-256-GCM (Payment); JWT HS256 + `role` claim (all) | B, C, D |
-| "Reliable" | 99.9 % uptime SLA + Circuit Breaker ×3 | B |
+| "Fast" | API ≤ 1500 ms P95 (Tickets); UI repaint < 500 ms P95 (Orders) | C, D |
+| "Secure" | JWT HS256 + `role` claim; Bcrypt password hash; PII redacted in logs | All |
+| "Reliable" | Fail-closed fallback to MEDIUM on HF failure | C |
 | "Duplicate" | SHA-256 hash + 300 s (Payment) / 600 s (Tickets) window | B, C |
-| "Stale" | `> 15 minutes PENDING` w/o webhook | B (REQ_EC_5) → D (FR-D6) |
+| "Stale" | `status == PENDING AND placed_at < now − 15 min` | B → D |
+| "Extreme" | `body > 2000` chars OR `subject > 120` chars | C |
+| "Urgency" | Priority ENUM `CRITICAL / HIGH / MEDIUM / LOW` | C |
+| "Idempotent" | Replaying the same key within the window → zero side effects | B, D |
+
+Full audits: `docs/requirements/QA_AUDIT_LOG.md`, `member_c_tickets_phase2_design.md` §1 (12-row table), `member_d_phase2_design.md` §2.
 
 ---
 
-# §3 — System Sequence Diagrams (Combined)
+# §4 — System Sequence Diagrams (Mermaid)
 
-PDF requires SSDs for **happy AND failure paths**.
+## 4.1 Payment — Member B
 
----
-
-## 3.1 Payment SSDs — Member B (Mermaid)
-
-*Source: `md/phase2/Phase2_UMLModeling.md`*
-
-### Happy Path (Successful Checkout)
+### Happy Path
 ```mermaid
 sequenceDiagram
     participant C as Customer (UI)
     participant P as Payment API
-    participant A as Auth Service
+    participant A as Auth (Member D)
     participant G as Stripe Gateway
     participant D as Database
 
-    C->>P: POST /api/payments {cartId, paymentToken}
-    P->>A: Validate JWT (Bearer Token)
-    A-->>P: 200 OK (role: customer, userId: 123)
-    P->>P: Calculate Tax (1.10x)
-    P->>G: Authorize & Capture (Amount)
-    G-->>P: 200 OK (TransactionID: txt_888)
-    P->>D: BEGIN TRANSACTION → Save Payment Log + Update Order: PAID → COMMIT
-    D-->>P: Success
-    P-->>C: 201 Created {transactionId, status: "SUCCEEDED"}
+    C->>P: POST /api/v1/payment {cart, idempotency_key}
+    P->>A: verify Bearer JWT
+    A-->>P: 200 {role: customer, user_id}
+    P->>P: total = Max(0, subtotal - discount) * 1.10
+    P->>G: authorize & capture
+    G-->>P: 200 {txn_id}
+    P->>D: BEGIN -> insert payment(SUCCESS) + order PAID -> COMMIT
+    D-->>P: ok
+    P-->>C: 201 {transaction_id, status: SUCCEEDED}
 ```
 
-### Failure Path (Double Submission Block)
+### Failure Path — Double-Submission Block
 ```mermaid
 sequenceDiagram
     participant C as Customer (UI)
     participant P as Payment API
-    participant R as Redis/Cache (Idempotency)
 
-    C->>P: POST /api/payments (Request #1)
-    P->>R: SETNX payment_lock_{id} (TTL 60s)
-    R-->>P: OK
-    Note over P: Processing...
-    C->>P: POST /api/payments (Request #2 - Double Click)
-    P->>R: SETNX payment_lock_{id}
-    R-->>P: FAIL (Key Exists)
-    P-->>C: 409 Conflict {error: "Transaction in progress"}
+    C->>P: POST /api/v1/payment (request #1, key=K)
+    P->>P: store key K (300s window)
+    Note over P: processing first request...
+    C->>P: POST /api/v1/payment (request #2, key=K)
+    P->>P: key K already seen within window
+    P-->>C: 409 Conflict {cached first result}
 ```
 
----
+## 4.2 Tickets — Member C (converted from PlantUML to Mermaid)
 
-## 3.2 Tickets SSDs — Member C (PlantUML)
-
-*Source: `Phase 2/02c_SSD_HAPPY.md` + `02d_SSD_FAILURE.md`*
-
-### Happy Path (Ticket Creation)
-```plantuml
-@startuml
-actor Customer
-participant "Auth Middleware" as Auth
-participant "Ticket API" as API
-database "Ticket DB (PostgreSQL)" as DB
-participant "HuggingFace API" as AI
-
-Customer -> API : POST /api/v1/tickets\nAuthorization: Bearer <JWT>
-API -> Auth : validateToken(JWT)
-Auth --> API : userContext { id, role: "customer" }
-API -> API : validatePayload (Zod, subject 5–120, body 10–2000)
-API -> DB : findRecentTicket(userId, bodyHash)
-DB --> API : null (no duplicate)
-API -> AI : POST /sentiment { text }
-AI --> API : { score: 0.05 }
-API -> API : mapToPriority(0.05) → "CRITICAL"
-API -> DB : INSERT INTO tickets (...)
-DB --> API : { ticketId, status: "OPEN" }
-API --> Customer : 201 Created { ticketId, priority: "CRITICAL", status: "OPEN" }
-@enduml
-```
-
-### Failure Paths (Auth / Validation / Dedup / HF Timeout / NaN Score)
-Five distinct branches in one PlantUML diagram covering:
-1. Invalid/expired JWT → 401
-2. Schema violation → 422
-3. Duplicate within 600 s window → 409
-4. HF timeout > 5000 ms → 201 with `sentimentSource: "fallback"`
-5. HF returns NaN → 201 with `sentimentSource: "score_invalid"`
-
-Full diagram in `Phase 2/02d_SSD_FAILURE.md`.
-
----
-
-## 3.3 Orders SSDs — Member D
-
-*Source: `docs/requirements/member_d_phase2_design.md` §3 (5 SSDs)*
-
-| SSD | Endpoint | Paths Covered |
-|---|---|---|
-| SSD-D1 | `GET /api/v1/orders` | Happy path with pagination |
-| SSD-D2 | `PATCH /api/v1/orders/:id/status` | Happy + 422 illegal transition + 400 empty body |
-| SSD-D3 | `GET /api/v1/orders/:id` | Happy + 404 |
-| SSD-D5 | `PATCH /api/v1/inventory/:id` | Happy + 400 (neg / decimal / upper-bound) |
-| SSD-D6 | Cron `sweepStalePending()` | System cron flow with cross-slice `Payment` read; dual branch (cancel vs advance to CONFIRMED) |
-
-Example — SSD-D2 happy + 422:
-```
-HAPPY:    Admin → PATCH /orders/:id/status { status: "PROCESSING" } → adminGuard ✅ → zodParse ✅
-                → orderService.updateStatus()
-                   ├ findById() → Order{status:"PENDING"}
-                   ├ validateTransition("PENDING","PROCESSING") ✅
-                   └ store.update() → Order{status:"PROCESSING"}
-          ← 200 { id, status: "PROCESSING", updatedAt }
-
-422:      Admin → PATCH (order is DELIVERED) { status: "PENDING" }
-                → validateTransition("DELIVERED","PENDING") ❌
-          ← 422 { error: "Invalid status transition", from: "DELIVERED", to: "PENDING" }
-```
-
----
-
-## 3.4 Checkout SSDs — Member A
-
-No formal SSDs published; equivalent flow is documented in `07-checkout-feature-scope.md` (Checkout Step Flow + API contract) and `11-sprint-1-checkout-execution.md`. The four endpoints in scope (`GET /cart`, `POST /cart/add`, `PUT /cart/update`, `DELETE /cart/remove`) have implicit happy + 400 (stock-limit) paths via the Definition of Done checklists.
-
----
-
-# §4 — Activity Diagrams (Combined)
-
-PDF requires Activity Diagrams *"that integrate code decision points."*
-
----
-
-## 4.1 Payment Activity Diagram — Member B
-
+### Happy Path — Ticket Creation
 ```mermaid
-graph TD
-    Start([Start Payment]) --> Auth[Validate Bearer Token]
-    Auth --> ValidAuth{Is Valid?}
-    ValidAuth -- No --> Err401[Return 401 Unauthorized]
-    ValidAuth -- Yes --> Calc[Compute Subtotal - Discount]
-    Calc --> Clamp[Apply Math.max 0, result]
-    Clamp --> Tax[Add 10% Tax]
+sequenceDiagram
+    participant Customer
+    participant API as Ticket API (FastAPI)
+    participant Auth as get_current_user (Member D)
+    participant DB as Ticket Store
+    participant AI as HuggingFace API
+
+    Customer->>API: POST /api/v1/tickets (Bearer JWT)
+    API->>Auth: verify token
+    Auth-->>API: {user_id, role: customer}
+    API->>API: validate (subject 5-120, body 10-2000) + sanitize_html
+    API->>DB: dedup check SHA-256(user:subject:body) in 600s
+    DB-->>API: no duplicate
+    API->>AI: POST sentiment {text}
+    AI-->>API: {score: 0.05}
+    API->>API: score_to_priority(0.05) -> CRITICAL
+    API->>DB: insert ticket(status: OPEN)
+    DB-->>API: {ticket_id}
+    API-->>Customer: 201 {ticket_id, priority: CRITICAL, status: OPEN}
+```
+
+### Failure Paths — Auth / Validation / Dedup / HF Timeout / NaN
+```mermaid
+sequenceDiagram
+    participant Customer
+    participant API as Ticket API (FastAPI)
+    participant Auth as get_current_user
+    participant DB as Ticket Store
+    participant AI as HuggingFace API
+
+    Customer->>API: POST /api/v1/tickets (Bearer JWT)
+    API->>Auth: verify token
+    alt invalid / missing JWT
+        Auth-->>API: error
+        API-->>Customer: 401 Unauthorized
+    else valid JWT
+        Auth-->>API: {user_id, role}
+        alt subject/body violate length
+            API-->>Customer: 422 Validation failed
+        else valid payload
+            API->>DB: dedup check
+            alt duplicate within 600s
+                DB-->>API: existing ticket
+                API-->>Customer: 409 Conflict
+            else no duplicate
+                API->>AI: POST sentiment
+                alt HF timeout over 5000ms
+                    AI--xAPI: AbortError
+                    API->>DB: insert(priority MEDIUM, source "fallback")
+                    API-->>Customer: 201 (MEDIUM, fallback)
+                else HF returns NaN / non-dict
+                    AI-->>API: {score: NaN}
+                    API->>DB: insert(priority MEDIUM, source "score_invalid")
+                    API-->>Customer: 201 (MEDIUM, score_invalid)
+                end
+            end
+        end
+    end
+```
+
+## 4.3 Orders — Member D
+
+### PATCH /orders/{id}/status — Happy + 422
+```mermaid
+sequenceDiagram
+    participant Admin
+    participant API as Orders API
+    participant SVC as orders_service
+    participant DB as Database
+
+    Admin->>API: PATCH /api/v1/orders/{id}/status {status}
+    API->>API: require_admin (JWT role check)
+    API->>SVC: update_status(id, status)
+    SVC->>DB: find order by id
+    alt order found and transition legal
+        SVC->>SVC: validate_transition(from, to) = true
+        SVC->>DB: update status + insert audit_log
+        SVC-->>API: updated order
+        API-->>Admin: 200 {id, status, updated_at}
+    else illegal transition
+        SVC->>SVC: validate_transition = false
+        API-->>Admin: 422 Invalid status transition
+    end
+```
+
+## 4.4 Checkout — Member A
+
+The full Add-to-Cart and Checkout/Order-Submission SSDs are in `docs/requirements/MEMBER_A_DESIGN_ARTIFACTS.md` §2 (Mermaid `sequenceDiagram`), including the payment handoff, idempotency key, and the FOR UPDATE / ROLLBACK stock-conflict branch.
+
+---
+
+# §5 — Activity Diagrams (Mermaid)
+
+## 5.1 Payment — Member B
+```mermaid
+flowchart TD
+    Start([Start Payment]) --> Auth[Verify Bearer JWT]
+    Auth --> Valid{Valid?}
+    Valid -- No --> E401[401 Unauthorized]
+    Valid -- Yes --> Calc[Compute Subtotal minus Discount]
+    Calc --> Clamp[Apply Max 0 floor]
+    Clamp --> Tax[Add 10 percent tax]
     Tax --> Gate[Call Payment Gateway]
-    Gate --> GateResp{Gateway Status?}
-    GateResp -- 200 --> DB[Execute Atomic DB Commit]
-    GateResp -- 4xx/5xx --> FailLog[Log Failure & Return 422]
-    DB --> Success([Return 201 Created])
+    Gate --> Resp{Gateway status?}
+    Resp -- 200 --> Commit[Atomic DB commit]
+    Resp -- 4xx or 5xx --> Fail[Log failure, return 422]
+    Commit --> Done([201 Created])
 ```
 
-**Decision-point → code mapping:** `Is Valid?` → JWT verify; `Math.max(0, result)` → PAY-03 floor logic; `Add 10% Tax` → PAY-02 tax engine; `Execute Atomic DB Commit` → PAY-04 atomic transaction.
-
----
-
-## 4.2 Tickets Activity Diagram — Member C
-
-*Source: `Phase 2/02e_ACTIVITY.md`*
-
-```plantuml
-@startuml
-start
-:Receive POST /api/v1/tickets Request;
-if (Valid JWT?) then (no) :401 Unauthorized; stop
-else (yes) :Extract userId, role from JWT; endif
-
-if (subject 5–120 AND body 10–2000 AND Zod valid?) then (no) :422 {error: "Validation failed"}; stop
-else (yes) :SHA-256(userId + subject + body); endif
-
-if (Hash exists for userId within 600s window?) then (yes) :409 {error: "Duplicate ticket detected"}; stop
-else (no) :Initiate Sentiment Analysis; endif
-
-partition "Priority Determination" {
-  if (HF response within 5000ms?) then (no — AbortError)
-      :priority = MEDIUM; :sentimentSource = "fallback";
-  else (yes)
-      if (score is NaN or null?) then (yes)
-          :priority = MEDIUM; :sentimentSource = "score_invalid";
-      else (no — valid float)
-          :map score: <0.25 CRITICAL, <0.50 HIGH, <0.75 MEDIUM, ≥0.75 LOW;
-          :sentimentSource = "hf_model";
-      endif
-  endif
-}
-
-:INSERT INTO tickets (userId, subject, body, priority, sentimentSource, dedupHash, status: "OPEN");
-if (Prisma INSERT successful?) then (no) :500 Internal Server Error; stop
-else (yes) :201 Created { ticketId, priority, status, sentimentSource }; stop endif
-@enduml
+## 5.2 Tickets — Member C (converted from PlantUML to Mermaid)
+```mermaid
+flowchart TD
+    Start([POST /api/v1/tickets]) --> JWT{Valid JWT?}
+    JWT -- No --> E401[401 Unauthorized]
+    JWT -- Yes --> Valid{subject 5-120 AND body 10-2000?}
+    Valid -- No --> E422[422 Validation failed]
+    Valid -- Yes --> Hash[SHA-256 user:subject:body]
+    Hash --> Dedup{Hash seen within 600s?}
+    Dedup -- Yes --> E409[409 Duplicate]
+    Dedup -- No --> AI[Call HuggingFace sentiment]
+    AI --> Timeout{Response within 5000ms?}
+    Timeout -- No --> FB1[priority MEDIUM, source fallback]
+    Timeout -- Yes --> NaN{Score NaN or non-dict?}
+    NaN -- Yes --> FB2[priority MEDIUM, source score_invalid]
+    NaN -- No --> Map[Map score to priority band, source hf_model]
+    FB1 --> Insert[Insert ticket OPEN]
+    FB2 --> Insert
+    Map --> Insert
+    Insert --> Ok([201 Created])
 ```
 
----
-
-## 4.3 Orders Activity Diagrams — Member D
-
-*Source: `member_d_phase2_design.md` §4*
-
-Two activity diagrams produced — one for `PATCH /orders/:id/status` (6 decision diamonds) and one for `PATCH /inventory/:id` (5 decision diamonds). Each diamond maps to a single line of source code (`adminGuard`, `zodParse`, `findById`, `validateTransition`).
-
-Excerpt (`PATCH /orders/:id/status`):
-```
-START → Receive request
-      → ◇ JWT valid? ──No──▶ 401 Unauthorized
-                    ──Yes──▶ ◇ role === "admin"? ──No──▶ 403 Forbidden
-                                                ──Yes──▶ ◇ Body matches schema? ──No──▶ 400 Validation
-                                                                              ──Yes──▶ Fetch order
-                                                                                       ▶ ◇ Order found?
-                                                                                          ──No──▶ 404
-                                                                                          ──Yes──▶ ◇ Transition legal? (matrix)
-                                                                                                  ──No──▶ 422 IllegalTransition
-                                                                                                  ──Yes──▶ Update DB
-                                                                                                          → Write audit log
-                                                                                                          → 200 OK
+## 5.3 Orders — Member D
+```mermaid
+flowchart TD
+    Start([PATCH /orders/:id/status]) --> JWT{Valid JWT?}
+    JWT -- No --> E401[401 Unauthorized]
+    JWT -- Yes --> Role{role == admin?}
+    Role -- No --> E403[403 Forbidden]
+    Role -- Yes --> Schema{Body matches status enum?}
+    Schema -- No --> E422a[422 Validation]
+    Schema -- Yes --> Find[Fetch order by id]
+    Find --> Found{Order found?}
+    Found -- No --> E404[404 Not Found]
+    Found -- Yes --> Trans{Transition legal in matrix?}
+    Trans -- No --> E422b[422 Illegal transition]
+    Trans -- Yes --> Update[Update DB + write audit_log]
+    Update --> Ok([200 OK])
 ```
 
----
-
-## 4.4 Checkout Activity Diagram — Member A
-
-No published activity diagram. The equivalent decision logic for cart operations is encoded in `cartController.js` (`exports.addItem` — stock-limit decision before adding) and is testable via the Sprint 2 DoD checklist.
+## 5.4 Checkout — Member A
+Add-to-Cart, Checkout/Place-Order, and Update-Cart-Quantity activity diagrams (with stock-headroom, promo-validation, and payment-outcome branches) are in `MEMBER_A_DESIGN_ARTIFACTS.md` §3.
 
 ---
 
-# §5 — Information Hiding & API Contracts (Combined)
+# §6 — API Contracts (Information Hiding)
 
-Per PDF: *"Design your API contracts such that teams/AI only need to respect shared interfaces, keeping internal stack logic hidden."*
+## 6.1 System-Wide Public Endpoint Map (current routers)
 
----
-
-## 5.1 Payment API Contract — Member B
-
-*Source: `md/phase2/Phase2_InformationHiding.md`*
-
-| Method | Endpoint | Auth | Request | Success |
-|---|---|---|---|---|
-| `POST` | `/api/payments` | Bearer JWT | `{ cartId, paymentMethod: { token, provider }, promoCode? }` | `201 { transactionId, orderId, status: "SUCCEEDED", summary: { subtotal, discount, tax, totalCharged, currency }, timestamp }` |
-
-**Error matrix:** 401 Unauthorized · 409 Conflict (idempotency) · 422 Unprocessable (gateway rejection) · 500 Internal.
-
-**Hidden:** Raw Stripe API response · DB transaction IDs · tax computation logic · promo validation engine · internal logging.
-
----
-
-## 5.2 Tickets API Contract — Member C
-
-*Source: `Phase 2/02f_API_CONTRACT.yaml` (full OpenAPI 3.0.3 spec)*
-
-| Method | Endpoint | Auth | Role | Description |
-|---|---|---|---|---|
-| `POST` | `/api/v1/tickets` | Bearer JWT | customer | Create ticket; AI priority assignment with fallback |
-| `GET` | `/api/v1/tickets` | Bearer JWT | customer | Paginated own-tickets list (JWT-scoped) |
-| `GET` | `/api/v1/tickets/queue` | Bearer JWT | agent | Triage queue sorted CRITICAL→LOW then oldest first |
-| `PATCH` | `/api/v1/tickets/{id}/status` | Bearer JWT | agent | Forward-only state transitions OPEN→IN_PROGRESS→RESOLVED |
-
-**Response codes:** 200/201/400/401/403/404/409/422/500/502 (502 ONLY when internal DB unreachable — HF failures return 201 with fallback).
-
-**Hidden:** dedupHash algorithm · HF model selection · token-vs-character mapping · DB column types.
-
-**Pending note in YAML L10–L12, L38:** *"PENDING confirmation from Member D regarding JWT claim structure"* — this needs re-pointing to Member C's own auth slice.
-
----
-
-## 5.3 Orders API Contract — Member D
-
-*Source: `member_d_phase2_design.md` §5*
-
-| Method | Endpoint | Auth | Request | Success | Errors |
-|---|---|---|---|---|---|
-| `GET` | `/api/v1/orders` | Admin JWT | `?page&limit&status` | `200 { orders[], pagination }` | 401, 403 |
-| `GET` | `/api/v1/orders/:id` | Admin JWT | — | `200 { ...order, items[], customer, shippingAddress }` | 401, 403, 404 |
-| `PATCH` | `/api/v1/orders/:id/status` | Admin JWT | `{ status }` | `200 { id, status, updatedAt }` | 400, 401, 403, 404, 409, 422 |
-| `GET` | `/api/v1/inventory` | Admin JWT | — | `200 { products[{ ...product, lowStock }] }` | 401, 403 |
-| `PATCH` | `/api/v1/inventory/:id` | Admin JWT | `{ stock }` | `200 { id, stock, lowStock }` | 400, 401, 403, 404 |
-
-**Hidden:** In-memory vs Prisma · status transition matrix internals · audit log mechanism · pagination algorithm · error message wording · `Order.updatedAt` precision · framework choice.
-
-**Public event contract (§5.4):** `payment.success` payload shape and idempotency guarantee.
-
----
-
-## 5.4 Checkout API — Member A
-
-*Source: `07-checkout-feature-scope.md`*
-
-**Cart endpoints (prefix `/api/v1`):**
-- `GET /cart` — current cart
-- `POST /cart/items` — add item (stock-validated)
-- `PUT /cart/items/:itemId` — update quantity
-- `DELETE /cart/items/:itemId` — remove item
-- `DELETE /cart` — clear cart
-- `POST /cart/promo` / `DELETE /cart/promo` — promo management
-
-**Checkout endpoints:**
-- `POST /checkout/validate` · `POST /checkout/shipping` · `POST /checkout/order` · `GET /checkout/confirmation/:orderId`
-
----
-
-## 5.5 System-Wide Public Endpoint Map
-
-| Endpoint | Slice | Auth Required |
+| Endpoint | Slice | Auth |
 |---|---|---|
-| `POST /api/v1/cart/*`, `PUT/DELETE /cart/items/*` | Checkout | optional (session OR JWT) |
-| `POST /api/v1/checkout/order` | Checkout | optional |
-| `POST /api/payments` | Payment | Bearer JWT (customer) |
-| `POST /api/v1/tickets` + GET own | Tickets | Bearer JWT (customer) |
-| `GET /api/v1/tickets/queue`, `PATCH .../status` | Tickets | Bearer JWT (agent) |
-| `GET/PATCH /api/v1/orders/*`, `GET/PATCH /api/v1/inventory/*` | Orders | Bearer JWT (admin) |
-| `POST /api/auth/*` (login, register, refresh) | Auth (Member C) | varies — auth slice pending |
+| `POST /api/v1/auth/{register,login}` | Auth (D) | public |
+| `GET/POST/PUT/DELETE /api/v1/cart*` | Checkout (A) | session/JWT |
+| `GET /api/v1/products`, `GET /api/v1/products/{id}` | Catalog (A) | public |
+| `POST /api/v1/payment`, payment-methods CRUD | Payment (B) | Bearer JWT (customer) |
+| `POST/GET /api/v1/tickets` | Tickets (C) | Bearer JWT (customer) |
+| `GET /api/v1/tickets/triage`, `PATCH /api/v1/tickets/{id}/status` | Tickets (C) | Bearer JWT (agent) |
+| `GET/PATCH /api/v1/orders*`, `GET/PATCH /api/v1/inventory*` | Orders (D) | Bearer JWT (admin) |
+| `POST /api/v1/events/payment.success` | Orders (D) | internal event |
+
+## 6.2 Information Hiding Summary
+
+| Slice | Public Contract | Hidden |
+|---|---|---|
+| Payment | `{transaction_id, status, summary}` | Stripe response, tax engine, promo validator, DB txn IDs |
+| Tickets | `{ticket_id, priority, status, sentiment_source}` | dedup-hash algorithm, HF model choice, in-memory store layout |
+| Orders | `{id, status, updated_at}` | transition-matrix internals, audit-log mechanism, pagination math |
+| Checkout | `{cart, subtotal, tax, total}` | server-side re-pricing, in-memory cart structure |
 
 ---
 
-# §6 — Outstanding Phase 2 Work
+# §7 — Phase 2 Status
 
 | Item | Owner | Status |
 |---|---|---|
-| Auth slice Phase 2 (Gherkin + SSDs + activity diagrams + API contract for login/register/refresh + JWT issuance) | Member C | Pending |
-| Re-point all "Member D's auth service" references to Member C across Member B's docs and Member C's own YAML | All | Cleanup task |
-| Catalog Phase 2 (now potentially orphaned) | TBD | Blocked on ownership reassignment |
+| Auth Phase 2 (Gherkin + SSD + activity + contract) | Member D | ✅ `member_d_auth_phase2_design.md` |
+| PlantUML → Mermaid conversion (Tickets) | Member C / docs | ✅ Done in this refresh — §4.2, §5.2 |
+| System-wide ERD | Member A / docs | ✅ §1 above + `MEMBER_A_DESIGN_ARTIFACTS.md` §1 |
+| Catalog Phase 2 | Member A | ✅ Owned; endpoints in `catalog.py` |
 
 ---
 
