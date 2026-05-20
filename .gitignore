@@ -9,3 +9,21 @@ build/
 .vite/
 node_modules/
 dist/
+
+# Claude Code working state — must not be committed. A stray worktree
+# gitlink under .claude/worktrees/ was tripping `git submodule foreach`
+# during CI post-job cleanup with "No url found for submodule path …".
+.claude/
+
+# Python virtualenvs + leftover troubleshooting artefacts.
+.venv/
+src/backend_python/.venv/
+src/backend_python/package-lock.json
+src/backend_python/requirements-nopg.txt
+src/backend_python/backend.log
+src/frontend/backend.log
+src/frontend/frontend.log
+backend.log
+frontend.log
+log.txt
+

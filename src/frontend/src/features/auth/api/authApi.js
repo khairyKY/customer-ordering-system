@@ -10,4 +10,9 @@ export const authApi = {
         const res = await client.post('/auth/login', { email, password });
         return res.data; // { token, expires_at, user: { id, email, role } }
     },
+
+    async forgotPassword({ email }) {
+        const res = await client.post('/auth/password/forgot', { email });
+        return res.data; // { message }
+    },
 };
