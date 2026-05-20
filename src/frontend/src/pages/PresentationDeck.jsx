@@ -1,6 +1,6 @@
 // ============================================================
 // PresentationDeck — fullscreen native React deck (route: /presentation)
-// Dev-Cosmic theme · Terminal · CSE323 Final Presentation
+// Dev-Cosmic theme · COS CSE323 Final Presentation
 //
 // Performance notes:
 //  - The animated starfield (CosmicCanvas) is mounted ONCE at the App
