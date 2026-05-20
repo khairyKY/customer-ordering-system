@@ -65,7 +65,7 @@ const PRINT_CSS = `
   }
 
   /* Force-disable every transition / animation / transform. Framer Motion
-     uses inline `transform` + `opacity` styles; the !important here wins
+     uses inline 'transform' + 'opacity' styles; the !important here wins
      over them so the printed slide is always in its rest state. */
   *,
   *::before,
