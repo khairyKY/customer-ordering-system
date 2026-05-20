@@ -28,7 +28,12 @@ class PaymentPage:
         self.total_display = page.locator(".total-amount")
 
     def goto(self) -> None:
-        self.page.goto(f"{FRONTEND_BASE}/checkout")
+        # Targets the single-form /payment view that mirrors this POM's
+        # selectors (input[name="cardNumber"] etc.). The shipped purchase
+        # flow at /checkout is a 7-step wizard with a different surface
+        # area — see src/frontend/src/pages/QuickPaymentPage.jsx for the
+        # rationale and the documented split.
+        self.page.goto(f"{FRONTEND_BASE}/payment")
 
     def fill_payment_details(
         self,

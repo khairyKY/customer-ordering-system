@@ -68,6 +68,10 @@ def run() -> None:
     try:
         _ensure_user(db, email="admin@example.com", password="admin123", role=Role.ADMIN.value)
         _ensure_user(db, email="alice@example.com", password="Sup3rPass!", role=Role.CUSTOMER.value)
+        # Used by the Playwright E2E tickets specs (customer creates a ticket;
+        # agent triages). Passwords match tests/conftest.py for parity.
+        _ensure_user(db, email="customer@example.com", password="custPass!1", role=Role.CUSTOMER.value)
+        _ensure_user(db, email="agent@example.com",    password="agntPass!1", role=Role.AGENT.value)
 
         # Always seed the canonical PROD-* set first — the E2E suite and
         # OrderItem rows reference these stable IDs (PROD-001..006). The
