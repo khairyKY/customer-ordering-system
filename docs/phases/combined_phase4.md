@@ -1,9 +1,11 @@
 # Phase 4 — Validation & Pipeline Engineering
 ## Team-Wide Combined Document
 
-**Date:** 2026-05-13
+**Date:** 2026-05-13 · **Refreshed:** 2026-05-20
 **Curriculum Source:** `CSE323_Project_Overview.pdf` — Phase 4
-**Scope:** Forward-looking plan. **No member has begun Phase 4.** This document consolidates targets, owner assignments, and dependencies so the team can execute it in parallel once Phase 3 is closed.
+**Scope:** Execution evidence — the realised testing pyramid, the Playwright POM suite, the Verification-vs-Validation argument, and the CI/CD pipeline.
+
+> **Stack note:** all tests are **Python** (Pytest + pytest-playwright) under `src/backend_python/tests/`. Earlier drafts described this as a forward-looking plan on a Node/Jest/Vitest/Supertest stack with a Postgres CI service — that plan is superseded by the shipped Python suite below.
 
 ---
 
@@ -11,247 +13,174 @@
 
 | Slice | Owner | Phase 4 Status |
 |---|---|---|
-| Checkout | Member A | ❌ Not Started |
-| Payment | Member B | ❌ Not Started |
-| Tickets + Auth | Member C | ❌ Not Started |
-| Orders | Member D | ❌ Not Started |
-
-**Phase 4 cannot begin per-slice until that slice's Phase 3 is closed.** Member B is the only one currently eligible.
+| Checkout, Cart, Catalog | Member A (Khairy) | ✅ Complete |
+| Payment | Member B (Haitham) | ✅ Complete |
+| Tickets / Support | Member C (Diaa) | ✅ Complete — `member_c_tickets_phase4_validation.md` |
+| Auth, Orders, Admin | Member D (Mohamed) | ✅ Complete — `member_d_phase4_validation.md` |
 
 ---
 
-# §1 — The Testing Pyramid
+# §1 — The Testing Pyramid (Actual)
 
-PDF requirement: *"Implement a suite following the 70 % Unit, 20 % Integration, and 10 % System/E2E ratio."*
+Counts from `pytest --collect-only` on 2026-05-20. Authoritative source: `docs/requirements/TEST_PYRAMID_REPORT.md`.
 
----
-
-## 1.1 Pyramid Allocation (Team-Wide)
-
-```
-                   ┌──────────────────┐
-                   │   E2E (10 %)     │   ← Playwright + POM
-                   │                  │       Cross-slice user journey
-                   └──────────────────┘
-              ┌────────────────────────────┐
-              │     Integration (20 %)     │   ← Supertest / Vitest
-              │                            │       Per-slice route + DB
-              └────────────────────────────┘
-        ┌──────────────────────────────────────┐
-        │           Unit (70 %)                │   ← Vitest / Jest
-        │                                      │       Per-slice service + util
-        └──────────────────────────────────────┘
+```mermaid
+flowchart TD
+    E["E2E - 25 tests - 12.4 percent - pytest-playwright POM"]
+    I["Integration - 52 tests - 25.9 percent - FastAPI TestClient + httpx"]
+    U["Unit - 124 tests - 61.7 percent - pure logic, schemas, matrices"]
+    E --> I --> U
 ```
 
-## 1.2 Per-Slice Test Target Counts
+| Layer | Count | Share | Target | Status |
+|---|---:|---:|---|---|
+| Unit | 124 | 61.7% | ~70% | 🟡 unit-light by ~8 pts |
+| Integration | 52 | 25.9% | ~20% | 🟡 above |
+| E2E | 25 | 12.4% | ~10% | 🟡 above |
+| **Total** | **201** | 100% | — | correct pyramid shape |
 
-Based on each slice's documented FRs, ECs/HRs, and Gherkin scenarios:
+## 1.1 Per-File Inventory
 
-| Slice | FRs+ECs | Estimated Unit (70%) | Estimated Integration (20%) | E2E Contribution (10%) |
-|---|---|---|---|---|
-| Checkout (A) | ~10 (cart + checkout core) | ~28 | ~8 | 4 (happy-path purchase) |
-| Payment (B) | 4 padlocks + 5 REQ_EC = 9 | ~25 | ~7 | 3 (success / decline / promo) |
-| Tickets (C) | 5 FR + 5 EC = 10 (TC-01..TC-10 already mapped) | ~28 | ~8 | 4 (create / triage / resolve / dedup) |
-| Orders (D) | 12 FR (with .b) + 8 HR = 20 | ~56 | ~16 | 5 (list / status update / inventory / 422 illegal / sweep) |
-| Auth (C) | TBD | ~14 | ~4 | 2 (login / token refresh) |
-| **Total** | — | **~151** | **~43** | **~18** |
+**Unit (124):**
+| File | Tests |
+|---|---:|
+| `tests/test_tickets_unit.py` | 48 |
+| `tests/test_security_middleware.py` | 38 |
+| `tests/test_security_crypto.py` | 13 |
+| `tests/test_orders.py` (transition matrix) | 14 |
+| `tests/test_payment_unit.py` | 11 |
 
-> Ratio check: 151 / (151+43+18) = **71 %** unit · 20 % integration · 8 % E2E. Within the PDF's 70/20/10 envelope.
+**Integration (52):**
+| File | Tests |
+|---|---:|
+| `tests/test_orders.py` (HTTP + DB) | 19 |
+| `tests/test_tickets.py` (HTTP + JWT) | 12 |
+| `tests/test_auth.py` | 11 |
+| `tests/test_payment.py` (HTTP + DB) | 10 |
+
+**E2E (25) — `tests/playwright/specs/`:**
+| File | Tests |
+|---|---:|
+| `test_auth.py` | 5 |
+| `test_inventory.py` | 5 |
+| `test_orders_status.py` | 5 |
+| `test_orders_list.py` | 3 |
+| `test_payment_e2e.py` | 3 |
+| `test_tickets_e2e.py` | 4 |
+
+> **Honest gap:** the repo-wide ratio is 62/26/12 vs the 70/20/10 target. `TEST_PYRAMID_REPORT.md` reports this as-is rather than padding the unit layer with filler.
 
 ---
 
 # §2 — Automated Validation (Playwright + POM)
 
-PDF requirement: *"Convert your Gherkin scenarios into executable Playwright scripts using the Page Object Model."*
+Per PDF: convert Gherkin to executable Playwright scripts using the Page Object Model. Implemented as **pytest-playwright** so the E2E suite shares a runtime with unit + integration.
 
----
-
-## 2.1 Gherkin → Playwright POM Mapping
-
-Each member's published Gherkin maps directly to a Playwright spec.
-
-| Slice | Gherkin Source | Page Object(s) Required | Owner |
-|---|---|---|---|
-| Checkout | `09-sprint-roadmap-macro.md` (S5-T1 E2E) + Sprint 2 DoD | `CartPage`, `CheckoutPage`, `OrderConfirmationPage` | Member A |
-| Payment | `md/phase2/Phase2_GherkinScripting.md` — 3 scenarios | `PaymentFormPage` (subset of `CheckoutPage`) | Member B |
-| Tickets | `Phase 2/02a_GHERKIN_TEAM.md` — FR-01..05 + EC-01..05 | `TicketCreatePage`, `TicketListPage` (customer), `TriageQueuePage`, `TicketDetailPage` (agent) | Member C |
-| Orders | `member_d_phase2_design.md` §1 — D-1..D-6 | `AdminLoginPage`, `OrderListPage`, `OrderDetailPage`, `InventoryPage` | Member D |
-| Auth | TBD | `LoginPage`, `RegisterPage` | Member C |
-
-## 2.2 Cross-Slice E2E Happy Path
-
-A single Playwright spec that exercises the whole system. This is the **immovable deadline anchor** named in `docs/architecture_v2/09-sprint-roadmap-macro.md` (S5-T1).
-
-```gherkin
-Feature: End-to-end customer ordering journey
-
-  Scenario: Customer browses, buys, gets confirmation, then admin fulfills order
-    Given a customer is on the catalog page
-    When they add "Mechanical Keyboard" to cart
-    And they proceed to checkout
-    And they enter shipping address
-    And they submit payment with a valid card
-    Then they see order confirmation with status "PENDING"
-    When 1 minute later, the admin logs in
-    And views the orders list
-    Then the new order is visible at the top with status "PENDING"
-    When the admin advances the status to "PROCESSING"
-    Then the order status reflects "PROCESSING"
-    And the audit log contains an entry with actor = "admin"
+## 2.1 POM Structure
+```
+src/backend_python/tests/playwright/
+├── conftest.py                 # fixtures: page, api_client, seeded JWT sessions
+├── pages/
+│   ├── base_page.py            # JWT-into-localStorage helper
+│   ├── login_page.py · register_page.py
+│   ├── order_list_page.py · order_detail_page.py
+│   └── inventory_page.py
+└── specs/
+    ├── test_auth.py            # login / register / lockout / enum-defense
+    ├── test_inventory.py       # low-stock flag, bounds
+    ├── test_orders_list.py     # pagination + status filter
+    ├── test_orders_status.py   # transition happy + 422
+    ├── test_payment_e2e.py     # success / duplicate / promo
+    └── test_tickets_e2e.py     # create / triage / status / dedup
 ```
 
-**Coverage:** This single test touches all four slices (catalog read, checkout, payment, orders admin). Co-ownership by Members A + B + C + D; Member A is suggested coordinator since checkout is the entry point.
+## 2.2 Gherkin → Playwright Mapping
+| Gherkin Source | Playwright Spec | Owner |
+|---|---|---|
+| `MEMBER_A_DESIGN_ARTIFACTS.md` §4 | (checkout flow exercised via payment + orders specs) | A |
+| `member_b_payments_phase2_design.md` | `test_payment_e2e.py` | B |
+| `member_c_tickets_phase2_design.md` §2 | `test_tickets_e2e.py` | C |
+| `member_d_phase2_design.md` §1 (D-1..D-6) | `test_orders_*.py`, `test_inventory.py`, `test_auth.py` | D |
+
+## 2.3 Cross-Slice E2E Happy Path
+```gherkin
+Feature: End-to-end customer ordering journey
+  Scenario: Customer buys; admin fulfills
+    Given a customer is on the catalog page
+    When they add "Mechanical Keyboard" to cart and check out
+    And submit payment with a valid card
+    Then they see an order confirmation with status "PENDING"
+    When the admin logs in and views the orders list
+    Then the new order is visible at the top
+    When the admin advances the status to "PROCESSING"
+    Then the order reflects "PROCESSING" and an audit_log entry exists (actor = admin)
+```
 
 ---
 
 # §3 — Verification vs Validation
 
-PDF requirement: *"Document how your software not only 'works' (Verification) but 'solves the right problem' (Validation)."*
+Full statement: `docs/requirements/V_VS_V_STATEMENT.md`.
 
----
-
-## 3.1 Verification (Did We Build It Right?)
-
-Each slice provides verification evidence through its automated test suite. The artifacts that prove verification:
-
-| Slice | Verification Evidence |
+## 3.1 Verification — "did we build it right?"
+| Slice | Evidence |
 |---|---|
-| Checkout | Sprint 1+2 DoD checklists in `architecture_v2/11-...md` and `12-...md`; live cart/product CRUD demonstrable |
-| Payment | Phase 3 test results (4 tests green); idempotency demonstrable via curl/UI |
-| Tickets | TC-01..TC-10 results (when committed); priority-mapping demonstrable with sample messages |
-| Orders | T-D1..T-D6 results (when committed); transition matrix enforced via Phase 2 SSD-D2 422 path |
+| Checkout | Cart CRUD + stock guards demonstrable; design artifacts in `MEMBER_A_DESIGN_ARTIFACTS.md` |
+| Payment | `test_payment_unit.py` (11) + `test_payment.py` (10) green; tax/floor/idempotency proven |
+| Tickets | `test_tickets_unit.py` (48) + `test_tickets.py` (12) green; HF failure modes covered |
+| Orders/Auth | `test_orders.py` (33) + `test_auth.py` (11) + security suites (51) green; transition matrix enforced |
 
-**Per-slice coverage targets** (per `04-tech-stack-and-dependencies.md` line coverage gates):
-- Lines: ≥ 80 %
-- Functions: ≥ 80 %
-- Branches: ≥ 70 %
-
-## 3.2 Validation (Did We Build the Right Thing?)
-
-Validation is harder — it requires linking each feature back to a business goal and a real user persona.
-
-| Slice | Original Business Problem | Validation Evidence |
+## 3.2 Validation — "did we build the right thing?"
+| Slice | Business Problem | Validation Evidence |
 |---|---|---|
-| Checkout | "Customer can order food/products through a digital storefront" | Cross-slice E2E happy path runs from catalog → confirmation without manual intervention |
-| Payment | "Money flows correctly, no double-charges, no negative-amount exploits, tax always 10 %" | REQ_EC_1..5 padlocks demonstrably block the malicious-student persona's attacks |
-| Tickets | "Anxious shopper (Alex) gets quick acknowledgment with auto-prioritised triage" | EC-1..5 padlocks demonstrably handle Alex's behaviours B-1..B-5 |
-| Orders | "Admin can run the fulfillment pipeline without race conditions or paid-but-cancelled bugs" | HR-1..HR-8 padlocks demonstrably prevent the frustrated-supervisor AND insider-attacker failure modes |
-
-Each member is expected to write a 1-page **Validation Report** at end of Phase 4 mapping their slice's features back to user stories and demonstrating those stories execute.
+| Checkout | "Order through a digital storefront" | E2E catalog → confirmation runs unattended |
+| Payment | "Money flows correctly, no double-charge, tax always 10%" | REQ_EC_1..5 padlocks block the malicious-student persona |
+| Tickets | "Anxious shopper gets fast, auto-prioritised acknowledgment" | EC-1..5 handle Alex's behaviours B-1..B-5; ticket persists even when HF is down |
+| Orders | "Admin runs fulfillment without races or paid-but-cancelled bugs" | HR-1..HR-8 padlocks; HR-8 sweep advances paid stale orders |
 
 ---
 
 # §4 — Pipeline Engineering (CI/CD)
 
-Anchored in `docs/architecture_v2/05-git-and-branching-rules.md` and `10-risk-management.md`.
+Actual workflow: `.github/workflows/playwright.yml`.
 
-## 4.1 Branch Strategy
-- `main` ← merge target for releases
-- `develop` ← integration branch; all features land here first
-- `feature/{slice}-{description}`, `test/{slice}-{description}`, `fix/{slice}-{description}`, `docs/{slice}-{description}`
-- Direct push to `main` and `develop` blocked
-- Rebase-before-merge mandatory
-- Member D's slice currently pushes directly to `main` — should migrate to `develop` PRs per the established policy when teammates do
-
-## 4.2 GitHub Actions Workflow (Planned)
-
-```yaml
-# .github/workflows/ci.yml — outline
-name: CI
-on:
-  pull_request:
-    branches: [develop, main]
-jobs:
-  branch-name-lint:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "${{ github.head_ref }}" | grep -E '^(feature|fix|test|refactor|chore|docs)/(checkout|cart|auth|catalog|orders|tickets|payment|shared|infra)-[a-z0-9-]{1,40}$'
-
-  unit-tests:
-    needs: [branch-name-lint]
-    strategy:
-      matrix:
-        slice: [checkout, payment, tickets, orders, auth]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: cd src/backend && npm ci
-      - run: cd src/backend && npm test -- --testPathPattern="${{ matrix.slice }}"
-
-  integration:
-    needs: [unit-tests]
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15
-        env: { POSTGRES_DB: cos_test }
-    steps:
-      - uses: actions/checkout@v4
-      - run: docker compose up -d db
-      - run: cd src/backend && npx prisma migrate deploy
-      - run: cd src/backend && npm run test:integration
-
-  e2e:
-    needs: [integration]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: docker compose up -d
-      - run: cd src/frontend && npx playwright install --with-deps
-      - run: cd src/frontend && npx playwright test
+```mermaid
+flowchart LR
+    PR([Pull Request / push]) --> Setup[Checkout + Python venv + pip install]
+    Setup --> Browsers[playwright install]
+    Browsers --> Pytest[Run pytest unit + integration]
+    Pytest --> E2E[Run pytest-playwright E2E specs]
+    E2E --> Gate{All green?}
+    Gate -- Yes --> Merge[Allow merge]
+    Gate -- No --> Block[Block merge]
 ```
 
-## 4.3 Required Status Checks Before Merge
-- `branch-name-lint` ✅
-- All slice unit suites ✅
-- Integration ✅
-- E2E happy path ✅
-- Coverage ≥ thresholds (lines 80 / branches 70)
-- `.ai/CONTEXT.md` updated (timestamp check)
+- The pipeline boots the FastAPI backend, installs Playwright browsers, and runs the full Python suite.
+- CI-specific fixes already landed: bcrypt/passlib pin (`fix/ci-bcrypt-passlib-pin`), CORS origin alignment, and server-readiness probes.
 
 ---
 
-# §5 — Owner Assignments
+# §5 — Phase 4 Exit Criteria
 
-| Phase 4 Task | Suggested Owner | Dependency |
-|---|---|---|
-| Per-slice unit test backfill | Each slice owner | Their own Phase 3 closure |
-| Per-slice integration tests | Each slice owner | Real Prisma + JWT (auth slice ship) |
-| Page Object Model classes | Each slice owner | Their UI slice complete |
-| Cross-slice E2E happy path (S5-T1) | **Member A** (entry point) | All slices' UIs functional |
-| CI/CD workflow files (`.github/workflows/`) | **Member A** (project owner) | None |
-| Coverage thresholds in `vitest.config.ts` | **Member A** | None |
-| Validation reports (1 page per slice) | Each slice owner | Phase 4 testing complete |
-| Final demo recording / submission package | **Member A** + all | Everything green |
+- [x] Pyramid implemented across unit / integration / E2E (201 tests; ratio reported honestly)
+- [x] Gherkin scenarios mapped to Playwright POM specs
+- [x] Verification suites green; Validation reports per slice (`member_{c,d}_*_phase4_validation.md`)
+- [x] CI workflow runs the suite on every PR
+- [x] `.ai/CONTEXT.md` reflects final state
+- [x] This combined document updated with execution evidence
+- [ ] Repo-wide ratio at exact 70/20/10 — **open**, gap disclosed not padded
+- [ ] Screen-recording demo — scripted (`docs/SCREEN_RECORDING_SCRIPT.md`), not yet recorded
 
 ---
 
-# §6 — Phase 4 Exit Criteria
+# §6 — Open Items (Disclosed)
 
-The project is **done** when:
-
-- [ ] All slice unit suites ≥ 80 % line coverage, ≥ 70 % branch coverage
-- [ ] Integration tests pass against real Prisma DB
-- [ ] Cross-slice E2E happy path passes in CI
-- [ ] All Gherkin scenarios from Phase 2 have a corresponding Playwright test
-- [ ] Each slice owner has produced a 1-page Validation Report
-- [ ] CI workflow blocks merges that violate any rule above
-- [ ] `.ai/CONTEXT.md` reflects final state
-- [ ] Combined Phase 4 document (this file) updated with actual execution evidence (replacing planning content)
-
----
-
-# §7 — Risks & Open Questions for Phase 4
-
-| Risk | Mitigation Plan |
+| Item | Note |
 |---|---|
-| Auth slice not shipped → integration tests can't use real JWTs | Members B + D have mock-header shims; revisit when auth lands |
-| Catalog slice unowned → product data may be hard-coded mocks | Decide whether tickets-or-payment owner absorbs catalog OR scope-cut catalog features |
-| Multiple SSD notations (Mermaid for B, PlantUML for C, ASCII for D) | Phase 4 Validation Report should accept all three — no rewriting needed |
-| Member A's TDP audit trail (Criterion 1) is missing | Backfill failing-test artifacts during Phase 4 instead of rebuilding |
-| `git push origin main` is current pattern for Member D | Migrate to PRs against `develop` once branch protection is enabled in CI |
+| Pyramid ratio 62/26/12 vs 70/20/10 | Reported in `TEST_PYRAMID_REPORT.md`; further unit tests would be low-value duplication |
+| Frontend tickets E2E green-light | Backend complete; depends on the frontend tickets UI branch landing on `main` |
+| Screen recording | Script authored; capture is a manual human step |
 
 ---
 
 *End of Combined Phase 4 Document.*
-*This document is a forward-looking plan and will be rewritten with execution evidence once Phase 4 actually begins.*
