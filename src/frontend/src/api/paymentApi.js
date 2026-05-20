@@ -10,9 +10,7 @@
 //   422 :  Pydantic validation failure
 // ============================================================
 
-import axios from 'axios';
-
-const PAYMENT_BASE = 'http://localhost:8000/api/v1/payment';
+import { client } from './client';
 
 /**
  * Submit a payment for the current cart.
@@ -25,14 +23,11 @@ const PAYMENT_BASE = 'http://localhost:8000/api/v1/payment';
  * @returns {Promise<{ status: 'SUCCESS', total: number, transactionId: string }>}
  */
 export async function processPayment({ amount, cartTotal, promoCode, idempotencyKey, items = [], shipping = {}, customerEmail = "guest@example.com", customerId = "guest" }) {
-  const token = localStorage.getItem('jwt');
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-  const res = await axios.post(
-    `${PAYMENT_BASE}/process`,
-    { amount, cartTotal, promoCode, idempotencyKey, items, shipping, customerEmail, customerId },
-    { headers },
-  );
+  // shared client attaches the JWT from localStorage automatically and
+  // routes against VITE_PYTHON_API_BASE — no need to wire either by hand.
+  const res = await client.post('/payment/process', {
+    amount, cartTotal, promoCode, idempotencyKey, items, shipping, customerEmail, customerId,
+  });
   return res.data;
 }
 
