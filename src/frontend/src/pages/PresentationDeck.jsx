@@ -13,6 +13,21 @@
 //  - <AnimatePresence mode="wait"> fully unmounts the outgoing slide
 //    before the incoming one mounts (clean DOM).
 //  - Keyboard navigation is throttled with a 250 ms cooldown.
+//
+// Print / PDF export:
+//  - A second DOM tree (the "print stack") renders every slide vertically.
+//    On screen it is `display:none`; under `@media print` it is `display:flex`
+//    while the interactive deck is hidden. This bypasses Framer Motion's
+//    single-slide rendering completely without touching the screen flow.
+//  - Each printed slide is wrapped in a `.print-slide` block that owns the
+//    page break (`break-after: page`) and disables the screen-only height
+//    clamp on `.liquid-card` so content flows naturally onto A4.
+//  - The global CosmicCanvas is hidden in print to avoid colossal raster
+//    output and browser crashes on slow machines.
+//  - All transitions / animations / transforms are nuked inside
+//    `@media print` so Framer Motion cannot leave a slide mid-animation.
+//  - `print-color-adjust: exact` keeps the dark backgrounds + cyan accents
+//    in the exported PDF (Chrome / Edge / Firefox).
 // ============================================================
 
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
@@ -22,6 +37,87 @@ import NeonButton from '../components/ui/NeonButton';
 import { slides } from './presentationSlides';
 
 const NAV_COOLDOWN_MS = 250;
+
+// Scoped @media print rules — injected once via a single <style> element.
+// Kept inline so the print contract travels with the component file and is
+// trivial to reason about during academic submission. Selectors only target
+// classes owned by this deck (`.screen-deck`, `.print-stack`, `.print-slide`)
+// plus the global `canvas` (only one canvas exists in the app — CosmicCanvas).
+const PRINT_CSS = `
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 12mm;
+  }
+
+  html, body {
+    background: #0D0D0D !important;
+    color: #e5e2e1 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* The CosmicCanvas starfield is mounted globally at the App root.
+     Hide it for print — saves the renderer from rasterising a 4K canvas
+     onto every page and prevents low-RAM browsers from crashing. */
+  canvas {
+    display: none !important;
+  }
+
+  /* Force-disable every transition / animation / transform. Framer Motion
+     uses inline `transform` + `opacity` styles; the !important here wins
+     over them so the printed slide is always in its rest state. */
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+    will-change: auto !important;
+    opacity: 1 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide the interactive deck + the floating export button. */
+  .screen-deck,
+  .deck-print-trigger {
+    display: none !important;
+  }
+
+  /* Reveal and lay out the unrolled print stack. */
+  .print-stack {
+    display: flex !important;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  /* Every slide owns its page. */
+  .print-slide {
+    width: 100%;
+    padding: 6mm 0;
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .print-slide:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  /* The screen version of liquid-card clamps height to 80vh and scrolls.
+     In print, content must flow naturally onto the page. */
+  .print-slide .liquid-card {
+    max-height: none !important;
+    overflow: visible !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 auto;
+    box-shadow: none !important;
+  }
+}
+`;
 
 // ── Inline **bold** renderer ─────────────────────────────────
 function RichText({ text }) {
@@ -201,53 +297,85 @@ export default function PresentationDeck() {
   const slide = slides[index];
 
   return (
-    <div className="flex min-h-screen w-full select-none flex-col items-center justify-center px-6 py-10">
-      {/* Slide stage */}
-      <div className="flex w-full flex-1 items-center justify-center">
-        <AnimatePresence mode="wait" custom={direction} initial={false}>
-          <motion.div
-            key={slide.id}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.28, ease: 'easeOut' }}
-            style={{ willChange: 'transform, opacity' }}
-            className="flex w-full justify-center"
-          >
-            <SlideView slide={slide} />
-          </motion.div>
-        </AnimatePresence>
+    <>
+      {/* Print-mode CSS — injected once, scoped via class selectors. */}
+      <style>{PRINT_CSS}</style>
+
+      {/* Floating "Export PDF" trigger — hidden in print output. */}
+      <div className="deck-print-trigger fixed right-6 top-6 z-50 print:hidden">
+        <NeonButton
+          variant="secondary"
+          onClick={() => window.print()}
+          aria-label="Export this presentation to PDF"
+        >
+          ⇩ Export PDF
+        </NeonButton>
       </div>
 
-      {/* Controls */}
-      <div className="mt-8 flex w-full max-w-[920px] items-center justify-between gap-5">
-        <NeonButton variant="secondary" onClick={() => go(-1)} disabled={index === 0}>
-          ‹ Prev
-        </NeonButton>
-
-        <div className="flex flex-1 flex-col items-center gap-2">
-          <span className="font-mono text-[12px] tracking-[0.18em] text-[#87929b]">
-            {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
-          </span>
-          <div className="h-[2px] w-full bg-[#242424]">
+      {/* ── Interactive deck (screen only) ──────────────────── */}
+      <div className="screen-deck flex min-h-screen w-full select-none flex-col items-center justify-center px-6 py-10 print:hidden">
+        {/* Slide stage */}
+        <div className="flex w-full flex-1 items-center justify-center">
+          <AnimatePresence mode="wait" custom={direction} initial={false}>
             <motion.div
-              className="h-full origin-left bg-[#00bfff]"
-              animate={{ scaleX: (index + 1) / total }}
+              key={slide.id}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
               transition={{ duration: 0.28, ease: 'easeOut' }}
-              style={{ willChange: 'transform' }}
-            />
-          </div>
-          <span className="font-mono text-[10px] tracking-[0.15em] text-[#87929b]/70">
-            ← → / SPACE TO NAVIGATE
-          </span>
+              style={{ willChange: 'transform, opacity' }}
+              className="flex w-full justify-center"
+            >
+              <SlideView slide={slide} />
+            </motion.div>
+          </AnimatePresence>
         </div>
 
-        <NeonButton variant="secondary" onClick={() => go(1)} disabled={index === total - 1}>
-          Next ›
-        </NeonButton>
+        {/* Controls */}
+        <div className="mt-8 flex w-full max-w-[920px] items-center justify-between gap-5">
+          <NeonButton variant="secondary" onClick={() => go(-1)} disabled={index === 0}>
+            ‹ Prev
+          </NeonButton>
+
+          <div className="flex flex-1 flex-col items-center gap-2">
+            <span className="font-mono text-[12px] tracking-[0.18em] text-[#87929b]">
+              {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+            </span>
+            <div className="h-[2px] w-full bg-[#242424]">
+              <motion.div
+                className="h-full origin-left bg-[#00bfff]"
+                animate={{ scaleX: (index + 1) / total }}
+                transition={{ duration: 0.28, ease: 'easeOut' }}
+                style={{ willChange: 'transform' }}
+              />
+            </div>
+            <span className="font-mono text-[10px] tracking-[0.15em] text-[#87929b]/70">
+              ← → / SPACE TO NAVIGATE
+            </span>
+          </div>
+
+          <NeonButton variant="secondary" onClick={() => go(1)} disabled={index === total - 1}>
+            Next ›
+          </NeonButton>
+        </div>
       </div>
-    </div>
+
+      {/* ── Unrolled print stack (print only) ────────────────
+          `hidden` on screen + `display:flex !important` under @media print
+          (see PRINT_CSS .print-stack). Renders every slide once, in order,
+          bypassing the AnimatePresence single-slide rendering. */}
+      <div
+        className="print-stack hidden"
+        aria-hidden="true"
+      >
+        {slides.map((s) => (
+          <section key={s.id} className="print-slide">
+            <SlideView slide={s} />
+          </section>
+        ))}
+      </div>
+    </>
   );
 }
