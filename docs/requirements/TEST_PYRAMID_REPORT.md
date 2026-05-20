@@ -13,23 +13,26 @@ expanded). All numbers were produced by running
 
 | Layer | Tooling | Count | Percentage | vs Target |
 |---|---|---:|---:|---|
-| **Unit** | Pytest | 113 | 62.8% | 🟡 below 70% |
-| **Integration** | Pytest + FastAPI TestClient / httpx | 42 | 23.3% | 🟡 above 20% |
-| **E2E** | pytest-playwright (POM) | 25 | 13.9% | 🟡 above 10% |
-| **Total** | — | **180** | 100% | — |
+| **Unit** | Pytest | 124 | 61.7% | 🟡 below 70% |
+| **Integration** | Pytest + FastAPI TestClient / httpx | 52 | 25.9% | 🟡 above 20% |
+| **E2E** | pytest-playwright (POM) | 25 | 12.4% | 🟡 above 10% |
+| **Total** | — | **201** | 100% | — |
 
-Shape is a correct pyramid (unit > integration > E2E). The ratio is closer
-to target than the prior audit (was 61/25/14, now 63/23/14) but still
-unit-light by roughly 7 points — see §3.
+Shape is a correct pyramid (unit > integration > E2E). The ratio is still
+unit-light by roughly 8 points — see §3. The latest audit added the payment
+unit + integration coverage that had been missing since the 2026-05-20
+backend migration (see §2.1 / §2.2 and the History note in §4).
 
 ## 2. Artifact Mapping
 
 All test files now live under `src/backend_python/tests/`. The
 previously-separate `src/backend/features/{payment,tickets}/tests/` trees
-have been removed; their tests were ported or superseded as part of the
-2026-05-20 tickets migration (see commit history).
+were removed in the 2026-05-20 backend migration. The **tickets** tests were
+ported (`test_tickets.py`, `test_tickets_unit.py`). The **payment** unit and
+integration tests were *not* ported at the time and were re-added in a later
+audit against the current FastAPI payment router — see the History note in §4.
 
-### 2.1 Unit Layer — 113 tests
+### 2.1 Unit Layer — 124 tests
 
 | File | Tests |
 |---|---:|
@@ -37,14 +40,16 @@ have been removed; their tests were ported or superseded as part of the
 | `src/backend_python/tests/test_tickets_unit.py` | 48 |
 | `src/backend_python/tests/test_security_crypto.py` | 13 |
 | `src/backend_python/tests/test_orders.py` (transition matrix) | 14 |
+| `src/backend_python/tests/test_payment_unit.py` (PaymentRequest schema) | 11 |
 
-### 2.2 Integration Layer — 42 tests
+### 2.2 Integration Layer — 52 tests
 
 | File | Tests |
 |---|---:|
 | `src/backend_python/tests/test_orders.py` (HTTP + DB) | 19 |
 | `src/backend_python/tests/test_tickets.py` (HTTP + JWT auth) | 12 |
 | `src/backend_python/tests/test_auth.py` | 11 |
+| `src/backend_python/tests/test_payment.py` (HTTP + DB, methods CRUD) | 10 |
 
 ### 2.3 E2E Layer — 25 tests (Playwright, Page Object Model)
 
@@ -87,3 +92,13 @@ have been removed; their tests were ported or superseded as part of the
   tickets slice was moved out of `src/backend/features/tickets/` into the
   canonical `src/backend_python/` tree, and the legacy `src/backend/` folder
   was deleted.
+- **Payment coverage gap (found & closed in a later audit):** the legacy
+  `src/backend/features/payment/` unit and integration tests
+  (`test_payment.py`, `test_payment_logic_unit.py`,
+  `test_payment_integration.py`) were deleted with the legacy backend in the
+  2026-05-20 migration and were never ported, leaving payment with E2E-only
+  coverage. A prior version of this report incorrectly implied they had been
+  "ported or superseded." They have since been re-added as
+  `test_payment_unit.py` (11) and `test_payment.py` (10), written against the
+  *current* FastAPI payment router rather than the retired
+  `payment_logic`/`payment_controller` modules.
