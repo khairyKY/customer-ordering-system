@@ -36,6 +36,7 @@ export default function CartPage({ cart, onCartUpdate, onNavigate, hideCheckoutB
   const [promoCode, setPromoCode] = useState('');
   const [promoMsg,  setPromoMsg]  = useState(null); // { type: 'success'|'error', text: string }
   const [removing,  setRemoving]  = useState(null); // product_id being removed
+  const [qtyError,  setQtyError]  = useState(null); // inline qty/sync feedback (replaces alert())
 
   // ── Hydrate cart on mount ──────────────────────────────────
   useEffect(() => {
@@ -70,7 +71,11 @@ export default function CartPage({ cart, onCartUpdate, onNavigate, hideCheckoutB
       onCartUpdate(updated);
     } catch (err) {
       console.error('[CartPage] updateCartItem error:', err);
-      alert('Stock limit reached or sync error.');
+      setQtyError(
+        err.response?.data?.error ||
+        'STOCK_LIMIT_OR_SYNC_ERROR — quantity rejected.'
+      );
+      setTimeout(() => setQtyError(null), 4000);
     }
   };
 
@@ -122,6 +127,16 @@ export default function CartPage({ cart, onCartUpdate, onNavigate, hideCheckoutB
       <div className="flex flex-col lg:flex-row gap-gutter items-start">
         {/* ── Cart Table ─────────────────────────────────────── */}
         <div className="flex-grow w-full">
+          {qtyError && (
+            <div
+              role="alert"
+              data-testid="cart-qty-error"
+              className="mb-unit-2 font-mono text-code-snippet text-error
+                         bg-error-container/20 border border-error/30 px-3 py-2"
+            >
+              {qtyError}
+            </div>
+          )}
           <div className="border border-outline-variant overflow-x-auto bg-background/50">
             <table
               className="w-full text-left border-collapse whitespace-nowrap
@@ -156,7 +171,7 @@ export default function CartPage({ cart, onCartUpdate, onNavigate, hideCheckoutB
                     <tr
                       key={item.id ?? item.product_id}
                       className="border-b border-outline-variant
-                                 hover:bg-surface-container transition-none
+                                 hover:bg-surface-container-highest transition-none
                                  odd:bg-background even:bg-surface-container-low"
                     >
                       {/* Row number */}
