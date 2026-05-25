@@ -16,7 +16,7 @@
 // ============================================================
 
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import NeonButton    from '../components/ui/NeonButton';
 import TerminalInput from '../components/ui/TerminalInput';
@@ -311,19 +311,44 @@ export default function CheckoutFlow({ cart, onCartUpdate }) {
   // ── Render ──────────────────────────────────────────────────
 
   return (
-    <div className="p-8" data-testid="checkout-flow">
-      <h1 className="font-mono text-[24px] font-bold text-on-background mb-6 text-center">
-        CHECKOUT
-      </h1>
-      <Stepper step={step} />
+    <div className="min-h-screen flex flex-col bg-background" data-testid="checkout-flow">
+      {/* ── Minimal branded checkout header (replaces global TopNavBar) ──
+          Per spec: nav links suppressed during transactional flow; only
+          brand wordmark + "CHECKOUT" label + escape-hatch back to cart. */}
+      <header
+        className="h-[56px] w-full bg-background border-b border-outline-variant
+                   flex justify-between items-center px-margin sticky top-0 z-50 flex-shrink-0"
+        aria-label="Checkout header"
+      >
+        <Link
+          to="/"
+          className="font-inter text-[18px] font-bold text-white tracking-tight focus:outline-none"
+          aria-label="pc-parts.store — home"
+        >
+          pc-parts<span className="text-primary-container">.</span>
+        </Link>
+        <span className="font-mono text-label-md text-on-surface-variant uppercase tracking-widest">
+          // CHECKOUT
+        </span>
+        <Link
+          to="/cart"
+          className="font-mono text-[12px] text-text-muted hover:text-on-surface transition-none uppercase"
+        >
+          [ ← Back to Cart ]
+        </Link>
+      </header>
 
-      {step === 1 && renderCartStep()}
-      {step === 2 && renderAuthStep()}
-      {step === 3 && renderShippingStep()}
-      {step === 4 && renderMethodStep()}
-      {step === 5 && renderPaymentStep()}
-      {step === 6 && renderReviewStep()}
-      {step === 7 && renderSuccessStep()}
+      <main className="flex-1 p-8">
+        <Stepper step={step} />
+
+        {step === 1 && renderCartStep()}
+        {step === 2 && renderAuthStep()}
+        {step === 3 && renderShippingStep()}
+        {step === 4 && renderMethodStep()}
+        {step === 5 && renderPaymentStep()}
+        {step === 6 && renderReviewStep()}
+        {step === 7 && renderSuccessStep()}
+      </main>
     </div>
   );
 }
