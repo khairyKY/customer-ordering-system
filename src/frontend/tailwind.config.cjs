@@ -83,6 +83,11 @@ module.exports = {
         'accent-amber':                '#F59E0B',
         'accent-red':                  '#EF4444',
 
+        // Spec alias — frontend_update.txt uses `admin-amber` to flag the
+        // admin-zone indicator color. Aliased to the same hex so future
+        // copy-paste from the Stitch export Just Works.
+        'admin-amber':                 '#F59E0B',
+
         // Legacy aliases used in Stitch HTML
         'border-dark':                 '#242424',
         'surface-dark':                '#131313',
