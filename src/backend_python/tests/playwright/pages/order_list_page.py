@@ -25,6 +25,7 @@ class OrderListPage(BasePage):
     def goto(self) -> None:
         self.goto_path("/admin/orders")
         expect(self.status_filter).to_be_visible()
+        expect(self.table).to_be_visible(timeout=5000)
 
     def filter_by_status(self, status: OrderStatus) -> None:
         # Playwright sync API exposes `expect_response` (context manager),
