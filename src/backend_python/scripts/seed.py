@@ -54,9 +54,11 @@ def _ensure_order(db, *, id_: str, status_: str, age: timedelta) -> None:
         placed_at=datetime.now(timezone.utc) - age,
     )
     o.items.extend([
-        OrderItem(product_id="PROD-001", product_name="Wireless Mouse",
+        OrderItem(product_id="e1a9c2f0-7b3b-4e1e-9a9a-9a9a9a9a9a9a",
+                  product_name="NVIDIA GeForce RTX 5090 Founders Edition",
                   quantity=1, unit_price=25.0, total_price=25.0),
-        OrderItem(product_id="PROD-002", product_name="Mechanical Keyboard",
+        OrderItem(product_id="c1e9a2b0-7f3f-4c1c-9e9e-9e9e9e9e9e9e",
+                  product_name="Logitech G Pro X Superlight 2",
                   quantity=1, unit_price=75.0, total_price=75.0),
     ])
     db.add(o)
@@ -73,25 +75,8 @@ def run() -> None:
         _ensure_user(db, email="customer@example.com", password="custPass!1", role=Role.CUSTOMER.value)
         _ensure_user(db, email="agent@example.com",    password="agntPass!1", role=Role.AGENT.value)
 
-        # Always seed the canonical PROD-* set first — the E2E suite and
-        # OrderItem rows reference these stable IDs (PROD-001..006). The
-        # catalog JSON below was previously gated on file absence, which
-        # silently meant tests targeting PROD-003 saw an empty inventory
-        # the moment the JSON was present.
-        demo_products = [
-            ("PROD-001", "Wireless Mouse",       "MS-001", 30, 25.00),
-            ("PROD-002", "Mechanical Keyboard",  "KB-002", 15, 89.00),
-            ("PROD-003", "27\" Gaming Monitor",  "MN-003",  3, 320.00),
-            ("PROD-004", "USB-C Hub",            "HB-004", 50, 35.00),
-            ("PROD-005", "Webcam HD",            "WC-005",  4, 45.00),
-            ("PROD-006", "Noise-Cancelling Headset", "HS-006", 12, 120.00),
-        ]
-        for pid, name, sku, stock, price in demo_products:
-            _ensure_product(db, id_=pid, name=name, sku=sku, stock=stock, price=price)
-
-        # Additively load catalog_seed.json on top — _ensure_product is
-        # idempotent so re-runs don't duplicate, and the catalog extends
-        # the inventory without displacing the demo IDs.
+        # Load the full product catalog from catalog_seed.json.
+        # All products are now defined there — no more hard-coded demo products.
         import json, os
         seed_path = os.path.join(os.path.dirname(__file__), "..", "..", "database", "catalog_seed.json")
         if os.path.exists(seed_path):

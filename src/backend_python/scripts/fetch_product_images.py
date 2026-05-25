@@ -3,12 +3,11 @@
 Strategy (two-pass)
 -------------------
 Pass 1 — fast: plain HTTP GET + BeautifulSoup for og:image from manufacturer pages
-         that serve static HTML (NVIDIA, ASUS, EVGA, Logitech, SteelSeries, WD, Noctua…).
+         that serve static HTML (NVIDIA, ASUS, MSI, G.Skill, Razer…).
 
 Pass 2 — JS pages: for any product that still has a placeholder after Pass 1, launch
          a Playwright/Chromium headless browser so JavaScript executes and og:image
-         is present in the rendered DOM. Covers AMD, Intel, Samsung, Corsair, GIGABYTE,
-         G.Skill, Crucial, ZOTAC, Lian Li.
+         is present in the rendered DOM. Covers Corsair, Logitech.
 
 Usage (from src/backend_python/):
     python -m scripts.fetch_product_images
@@ -39,103 +38,74 @@ PRODUCT_PAGES: dict[str, str] = {
     "NVIDIA GeForce RTX 5090 Founders Edition": (
         "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5090/"
     ),
-    # AMD — JS-rendered, will use Playwright
-    "AMD Ryzen 9 7950X3D": (
-        "https://www.amd.com/en/products/processors/desktop/ryzen-9/amd-ryzen-9-7950x3d.html"
+    # ASUS
+    "ASUS ROG Strix GeForce RTX 4080 Super": (
+        "https://rog.asus.com/graphics-cards/graphics-cards/rog-strix/rog-strix-rtx4080s-o16g-gaming/"
     ),
-    "AMD Ryzen 7 7800X3D": (
-        "https://www.amd.com/en/products/processors/desktop/ryzen-7/amd-ryzen-7-7800x3d.html"
-    ),
-    # Intel — JS-rendered, will use Playwright
-    "Intel Core i9-14900K": (
-        "https://www.intel.com/content/www/us/en/products/sku/236772/"
-        "intel-core-i9-processor-14900k-36m-cache-up-to-6-00-ghz/specifications.html"
-    ),
-    "Intel Core i7-14700K": (
-        "https://www.intel.com/content/www/us/en/products/sku/236775/"
-        "intel-core-i7-processor-14700k-33m-cache-up-to-5-60-ghz/specifications.html"
-    ),
-    # Motherboards
-    "GIGABYTE X670E AORUS Master": (
-        "https://www.gigabyte.com/Motherboard/X670E-AORUS-MASTER-rev-10"
-    ),
-    # Memory — Corsair uses JS; G.Skill uses JS
-    "G.Skill Trident Z5 RGB 64GB (2x32GB) DDR5-6400": (
-        "https://www.gskill.com/product/165/390/1655781413/F5-6400J3239G32GX2-TZ5RK"
-    ),
-    "Corsair Vengeance RGB 32GB (2x16GB) DDR5-6000": (
-        "https://www.corsair.com/us/en/p/memory/cmh32gx5m2b6000c30/"
-        "vengeance-rgb-ddr5-32gb-2x16gb-ddr5-dram-6000mhz-c30-memory-kit-black-cmh32gx5m2b6000c30"
-    ),
-    # Storage
-    "Samsung 990 Pro 4TB NVMe SSD": (
-        "https://semiconductor.samsung.com/us/consumer-storage/internal-ssd/990-pro/"
-    ),
-    "Crucial T705 2TB PCIe Gen5 NVMe SSD": (
-        "https://www.crucial.com/ssd/t705/ct2000t705ssd3"
-    ),
-    # Peripherals
-    "Logitech G Pro X Superlight 2": (
-        "https://www.logitechg.com/en-us/products/gaming-mice/"
-        "pro-x2-superlight-wireless-mouse.910-006632.html"
-    ),
-    # GPU
-    "ZOTAC Gaming GeForce RTX 4070 Ti Super": (
-        "https://www.zotac.com/us/product/graphics_card/"
-        "zotac-gaming-geforce-rtx-4070-ti-super-16gb-gddr6x-trinity-oc"
-    ),
-    # PSU
-    "EVGA SuperNOVA 1000 G7 PSU": (
-        "https://www.evga.com/products/product.aspx?pn=220-G7-1000-X1"
-    ),
-    # Cases
-    "Lian Li O11 Dynamic EVO Case": (
-        "https://lian-li.com/product/pc-o11-dynamic-evo/"
-    ),
-    # Storage
-    "Western Digital Black SN850X 2TB": (
-        "https://www.westerndigital.com/products/internal-drives/wd-black-sn850x-nvme-ssd"
-    ),
-    # Coolers
-    "Corsair iCUE H150i Elite LCD XT AIO": (
-        "https://www.corsair.com/us/en/p/cpu-coolers/cw-9060071-ww/"
-        "icue-h150i-elite-lcd-xt-display-liquid-cpu-cooler-cw-9060071-ww"
-    ),
-    # Monitors
     "ASUS ROG Swift OLED PG27AQDM": (
         "https://rog.asus.com/monitors/27-to-31-5-inches/rog-swift-oled-pg27aqdm/"
     ),
-    # Keyboards
-    "SteelSeries Apex Pro TKL (2023)": (
-        "https://steelseries.com/gaming-keyboards/apex-pro-tkl"
+    "ASUS ROG Strix B650E-F Gaming WiFi": (
+        "https://rog.asus.com/motherboards/rog-strix/rog-strix-b650e-f-gaming-wifi/"
     ),
-    # Monitors
-    "Samsung Odyssey Neo G9 G95NA": (
-        "https://www.samsung.com/us/televisions-home-theater/monitors/odyssey/"
-        "49-odyssey-neo-g9-dual-uhd-gaming-monitor-ls49cg954snxza/"
+    "ASUS TUF Gaming GeForce RTX 4090 OC": (
+        "https://www.asus.com/motherboards-components/graphics-cards/tuf-gaming/tuf-rtx4090-o24g-gaming/"
     ),
-    # Coolers
-    "Noctua NH-D15 Chromax Black": (
-        "https://noctua.at/en/products/cpu-cooler-retail/nh-d15-chromax-black"
+    # MSI
+    "MSI MEG Z790 GODLIKE": (
+        "https://www.msi.com/Motherboard/MEG-Z790-GODLIKE"
     ),
-    # Demo products (PROD-001..006)
-    "Wireless Mouse": (
-        "https://www.logitechg.com/en-us/products/gaming-mice/g305-lightspeed-wireless-gaming-mouse.910-005280.html"
+    "MSI GeForce RTX 4080 Super Gaming X Slim": (
+        "https://www.msi.com/Graphics-Card/GeForce-RTX-4080-SUPER-16G-GAMING-X-SLIM"
     ),
-    "Mechanical Keyboard": (
-        "https://www.corsair.com/us/en/p/keyboards/ch-9109114-na/k70-rgb-mk-2-mechanical-gaming-keyboard-ch-9109114-na"
+    # G.Skill
+    "G.Skill Trident Z5 RGB 64GB (2x32GB) DDR5-6400": (
+        "https://www.gskill.com/product/165/390/1655781413/F5-6400J3239G32GX2-TZ5RK"
     ),
-    '27" Gaming Monitor': (
-        "https://rog.asus.com/monitors/27-to-31-5-inches/rog-swift-pg279qm/"
+    "G.Skill Trident Z5 RGB 32GB (2x16GB) DDR5-6000": (
+        "https://www.gskill.com/product/165/374/1674817763/F5-6000J3038F16GX2-TZ5RK"
     ),
-    "USB-C Hub": (
-        "https://www.anker.com/products/a8380-usb-c-hub"
+    # Corsair
+    "Corsair Vengeance RGB 32GB (2x16GB) DDR5-6000": (
+        "https://www.corsair.com/us/en/p/memory/cmh32gx5m2b6000c30/vengeance-rgb-ddr5-32gb-2x16gb-ddr5-dram-6000mhz-c30-memory-kit-black-cmh32gx5m2b6000c30"
     ),
-    "Webcam HD": (
-        "https://www.logitech.com/en-us/products/webcams/c920s-pro-hd-webcam.960-001257.html"
+    "Corsair iCUE H150i Elite LCD XT AIO": (
+        "https://www.corsair.com/us/en/p/cpu-coolers/cw-9060071-ww/icue-h150i-elite-lcd-xt-display-liquid-cpu-cooler-cw-9060071-ww"
     ),
-    "Noise-Cancelling Headset": (
-        "https://www.steelseries.com/gaming-headsets/arctis-nova-pro-wireless"
+    "Corsair K100 RGB Mechanical Gaming Keyboard": (
+        "https://www.corsair.com/us/en/p/keyboards/ch-912a01a-na/k100-rgb-mechanical-gaming-keyboard-ch-912a01a-na"
+    ),
+    "Corsair HS80 RGB Wireless Headset": (
+        "https://www.corsair.com/us/en/p/gaming-headsets/ca-9011235-na/hs80-rgb-wireless-premium-gaming-headset-with-spatial-audio-ca-9011235-na"
+    ),
+    # Logitech
+    "Logitech G Pro X Superlight 2": (
+        "https://www.logitechg.com/en-us/products/gaming-mice/pro-x2-superlight-wireless-mouse.910-006632.html"
+    ),
+    "Logitech G502 X Plus": (
+        "https://www.logitechg.com/en-us/products/gaming-mice/g502-x-plus-wireless-gaming-mouse.910-006164.html"
+    ),
+    "Logitech G Pro X 2 Lightspeed Gaming Headset": (
+        "https://www.logitechg.com/en-us/products/gaming-audio/gpro-x2-gaming-headset.981-001260.html"
+    ),
+    "Logitech G915 TKL Wireless Gaming Keyboard": (
+        "https://www.logitechg.com/en-us/products/gaming-keyboards/g915-tkl-wireless.920-009536.html"
+    ),
+    "Logitech G733 Lightspeed Wireless Headset": (
+        "https://www.logitechg.com/en-us/products/gaming-audio/g733-rgb-wireless-headset.981-000864.html"
+    ),
+    "Logitech MX Master 3S": (
+        "https://www.logitech.com/en-us/products/mice/mx-master-3s.910-006556.html"
+    ),
+    # Razer
+    "Razer Huntsman V3 Pro": (
+        "https://www.razer.com/gaming-keyboards/razer-huntsman-v3-pro"
+    ),
+    "Razer Basilisk V3 Pro": (
+        "https://www.razer.com/gaming-mice/razer-basilisk-v3-pro/RZ01-04620100-R3U1"
+    ),
+    "Razer BlackWidow V4 Pro": (
+        "https://www.razer.com/gaming-keyboards/razer-blackwidow-v4-pro/RZ03-04610100-R3U1"
     ),
 }
 

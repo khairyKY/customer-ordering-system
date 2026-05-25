@@ -28,59 +28,17 @@
     }
   },
   {
-    "id": "a3c1e4f2-9d5d-6a3a-1c1c-1c1c1c1c1c1c",
-    "name": "AMD Ryzen 9 7950X3D",
-    "category": "CPU",
-    "price": 699.0,
-    "stock": 15,
-    "image_url": "https://www.notebookcheck.net/fileadmin/Notebooks/AMD/Ryzen_9_7950X3D/7950X3D_5.jpg",
-    "specs": {
-      "brand": "AMD",
-      "model": "7950X3D",
-      "cores": "16 Cores",
-      "threads": "32 Threads"
-    }
-  },
-  {
-    "id": "b4d2f5a3-0e6e-7b4b-2d2d-2d2d2d2d2d2d",
-    "name": "Intel Core i9-14900K",
-    "category": "CPU",
-    "price": 589.99,
-    "stock": 20,
-    "image_url": "https://www.notebookcheck.net/fileadmin/_processed_/d/5/csm_Intel_Core_i9-14900K_box_0635a71cfc.jpg",
-    "specs": {
-      "brand": "Intel",
-      "model": "i9-14900K",
-      "max_turbo": "6.0 GHz",
-      "cache": "36MB Smart Cache"
-    }
-  },
-  {
     "id": "c5e3a6b4-1f7f-8c5c-3e3e-3e3e3e3e3e3e",
     "name": "MSI MEG Z790 GODLIKE",
     "category": "Motherboard",
     "price": 1199.99,
-    "stock": 5,
+    "stock": 3,
     "image_url": "https://storage-asset.msi.com/global/picture/image/feature/mb/Z790/MEG-Z790-GODLIKE/m2-01.png",
     "specs": {
       "brand": "MSI",
       "model": "MEG Z790 GODLIKE",
       "socket": "LGA 1700",
       "ram_support": "DDR5"
-    }
-  },
-  {
-    "id": "d6f4b7c5-2a8a-9d6d-4f4f-4f4f4f4f4f4f",
-    "name": "GIGABYTE X670E AORUS Master",
-    "category": "Motherboard",
-    "price": 499.99,
-    "stock": 10,
-    "image_url": "https://c1.neweggimages.com/productimage/nb640/13-145-405-01.jpg",
-    "specs": {
-      "brand": "GIGABYTE",
-      "model": "X670E AORUS MASTER",
-      "socket": "AM5",
-      "pcie": "Gen 5"
     }
   },
   {
@@ -112,34 +70,6 @@
     }
   },
   {
-    "id": "a9c7e0f8-5d1d-2a9a-7c7c-7c7c7c7c7c7c",
-    "name": "Samsung 990 Pro 4TB NVMe SSD",
-    "category": "Storage",
-    "price": 349.99,
-    "stock": 18,
-    "image_url": "https://images.samsung.com/is/image/samsung/p6pim/us/mz-v9p4t0b-am/gallery/us-nvme-ssd-mz-v9p4t0b-am-----pro---tb-ssd-nvme--m---black-551140993?$product-details-jpg$",
-    "specs": {
-      "brand": "Samsung",
-      "model": "MZ-V9P4T0BW",
-      "interface": "PCIe Gen 4.0 x4",
-      "read_speed": "7,450 MB/s"
-    }
-  },
-  {
-    "id": "b0d8f1a9-6e2e-3b0b-8d8d-8d8d8d8d8d8d",
-    "name": "Crucial T705 2TB PCIe Gen5 NVMe SSD",
-    "category": "Storage",
-    "price": 314.99,
-    "stock": 12,
-    "image_url": "https://c1.neweggimages.com/productimage/nb640/20-156-397-09.png",
-    "specs": {
-      "brand": "Crucial",
-      "model": "CT2000T705SSD8",
-      "interface": "PCIe Gen 5.0 x4",
-      "read_speed": "14,500 MB/s"
-    }
-  },
-  {
     "id": "c1e9a2b0-7f3f-4c1c-9e9e-9e9e9e9e9e9e",
     "name": "Logitech G Pro X Superlight 2",
     "category": "Peripherals",
@@ -168,21 +98,7 @@
     }
   },
   {
-    "id": "e3a1c4d2-9b5b-6e3e-1a1a-1a1a1a1a1a1a",
-    "name": "Alienware AW3423DW QD-OLED Monitor",
-    "category": "Monitors",
-    "price": 1199.99,
-    "stock": 7,
-    "image_url": "https://microless.com/cdn/products/df6ddd803d13ad96b19460a1fe9edfb4-hi.jpg",
-    "specs": {
-      "brand": "Alienware",
-      "model": "AW3423DW",
-      "panel": "QD-OLED",
-      "refresh_rate": "175Hz"
-    }
-  },
-  {
-    "id": "f4b2d5e3-0c6c-7f4f-2b2b-2b2b2b2b2b2b",
+    "id": "b2d0f3a1-8e4e-5b2b-0d0d-0d0d0d0d0d0d",
     "name": "ASUS ROG Swift OLED PG27AQDM",
     "category": "Monitors",
     "price": 899.0,
@@ -193,76 +109,6 @@
       "model": "PG27AQDM",
       "panel": "OLED",
       "refresh_rate": "240Hz"
-    }
-  },
-  {
-    "id": "a5c3e6f4-1d7d-8a5a-3c3c-3c3c3c3c3c3c",
-    "name": "ZOTAC Gaming GeForce RTX 4070 Ti Super",
-    "category": "GPU",
-    "price": 799.99,
-    "stock": 14,
-    "image_url": "https://c1.neweggimages.com/productimage/nb640/14-500-576-12.png",
-    "specs": {
-      "brand": "ZOTAC",
-      "model": "ZT-D40730D-10P",
-      "vram": "16GB GDDR6X",
-      "cooling": "IceStorm 2.0"
-    }
-  },
-  {
-    "id": "b6d4f7a5-2e8e-9b6b-4d4d-4d4d4d4d4d4d",
-    "name": "EVGA SuperNOVA 1000 G7 PSU",
-    "category": "Peripherals",
-    "price": 189.99,
-    "stock": 22,
-    "image_url": "https://images.evga.com/products/gallery/png/220-G7-1000-X1_LG_1.png",
-    "specs": {
-      "brand": "EVGA",
-      "model": "220-G7-1000-X1",
-      "wattage": "1000W",
-      "efficiency": "80+ Gold"
-    }
-  },
-  {
-    "id": "c7e5a8b6-3f9f-0c7c-5e5e-5e5e5e5e5e5e",
-    "name": "Lian Li O11 Dynamic EVO Case",
-    "category": "Peripherals",
-    "price": 169.99,
-    "stock": 35,
-    "image_url": "https://lian-li.com/wp-content/uploads/2021/12/evo-600-001.jpg",
-    "specs": {
-      "brand": "Lian Li",
-      "model": "O11D EVO",
-      "type": "Mid Tower",
-      "glass": "Tempered"
-    }
-  },
-  {
-    "id": "d8f6b9c7-4a0a-1d8d-6f6f-6f6f6f6f6f6f",
-    "name": "Western Digital Black SN850X 2TB",
-    "category": "Storage",
-    "price": 159.99,
-    "stock": 45,
-    "image_url": "https://www.sandisk.com/content/dam/sandisk/en-us/assets/products/internal-storage/wd-black-sn850x-nvme-ssd/gallery/wd-black-sn850x-nvme-ssd-front.png",
-    "specs": {
-      "brand": "WD",
-      "model": "WDS200T2X0E",
-      "interface": "PCIe Gen4",
-      "read_speed": "7,300 MB/s"
-    }
-  },
-  {
-    "id": "e9a7c0d8-5b1b-2e9e-7a7a-7a7a7a7a7a7a",
-    "name": "AMD Ryzen 7 7800X3D",
-    "category": "CPU",
-    "price": 449.0,
-    "stock": 30,
-    "image_url": "https://www.notebookcheck.net/fileadmin/Notebooks/AMD/Ryzen_7_7800X3D/7800X3D_5.jpg",
-    "specs": {
-      "brand": "AMD",
-      "model": "100-100000910WOF",
-      "cores": "8 Cores",
-      "threads": "16 Threads"
     }
   },
   {
@@ -280,73 +126,185 @@
     }
   },
   {
-    "id": "a1c9e2f0-7d3d-4a1a-9c9c-9c9c9c9c9c9c",
-    "name": "SteelSeries Apex Pro TKL (2023)",
-    "category": "Peripherals",
-    "price": 189.99,
-    "stock": 21,
-    "image_url": "https://images.ctfassets.net/hmm5mo4qf4mf/2jGyXpgwHFrgkyHHxGpT0F/8ce43829ef6cbcca8a857a7c81380857/apex_pro_mini_img_buy_02.png__1920x1080_crop-fit_optimize_subsampling-2-2022.png?w=1200&h=600&fit=fill&fm=jpg&q=85",
-    "specs": {
-      "brand": "SteelSeries",
-      "model": "64734",
-      "switches": "OmniPoint 2.0",
-      "form_factor": "TKL"
-    }
-  },
-  {
-    "id": "b2d0f3a1-8e4e-5b2b-0d0d-0d0d0d0d0d0d",
-    "name": "LG UltraGear 27GR95QE-B OLED",
-    "category": "Monitors",
-    "price": 799.99,
-    "stock": 9,
-    "image_url": "https://www.bhphotovideo.com/images/images2500x2500/lg_27gr95qe_b_27_ultragear_curved_oled_1745626.jpg",
-    "specs": {
-      "brand": "LG",
-      "model": "27GR95QE-B",
-      "panel": "OLED",
-      "refresh_rate": "240Hz"
-    }
-  },
-  {
-    "id": "c3e1a4b2-9f5f-6c3c-1e1e-1e1e1e1e1e1e",
-    "name": "Samsung Odyssey Neo G9 G95NA",
-    "category": "Monitors",
-    "price": 1799.99,
-    "stock": 4,
-    "image_url": "https://c1.neweggimages.com/productimage/nb640/24-027-035-01.jpg",
-    "specs": {
-      "brand": "Samsung",
-      "model": "LS49AG952NNXZA",
-      "panel": "Mini-LED",
-      "resolution": "5120 x 1440"
-    }
-  },
-  {
-    "id": "d4f2b5c3-0a6a-7d4d-2f2f-2f2f2f2f2f2f",
-    "name": "Noctua NH-D15 Chromax Black",
-    "category": "Peripherals",
-    "price": 119.95,
-    "stock": 50,
-    "image_url": "https://cdn.noctua.at/media/nh_d15_chromax_black_1.jpg",
-    "specs": {
-      "brand": "Noctua",
-      "model": "NH-D15-CH-BK",
-      "type": "Air Cooler",
-      "fans": "2x NF-A15"
-    }
-  },
-  {
-    "id": "e5a3c6d4-1b7b-8e5e-3a3a-3a3a3a3a3a3a",
-    "name": "Intel Core i7-14700K",
-    "category": "CPU",
-    "price": 409.99,
+    "id": "a1b2c3d4-1234-4abc-8a01-a1b2c3d4a1b2",
+    "name": "Logitech G502 X Plus",
+    "category": "Gaming Mouse",
+    "price": 159.99,
     "stock": 25,
-    "image_url": "https://www.notebookcheck.net/fileadmin/_processed_/1/5/csm_core-i7-14700k_1_64716b1391.jpg",
+    "image_url": "https://resource.logitechg.com/w_692,c_lpad,ar_4:3,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/g502x-plus/gallery/g502x-plus-gallery-1-black.png",
     "specs": {
-      "brand": "Intel",
-      "model": "i7-14700K",
-      "cores": "20 Cores",
-      "threads": "28 Threads"
+      "brand": "Logitech",
+      "model": "910-006164",
+      "sensor": "HERO 25K",
+      "weight": "106g"
+    }
+  },
+  {
+    "id": "a2b3c4d5-2345-4bcd-8b02-a2b3c4d5a2b3",
+    "name": "Logitech G Pro X 2 Lightspeed Gaming Headset",
+    "category": "Peripherals",
+    "price": 249.99,
+    "stock": 18,
+    "image_url": "https://resource.logitechg.com/w_692,c_lpad,ar_4:3,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/pro-x2-lightspeed-headset/gallery/pro-x2-lightspeed-headset-gallery-1.png",
+    "specs": {
+      "brand": "Logitech",
+      "model": "981-001260",
+      "driver": "50mm Pro-G Graphene",
+      "connectivity": "Lightspeed Wireless"
+    }
+  },
+  {
+    "id": "a3b4c5d6-3456-4cde-8c03-a3b4c5d6a3b4",
+    "name": "Logitech G915 TKL Wireless Gaming Keyboard",
+    "category": "Peripherals",
+    "price": 229.99,
+    "stock": 20,
+    "image_url": "https://resource.logitechg.com/w_692,c_lpad,ar_4:3,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/g915-702/gallery/g915-702-gallery-1-702.png",
+    "specs": {
+      "brand": "Logitech",
+      "model": "920-009536",
+      "switches": "GL Tactile",
+      "layout": "TKL"
+    }
+  },
+  {
+    "id": "a4b5c6d7-4567-4def-8d04-a4b5c6d7a4b5",
+    "name": "Logitech G733 Lightspeed Wireless Headset",
+    "category": "Peripherals",
+    "price": 129.99,
+    "stock": 30,
+    "image_url": "https://resource.logitechg.com/w_692,c_lpad,ar_4:3,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/g733/gallery/g733-702-gallery-1.png",
+    "specs": {
+      "brand": "Logitech",
+      "model": "981-000864",
+      "driver": "40mm Pro-G",
+      "connectivity": "Lightspeed Wireless"
+    }
+  },
+  {
+    "id": "a5b6c7d8-5678-4ef0-8e05-a5b6c7d8a5b6",
+    "name": "Logitech MX Master 3S",
+    "category": "Peripherals",
+    "price": 99.99,
+    "stock": 40,
+    "image_url": "https://resource.logitech.com/w_692,c_lpad,ar_4:3,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/mice/mx-master-3s/gallery/mx-master-3s-mouse-top-view-graphite.png",
+    "specs": {
+      "brand": "Logitech",
+      "model": "910-006556",
+      "sensor": "Darkfield 8K DPI",
+      "connectivity": "Bluetooth / USB-C"
+    }
+  },
+  {
+    "id": "b1c2d3e4-6789-4f01-8f06-b1c2d3e4b1c2",
+    "name": "ASUS ROG Strix B650E-F Gaming WiFi",
+    "category": "Motherboard",
+    "price": 329.99,
+    "stock": 12,
+    "image_url": "https://dlcdnwebimgs.asus.com/gain/E847BF1F-3E76-4C3E-857E-B1E934BE498E/w1000/h732",
+    "specs": {
+      "brand": "ASUS",
+      "model": "ROG STRIX B650E-F GAMING WIFI",
+      "socket": "AM5",
+      "ram_support": "DDR5"
+    }
+  },
+  {
+    "id": "b2c3d4e5-7890-4012-8007-b2c3d4e5b2c3",
+    "name": "ASUS TUF Gaming GeForce RTX 4090 OC",
+    "category": "GPU",
+    "price": 1199.99,
+    "stock": 6,
+    "image_url": "https://dlcdnwebimgs.asus.com/gain/43c1b39d-b159-42eb-adff-ad37ba943325/",
+    "specs": {
+      "brand": "ASUS",
+      "model": "TUF-RTX4090-O24G-GAMING",
+      "vram": "24GB GDDR6X",
+      "cooling": "Triple Fan"
+    }
+  },
+  {
+    "id": "c1d2e3f4-8901-4123-8108-c1d2e3f4c1d2",
+    "name": "Corsair K100 RGB Mechanical Gaming Keyboard",
+    "category": "Peripherals",
+    "price": 229.99,
+    "stock": 22,
+    "image_url": "https://assets.corsair.com/image/upload/c_pad,q_85,h_1100,w_1100,f_auto/products/Keyboards/CH-912A01A-NA/Gallery/K100_AIR_01.webp",
+    "specs": {
+      "brand": "Corsair",
+      "model": "CH-912A01A-NA",
+      "switches": "OPX Optical",
+      "features": "iCUE Control Wheel"
+    }
+  },
+  {
+    "id": "c2d3e4f5-9012-4234-8209-c2d3e4f5c2d3",
+    "name": "Corsair HS80 RGB Wireless Headset",
+    "category": "Peripherals",
+    "price": 119.99,
+    "stock": 35,
+    "image_url": "https://assets.corsair.com/image/upload/c_pad,q_85,h_1100,w_1100,f_auto/products/Gaming-Headsets/CA-9011235-NA/Gallery/HS80_RGB_WIRELESS_01.webp",
+    "specs": {
+      "brand": "Corsair",
+      "model": "CA-9011235-NA",
+      "driver": "50mm Neodymium",
+      "connectivity": "Slipstream Wireless"
+    }
+  },
+  {
+    "id": "d1e2f3a4-0123-4345-830a-d1e2f3a4d1e2",
+    "name": "Razer Basilisk V3 Pro",
+    "category": "Gaming Mouse",
+    "price": 159.99,
+    "stock": 28,
+    "image_url": "https://assets3.razerzone.com/gs-JSSQnfmE-YqwggRrrHSQovyE=/1500x1000/https%3A%2F%2Fmedias-p1.phoenix.razer.com%2Fsys-master-phoenix-images-container%2Fha0%2Fhb6%2F9529652445214%2Fbasilisk-v3-pro-black-2-500x500.png",
+    "specs": {
+      "brand": "Razer",
+      "model": "RZ01-04620100-R3U1",
+      "sensor": "Focus Pro 30K",
+      "weight": "112g"
+    }
+  },
+  {
+    "id": "d2e3f4a5-1234-4456-840b-d2e3f4a5d2e3",
+    "name": "Razer BlackWidow V4 Pro",
+    "category": "Gaming Keyboard",
+    "price": 229.99,
+    "stock": 15,
+    "image_url": "https://assets3.razerzone.com/k_lHKieGMaj1nbqsaBfnGCiGd5A=/1500x1000/https%3A%2F%2Fmedias-p1.phoenix.razer.com%2Fsys-master-phoenix-images-container%2Fh5e%2Fh04%2F9594556661790%2Fblackwidow-v4-pro-hero-500x500.png",
+    "specs": {
+      "brand": "Razer",
+      "model": "RZ03-04610100-R3U1",
+      "switches": "Green Mechanical",
+      "features": "Command Dial"
+    }
+  },
+  {
+    "id": "e1f2a3b4-2345-4567-850c-e1f2a3b4e1f2",
+    "name": "MSI GeForce RTX 4080 Super Gaming X Slim",
+    "category": "GPU",
+    "price": 999.99,
+    "stock": 9,
+    "image_url": "https://storage-asset.msi.com/global/picture/image/feature/vga/NVIDIA/RTX4080S/RTX-4080S-GAMING-X-SLIM-16G/kv-01.png",
+    "specs": {
+      "brand": "MSI",
+      "model": "RTX 4080 SUPER 16G GAMING X SLIM",
+      "vram": "16GB GDDR6X",
+      "cooling": "TRI FROZR 3S"
+    }
+  },
+  {
+    "id": "f1a2b3c4-3456-4678-860d-f1a2b3c4f1a2",
+    "name": "G.Skill Trident Z5 RGB 32GB (2x16GB) DDR5-6000",
+    "category": "Memory",
+    "price": 149.99,
+    "stock": 30,
+    "image_url": "https://www.gskill.com/_upload/images/167481776310.png",
+    "specs": {
+      "brand": "G.Skill",
+      "model": "F5-6000J3038F16GX2-TZ5RK",
+      "speed": "6000 MT/s",
+      "latency": "CL30"
     }
   }
 ]
