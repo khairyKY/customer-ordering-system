@@ -24,11 +24,11 @@ cd src/backend_python
 
 # Initialize environment
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+.venv\Scripts\activate
 
 # Install and Seed
 pip install -r requirements.txt
-python -m scripts.seed      # Populates 25-product catalog
+python -m scripts.seed      # Populates product catalog
 
 # Boot Server
 uvicorn app.main:app --port 8000 --reload
