@@ -56,6 +56,7 @@ import ProductListing  from './pages/ProductListing';
 import ProductDetail   from './pages/ProductDetail';
 import DealsPage       from './pages/DealsPage';
 import BuildsPage      from './pages/BuildsPage';
+import AboutPage       from './pages/AboutPage';
 
 // Zone 2 — Checkout Funnel
 import CheckoutFlow    from './pages/CheckoutFlow';
@@ -94,23 +95,42 @@ import PresentationDeck from './pages/PresentationDeck';
 function Shell({ cart, cartCount, handleCartUpdate, onClearCart }) {
   const { pathname } = useLocation();
   const immersive = pathname === '/presentation';
+  // AdminDashboard + CatalogManagement render their own full-screen shell
+  // (admin TopNavBar, SideNavBar, admin footer). Suppress the global chrome
+  // on those exact routes only — /admin/login, /admin/register, and the
+  // not-yet-reworked /admin/orders + /admin/inventory still keep the global
+  // TopNavBar + StatusBar.
+  const adminShellRoutes = new Set(['/admin', '/admin/catalog']);
+  const adminShell = adminShellRoutes.has(pathname);
+  // Checkout funnel suppresses the storefront chrome to reduce visual noise
+  // during the transactional flow — CheckoutFlow renders its own minimal
+  // branded header inline (per spec: "TopNavBar nav hidden due to
+  // transactional intent"). /cart still keeps the global nav.
+  const checkoutShell = pathname === '/checkout';
+  // AccountDashboard renders its own sidebar-first shell (cyan SideNavBar
+  // on desktop, hamburger drawer on mobile, account footer). Only suppress
+  // on the dashboard index — /account/orders, /addresses etc. still use
+  // the global chrome until they each get their own rework.
+  const accountShell = pathname === '/account';
+  const chromeSuppressed = immersive || adminShell || checkoutShell || accountShell;
 
   return (
     <>
-      {!immersive && (
+      {!chromeSuppressed && (
         <TopNavBar cartCount={cartCount} onClearCart={onClearCart} />
       )}
 
       {/* Page area — clears fixed TopNavBar (56px) + StatusBar (24px),
-          except on the immersive route which fills the viewport. */}
-      <div className={immersive ? 'flex-grow' : 'flex-grow pt-[56px] pb-[24px]'}>
+          except on routes that render their own full-screen shell. */}
+      <div className={chromeSuppressed ? 'flex-grow' : 'flex-grow pt-[56px] pb-[24px]'}>
         <Routes>
           {/* ── Zone 1 · Public Storefront ─────────────── */}
           <Route path="/"             element={<StorefrontPage onCartUpdate={handleCartUpdate} />} />
           <Route path="/products"     element={<ProductListing  onCartUpdate={handleCartUpdate} />} />
           <Route path="/products/:id" element={<ProductDetail   onCartUpdate={handleCartUpdate} />} />
           <Route path="/deals"        element={<DealsPage />} />
-          <Route path="/builds"       element={<BuildsPage />} />
+          <Route path="/builds"       element={<BuildsPage    onCartUpdate={handleCartUpdate} />} />
+          <Route path="/about"        element={<AboutPage />} />
 
           {/* ── Zone 2 · Checkout Funnel ───────────────── */}
           <Route path="/cart"     element={<CartPage     cart={cart} onCartUpdate={handleCartUpdate} onNavigate={() => {}} />} />
@@ -194,7 +214,7 @@ function Shell({ cart, cartCount, handleCartUpdate, onClearCart }) {
         </Routes>
       </div>
 
-      {!immersive && <StatusBar />}
+      {!chromeSuppressed && <StatusBar />}
     </>
   );
 }
