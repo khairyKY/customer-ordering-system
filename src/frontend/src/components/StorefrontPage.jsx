@@ -61,6 +61,7 @@ export default function StorefrontPage({ onCartUpdate }) {
   const [addingId, setAddingId] = useState(null); // product id currently being added
   const [sortMode, setSortMode] = useState('newest'); // 'price_asc' | 'price_desc' | 'newest'
   const [categoryFilter, setCategoryFilter] = useState(''); // '' = all
+  const [addError, setAddError] = useState(null); // inline cart-error feedback (replaces alert())
 
   // ── Fetch catalog on mount ─────────────────────────────────
   useEffect(() => {
@@ -85,7 +86,11 @@ export default function StorefrontPage({ onCartUpdate }) {
       onCartUpdate(updated);
     } catch (err) {
       console.error('[StorefrontPage] addToCart error:', err);
-      alert('Could not add item — stock limit reached or backend unavailable.');
+      setAddError(
+        err.response?.data?.error ||
+        'CART_SYNC_FAILURE: stock limit reached or backend unavailable.'
+      );
+      setTimeout(() => setAddError(null), 4000);
     } finally {
       setAddingId(null);
     }
@@ -245,6 +250,18 @@ export default function StorefrontPage({ onCartUpdate }) {
           ariaLabel="Search inventory"
         />
       </section>
+
+      {/* ── Inline cart-error banner (replaces alert()) ─────── */}
+      {addError && (
+        <div
+          role="alert"
+          data-testid="storefront-add-error"
+          className="font-mono text-code-snippet text-error
+                     bg-error-container/20 border border-error/30 px-3 py-2"
+        >
+          {addError}
+        </div>
+      )}
 
       {/* ── Product Grid (Sort Bar + Cards) ──────────────────── */}
       <section aria-label="Product catalog">

@@ -9,11 +9,68 @@ import LiquidCard    from '../components/ui/LiquidCard';
 import { fetchProducts } from '../api/productApi';
 import { addToCart }     from '../api/cartApi';
 
+// ── Per-category diagnostic readout schema ────────────────────────
+// Spec source: stitch_terminal_hardware_store/all_of_the_frontend.txt
+// (RTX 4080 SUPER detail page, lines 1076–1102) shows a multi-row
+// spec table (VRAM / MEMORY_BUS / BOOST_CLOCK / TDP / PCIE_SLOT /
+// DISPLAY_OUT). Each category maps to the field set it actually
+// publishes; the renderer skips any missing field gracefully.
+const SPEC_FIELDS = {
+  gpu: [
+    { key: 'vram',            label: 'VRAM' },
+    { key: 'memory_bus',      label: 'MEMORY_BUS' },
+    { key: 'boost_clock',     label: 'BOOST_CLOCK' },
+    { key: 'tdp',             label: 'TDP' },
+    { key: 'pcie_slot',       label: 'PCIE_SLOT' },
+    { key: 'display_outputs', label: 'DISPLAY_OUT' },
+  ],
+  cpu: [
+    { key: 'cores',       label: 'CORES' },
+    { key: 'threads',     label: 'THREADS' },
+    { key: 'base_clock',  label: 'BASE_CLOCK' },
+    { key: 'boost_clock', label: 'BOOST_CLOCK' },
+    { key: 'tdp',         label: 'TDP' },
+    { key: 'socket',      label: 'SOCKET' },
+  ],
+  motherboard: [
+    { key: 'chipset',     label: 'CHIPSET' },
+    { key: 'socket',      label: 'SOCKET' },
+    { key: 'form_factor', label: 'FORM_FACTOR' },
+    { key: 'ram_slots',   label: 'RAM_SLOTS' },
+    { key: 'pcie_slots',  label: 'PCIE_SLOTS' },
+  ],
+  memory: [
+    { key: 'capacity', label: 'CAPACITY' },
+    { key: 'speed',    label: 'SPEED' },
+    { key: 'latency',  label: 'CL' },
+    { key: 'modules',  label: 'MODULES' },
+    { key: 'voltage',  label: 'VOLTAGE' },
+  ],
+  storage: [
+    { key: 'capacity',    label: 'CAPACITY' },
+    { key: 'interface',   label: 'INTERFACE' },
+    { key: 'read_speed',  label: 'READ_MB/S' },
+    { key: 'write_speed', label: 'WRITE_MB/S' },
+    { key: 'form_factor', label: 'FORM_FACTOR' },
+  ],
+};
+
+// Compatibility / install notes shown below the spec table.
+// Lifted from the spec's "info" callout on the GPU detail page.
+const COMPAT_NOTES = {
+  gpu:         'Requires PCIe 4.0 x16 slot and 750W+ PSU. Ensure case clearance for 3-slot width.',
+  cpu:         'Verify socket compatibility with motherboard and confirm adequate CPU cooling.',
+  motherboard: 'Confirm CPU socket compatibility and case form-factor support before purchase.',
+  memory:      'Check motherboard QVL list for guaranteed stability at the rated speed.',
+  storage:     'Confirm motherboard M.2 slot generation matches the drive interface.',
+};
+
 export default function ProductDetail({ onCartUpdate }) {
   const { id }     = useParams();
   const navigate   = useNavigate();
   const [product, setProduct] = useState(null);
-  const [error,   setError]   = useState(null);
+  const [error,   setError]   = useState(null);           // fatal page error (early-return)
+  const [addError, setAddError] = useState(null);          // soft inline error (cart actions)
   const [qty,     setQty]     = useState(1);
   const [adding,  setAdding]  = useState(false);
   const [related, setRelated] = useState([]);
@@ -45,7 +102,9 @@ export default function ProductDetail({ onCartUpdate }) {
       onCartUpdate?.(updated);
       navigate('/cart');
     } catch (err) {
-      setError(err.response?.data?.error || 'Could not add to cart');
+      // Soft error — don't trigger the fatal page-level early-return.
+      setAddError(err.response?.data?.error || 'Could not add to cart');
+      setTimeout(() => setAddError(null), 4000);
     } finally {
       setAdding(false);
     }
@@ -93,29 +152,73 @@ export default function ProductDetail({ onCartUpdate }) {
         {/* Main Product Showcase - Glassmorphism Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Left: High-Res Image Showcase */}
-          <div className="lg:col-span-7 border border-outline-variant bg-surface-dark/80 backdrop-blur-xl aspect-[4/3] flex items-center justify-center relative overflow-hidden group">
-            {product.image_url ? (
-              <img 
-                src={product.image_url} 
-                alt={product.name} 
-                className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 ease-in-out" 
-              />
-            ) : (
-              <span className="font-mono text-[13px] text-text-muted">// ASSET_MISSING</span>
-            )}
-            
-            {/* Overlay Grid lines for aesthetic */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
-            
-            {/* Status Badge */}
-            <div className={`absolute top-4 left-4 border ${inStock ? 'border-[#22C55E] text-[#22C55E]' : 'border-error text-error'} bg-background/90 backdrop-blur-md px-3 py-1 font-mono text-[12px] uppercase`}>
-               {inStock ? `[ IN_STOCK: ${product.stock} ]` : '[ DEPLETED ]'}
+          {/* Left: High-Res Image Showcase (spec ratio: 5/12) */}
+          <div className="lg:col-span-5 flex flex-col gap-unit-2">
+            <div className="border border-outline-variant bg-surface-dark/80 backdrop-blur-xl aspect-[4/3] flex items-center justify-center relative overflow-hidden group">
+              {product.image_url ? (
+                <img
+                  src={product.image_url}
+                  alt={product.name}
+                  className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 ease-in-out"
+                />
+              ) : (
+                <span className="font-mono text-[13px] text-text-muted">// ASSET_MISSING</span>
+              )}
+
+              {/* Overlay grid lines (aesthetic) */}
+              <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+
+              {/* Stock status badge */}
+              <div className={`absolute top-4 left-4 border ${inStock ? 'border-accent-green text-accent-green' : 'border-error text-error'} bg-background/90 backdrop-blur-md px-3 py-1 font-mono text-[12px] uppercase`}>
+                {inStock ? `[ IN_STOCK: ${product.stock} ]` : '[ DEPLETED ]'}
+              </div>
+            </div>
+
+            {/* Thumbnail row (spec: 4 slots — active main + 3 view-type
+                placeholders). The placeholders are visual-only until
+                multi-image catalog support lands. */}
+            <div className="grid grid-cols-4 gap-unit-2" aria-label="Image gallery thumbnails">
+              <button
+                type="button"
+                aria-label="Main product image"
+                aria-pressed="true"
+                className="border border-primary-container h-[80px] bg-surface-container-low overflow-hidden flex items-center justify-center"
+              >
+                {product.image_url ? (
+                  <img
+                    src={product.image_url}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="material-symbols-outlined text-outline" aria-hidden="true">image</span>
+                )}
+              </button>
+
+              {[
+                { icon: 'photo_camera', label: 'Alt photo' },
+                { icon: '3d_rotation',  label: '3D rotation' },
+                { icon: 'cable',        label: 'Connections diagram' },
+              ].map((slot) => (
+                <button
+                  key={slot.icon}
+                  type="button"
+                  disabled
+                  aria-label={`${slot.label} (coming soon)`}
+                  title="Additional views coming soon"
+                  className="border border-outline-variant h-[80px] bg-surface-container-low
+                             flex items-center justify-center text-outline
+                             hover:border-primary-container transition-none
+                             disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="material-symbols-outlined" aria-hidden="true">{slot.icon}</span>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Right: Info Panel */}
-          <div className="lg:col-span-5 flex flex-col gap-6 p-6 border border-outline-variant bg-surface-container-low/60 backdrop-blur-xl h-full">
+          {/* Right: Info Panel (spec ratio: 7/12) */}
+          <div className="lg:col-span-7 flex flex-col gap-6 p-6 border border-outline-variant bg-surface-container-low/60 backdrop-blur-xl h-full">
             <div>
               <div className="font-mono text-[12px] text-primary-container uppercase tracking-widest mb-2">
                 // {product.category || 'HARDWARE'}
@@ -140,30 +243,76 @@ export default function ProductDetail({ onCartUpdate }) {
               </div>
             </div>
 
-            {/* Hardware Specs Block */}
-            <div className="bg-background/50 border border-outline-variant p-4">
-              <div className="font-mono text-[11px] text-text-muted uppercase mb-3 border-b border-outline-variant pb-2">
-                &gt;_ DIAGNOSTIC_READOUT
-              </div>
-              <table className="w-full font-mono text-[13px]">
-                <tbody>
-                  <tr className="group">
-                    <td className="py-1 text-text-muted w-1/3">SKU_ID</td>
-                    <td className="py-1 text-white text-right truncate">{product.sku || product.id.split('-')[0]}</td>
-                  </tr>
-                  {product.spec_snippet && (
-                    <tr className="group mt-2">
-                      <td className="py-1 text-text-muted w-1/3">CORE_SPEC</td>
-                      <td className="py-1 text-white text-right">{product.spec_snippet}</td>
-                    </tr>
+            {/* ── Hardware Specs Block ─────────────────────────
+                Category-driven multi-row readout. Falls back to a
+                generic single-row table when the product's category
+                isn't in SPEC_FIELDS (or fields are missing). */}
+            {(() => {
+              const categoryKey = (product.category || '').toLowerCase();
+              const fields      = SPEC_FIELDS[categoryKey] || [];
+              const presentRows = fields.filter((f) => product[f.key] != null && product[f.key] !== '');
+              const compatNote  = COMPAT_NOTES[categoryKey];
+
+              return (
+                <div>
+                  <div className="bg-background/50 border border-outline-variant p-4">
+                    <div className="font-mono text-[11px] text-text-muted uppercase mb-3 border-b border-outline-variant pb-2">
+                      &gt;_ DIAGNOSTIC_READOUT
+                    </div>
+                    <table className="w-full font-mono text-[13px]" data-testid="spec-table">
+                      <tbody>
+                        <tr>
+                          <td className="py-1 text-text-muted w-1/3">SKU_ID</td>
+                          <td className="py-1 text-white text-right truncate">
+                            {product.sku || String(product.id).split('-')[0]}
+                          </td>
+                        </tr>
+
+                        {presentRows.length > 0 ? (
+                          presentRows.map((field) => (
+                            <tr key={field.key}>
+                              <td className="py-1 text-text-muted w-1/3">{field.label}</td>
+                              <td className="py-1 text-white text-right">{String(product[field.key])}</td>
+                            </tr>
+                          ))
+                        ) : product.spec_snippet ? (
+                          <tr>
+                            <td className="py-1 text-text-muted w-1/3">CORE_SPEC</td>
+                            <td className="py-1 text-white text-right">{product.spec_snippet}</td>
+                          </tr>
+                        ) : null}
+
+                        <tr>
+                          <td className="py-1 text-text-muted w-1/3">CATEGORY</td>
+                          <td className="py-1 text-primary-container text-right uppercase">
+                            {product.category || 'HARDWARE'}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Compatibility / install note (per spec) */}
+                  {compatNote && (
+                    <div className="flex items-start gap-unit-2 mt-unit-2 px-1 text-outline font-mono text-code-snippet">
+                      <span className="material-symbols-outlined text-[16px] mt-[2px]" aria-hidden="true">info</span>
+                      <span>{compatNote}</span>
+                    </div>
                   )}
-                  <tr className="group mt-2">
-                    <td className="py-1 text-text-muted w-1/3">COMPATIBILITY</td>
-                    <td className="py-1 text-primary-container text-right">UNIVERSAL</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                </div>
+              );
+            })()}
+
+            {addError && (
+              <div
+                role="alert"
+                data-testid="product-add-error"
+                className="font-mono text-code-snippet text-error
+                           bg-error-container/20 border border-error/30 px-3 py-2"
+              >
+                {addError}
+              </div>
+            )}
 
             <div className="mt-auto pt-6 flex flex-col sm:flex-row gap-4 items-end">
               <div className="w-full sm:w-24">
@@ -213,8 +362,9 @@ export default function ProductDetail({ onCartUpdate }) {
                         const updated = await addToCart(r.id, 1);
                         onCartUpdate?.(updated);
                         navigate('/cart');
-                     } catch(e) {
-                        alert('Could not add to cart');
+                     } catch (e) {
+                        setAddError(e.response?.data?.error || 'Could not add related item to cart');
+                        setTimeout(() => setAddError(null), 4000);
                      }
                   }}
                   className="cursor-pointer"
