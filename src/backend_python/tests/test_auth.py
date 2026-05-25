@@ -88,7 +88,7 @@ def test_admin_route_rejects_customer(client):
     login = client.post("/api/v1/auth/login", json={
         "email": "alice@example.com", "password": "S3curePass!",
     }).json()
-    r = client.get("/api/v1/orders", headers={"Authorization": f"Bearer {login['token']}"})
+    r = client.get("/api/v1/inventory", headers={"Authorization": f"Bearer {login['token']}"})
     assert r.status_code == 403
 
 

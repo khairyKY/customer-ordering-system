@@ -40,7 +40,7 @@ def list_products():
                 "price": p.price,
                 "stock": p.stock,
                 "category": _guess_category(p.name),
-                "image_url": f"https://placehold.co/600x400?text={p.name.replace(' ', '+')[:20]}",
+                "image_url": p.image_url or f"https://placehold.co/600x400?text={p.name.replace(' ', '+')[:20]}",
             }
             for p in rows
         ]
@@ -62,7 +62,7 @@ def get_product(product_id: str):
             "price": p.price,
             "stock": p.stock,
             "category": _guess_category(p.name),
-            "image_url": f"https://placehold.co/600x400?text={p.name.replace(' ', '+')[:20]}",
+            "image_url": p.image_url or f"https://placehold.co/600x400?text={p.name.replace(' ', '+')[:20]}",
         }
     finally:
         db.close()
