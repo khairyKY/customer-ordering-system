@@ -18,7 +18,9 @@ The Dev-Cosmic Ordering System (COS) is a high-fidelity, polyglot hardware retai
 ## 2. Quick Start (Local Setup)
 
 ### 2.1 Backend Engine (FastAPI)
-```bash
+
+#### Command Prompt (CMD) Setup
+```cmd
 # Navigate to the Python backend
 cd src/backend_python
 
@@ -26,9 +28,37 @@ cd src/backend_python
 python -m venv .venv
 .venv\Scripts\activate
 
-# Install and Seed
+# Install and Boot
 pip install -r requirements.txt
 python -m scripts.seed      # Populates product catalog
+uvicorn app.main:app --port 8000 --reload
+```
+
+#### PowerShell Setup (Windows)
+```powershell
+# Navigate to the Python backend
+cd src/backend_python
+
+# Initialize environment
+python -m venv .venv
+
+# Enable script execution for this process (if blocked) and activate
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+.\.venv\Scripts\Activate.ps1
+
+# Install requirements
+pip install -r requirements.txt
+
+# (Optional) Image Fetching & Playwright Setup
+# The product catalog seed uses Playwright to fetch real product images from manufacturer websites.
+# Install the headless Chromium dependency for Playwright:
+playwright install chromium
+
+# Run the image fetcher script to populate image URLs in catalog_seed.json:
+python -m scripts.fetch_product_images
+
+# Seed the database (replaces old cos.db if it exists)
+python -m scripts.seed
 
 # Boot Server
 uvicorn app.main:app --port 8000 --reload
