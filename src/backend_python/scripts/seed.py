@@ -27,10 +27,10 @@ def _ensure_user(db, *, email: str, password: str, role: str) -> None:
     db.add(User(email=email, password_hash=hash_password(password), role=role))
 
 
-def _ensure_product(db, *, id_: str, name: str, sku: str, stock: int, price: float, image_url: str | None = None) -> None:
+def _ensure_product(db, *, id_: str, name: str, sku: str, stock: int, price: float, image_url: str | None = None, category: str | None = None, specs: dict | None = None) -> None:
     if db.get(Product, id_):
         return
-    db.add(Product(id=id_, name=name, sku=sku, stock=stock, price=price, image_url=image_url))
+    db.add(Product(id=id_, name=name, sku=sku, stock=stock, price=price, image_url=image_url, category=category, specs=specs))
 
 
 def _ensure_order(db, *, id_: str, status_: str, age: timedelta) -> None:
@@ -86,7 +86,9 @@ def run() -> None:
                 sku = p.get("specs", {}).get("model", p["id"][:8])
                 _ensure_product(db, id_=p["id"], name=p["name"], sku=sku,
                                 stock=p.get("stock", 10), price=p["price"],
-                                image_url=p.get("image_url"))
+                                image_url=p.get("image_url"),
+                                category=p.get("category"),
+                                specs=p.get("specs"))
             log.info("loaded %d products from catalog_seed.json", len(catalog))
 
         _ensure_order(db, id_="ord_pending_1", status_=OrderStatus.PENDING.value, age=timedelta(minutes=5))

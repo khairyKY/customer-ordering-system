@@ -39,8 +39,10 @@ def list_products():
                 "sku": p.sku,
                 "price": p.price,
                 "stock": p.stock,
-                "category": _guess_category(p.name),
+                "category": p.category or _guess_category(p.name),
                 "image_url": p.image_url or f"https://placehold.co/600x400?text={p.name.replace(' ', '+')[:20]}",
+                "specs": p.specs,
+                "spec_snippet": _generate_spec_snippet(p.category or _guess_category(p.name), p.specs),
             }
             for p in rows
         ]
@@ -61,11 +63,55 @@ def get_product(product_id: str):
             "sku": p.sku,
             "price": p.price,
             "stock": p.stock,
-            "category": _guess_category(p.name),
+            "category": p.category or _guess_category(p.name),
             "image_url": p.image_url or f"https://placehold.co/600x400?text={p.name.replace(' ', '+')[:20]}",
+            "specs": p.specs,
+            "spec_snippet": _generate_spec_snippet(p.category or _guess_category(p.name), p.specs),
         }
     finally:
         db.close()
+
+
+def _generate_spec_snippet(category: str | None, specs: dict | None) -> str | None:
+    if not specs:
+        return None
+    if category == "GPU":
+        return specs.get("vram") or specs.get("boost_clock")
+    elif category == "CPU":
+        cores = specs.get("cores")
+        threads = specs.get("threads")
+        if cores and threads:
+            return f"{cores}, {threads}"
+        return specs.get("cores") or specs.get("max_turbo")
+    elif category == "Memory":
+        speed = specs.get("speed")
+        latency = specs.get("latency")
+        if speed and latency:
+            return f"{speed}, {latency}"
+        return speed
+    elif category == "Storage":
+        read_speed = specs.get("read_speed")
+        interface = specs.get("interface")
+        if read_speed and interface:
+            return f"{read_speed}, {interface}"
+        return read_speed or interface
+    elif category == "Motherboard":
+        socket = specs.get("socket")
+        ram = specs.get("ram_support")
+        if socket and ram:
+            return f"{socket}, {ram}"
+        return socket
+    elif category == "Monitors":
+        panel = specs.get("panel")
+        refresh = specs.get("refresh_rate")
+        if panel and refresh:
+            return f"{panel}, {refresh}"
+        return panel or refresh
+    # Default fallback: get the first couple of values
+    non_model_vals = [v for k, v in specs.items() if k not in ("brand", "model")]
+    if non_model_vals:
+        return ", ".join(str(v) for v in non_model_vals[:2])
+    return None
 
 
 def _guess_category(name: str) -> str:

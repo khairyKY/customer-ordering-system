@@ -136,6 +136,8 @@ class Product(Base):
     stock: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     price: Mapped[float] = mapped_column(Float, default=0.0)
     image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    category: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    specs: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow)
 
 

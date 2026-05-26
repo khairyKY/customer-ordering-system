@@ -145,10 +145,10 @@
     "category": "Peripherals",
     "price": 249.99,
     "stock": 18,
-    "image_url": "https://resource.logitechg.com/w_692,c_lpad,ar_4:3,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/pro-x2-lightspeed-headset/gallery/pro-x2-lightspeed-headset-gallery-1.png",
+    "image_url": "https://resource.logitechg.com/w_544,h_466,ar_7:6,c_pad,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/pro-x-2-lightspeed/gallery/gallery-1-pro-x-2-lightspeed-gaming-headset-black.png",
     "specs": {
       "brand": "Logitech",
-      "model": "981-001260",
+      "model": "981-001262",
       "driver": "50mm Pro-G Graphene",
       "connectivity": "Lightspeed Wireless"
     }
@@ -159,7 +159,7 @@
     "category": "Peripherals",
     "price": 229.99,
     "stock": 20,
-    "image_url": "https://resource.logitechg.com/w_692,c_lpad,ar_4:3,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/g915-702/gallery/g915-702-gallery-1-702.png",
+    "image_url": "https://resource.logitechg.com/w_544,h_466,ar_7:6,c_pad,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/g915-tkl/g915-tkl-gallery/us-g915-tkl-carbon-gallery-topdown.png",
     "specs": {
       "brand": "Logitech",
       "model": "920-009536",
@@ -173,7 +173,7 @@
     "category": "Peripherals",
     "price": 129.99,
     "stock": 30,
-    "image_url": "https://resource.logitechg.com/w_692,c_lpad,ar_4:3,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/g733/gallery/g733-702-gallery-1.png",
+    "image_url": "https://resource.logitechg.com/w_544,h_466,ar_7:6,c_pad,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/g733/gallery/g733-lilac-gallery-1.png",
     "specs": {
       "brand": "Logitech",
       "model": "981-000864",
@@ -201,7 +201,7 @@
     "category": "Motherboard",
     "price": 329.99,
     "stock": 12,
-    "image_url": "https://dlcdnwebimgs.asus.com/gain/E847BF1F-3E76-4C3E-857E-B1E934BE498E/w1000/h732",
+    "image_url": "https://dlcdnwebimgs.asus.com/files/media/398D9060-E4B9-4A5E-B3AC-53FE4DC9144E/v1/img/kv/ROG-Strix-B650E-F-Gaming.png",
     "specs": {
       "brand": "ASUS",
       "model": "ROG STRIX B650E-F GAMING WIFI",
@@ -229,7 +229,7 @@
     "category": "Peripherals",
     "price": 229.99,
     "stock": 22,
-    "image_url": "https://assets.corsair.com/image/upload/c_pad,q_85,h_1100,w_1100,f_auto/products/Keyboards/CH-912A01A-NA/Gallery/K100_AIR_01.webp",
+    "image_url": "https://assets.corsair.com/image/upload/c_pad,q_85,h_1100,w_1100,f_auto/products/Gaming-Keyboards/CH-912A01A-NA/Gallery/K100_RGB_01.webp",
     "specs": {
       "brand": "Corsair",
       "model": "CH-912A01A-NA",
@@ -243,7 +243,7 @@
     "category": "Peripherals",
     "price": 119.99,
     "stock": 35,
-    "image_url": "https://assets.corsair.com/image/upload/c_pad,q_85,h_1100,w_1100,f_auto/products/Gaming-Headsets/CA-9011235-NA/Gallery/HS80_RGB_WIRELESS_01.webp",
+    "image_url": "https://assets.corsair.com/image/upload/c_pad,q_85,h_1100,w_1100,f_auto/products/Gaming-Headsets/CA-9011235-NA/Gallery/HS80_RGB_WIRELESS_BLACK_01.webp",
     "specs": {
       "brand": "Corsair",
       "model": "CA-9011235-NA",
@@ -257,7 +257,7 @@
     "category": "Gaming Mouse",
     "price": 159.99,
     "stock": 28,
-    "image_url": "https://assets3.razerzone.com/gs-JSSQnfmE-YqwggRrrHSQovyE=/1500x1000/https%3A%2F%2Fmedias-p1.phoenix.razer.com%2Fsys-master-phoenix-images-container%2Fha0%2Fhb6%2F9529652445214%2Fbasilisk-v3-pro-black-2-500x500.png",
+    "image_url": "https://medias-p1.phoenix.razer.com/sys-master-phoenix-images-container/heb/h05/9434919862302/220823-basilisk-v3-pro-1500x1000-1.jpg",
     "specs": {
       "brand": "Razer",
       "model": "RZ01-04620100-R3U1",
@@ -271,7 +271,7 @@
     "category": "Gaming Keyboard",
     "price": 229.99,
     "stock": 15,
-    "image_url": "https://assets3.razerzone.com/k_lHKieGMaj1nbqsaBfnGCiGd5A=/1500x1000/https%3A%2F%2Fmedias-p1.phoenix.razer.com%2Fsys-master-phoenix-images-container%2Fh5e%2Fh04%2F9594556661790%2Fblackwidow-v4-pro-hero-500x500.png",
+    "image_url": "https://assets2.razerzone.com/images/pnx.assets/cd96979aa903a39c20bfa1833fe89eb3/razer-blackwidow-v4-pro-hero-1920x700.webp",
     "specs": {
       "brand": "Razer",
       "model": "RZ03-04610100-R3U1",
@@ -285,7 +285,7 @@
     "category": "GPU",
     "price": 999.99,
     "stock": 9,
-    "image_url": "https://storage-asset.msi.com/global/picture/image/feature/vga/NVIDIA/RTX4080S/RTX-4080S-GAMING-X-SLIM-16G/kv-01.png",
+    "image_url": "https://c1.neweggimages.com/productimage/nb640/14-137-886-03.jpg",
     "specs": {
       "brand": "MSI",
       "model": "RTX 4080 SUPER 16G GAMING X SLIM",
@@ -299,10 +299,10 @@
     "category": "Memory",
     "price": 149.99,
     "stock": 30,
-    "image_url": "https://www.gskill.com/_upload/images/167481776310.png",
+    "image_url": "https://www.gskill.com/_upload/images/164923497710.png",
     "specs": {
       "brand": "G.Skill",
-      "model": "F5-6000J3038F16GX2-TZ5RK",
+      "model": "F5-6000J3040G32GX2-TZ5RK",
       "speed": "6000 MT/s",
       "latency": "CL30"
     }
