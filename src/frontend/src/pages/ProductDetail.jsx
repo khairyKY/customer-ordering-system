@@ -99,7 +99,7 @@ export default function ProductDetail({ onCartUpdate }) {
               <img 
                 src={product.image_url} 
                 alt={product.name} 
-                className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 ease-in-out" 
+                className="w-full h-full object-contain p-6 grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 ease-in-out group-hover:scale-105" 
               />
             ) : (
               <span className="font-mono text-[13px] text-text-muted">// ASSET_MISSING</span>
@@ -157,6 +157,15 @@ export default function ProductDetail({ onCartUpdate }) {
                       <td className="py-1 text-white text-right">{product.spec_snippet}</td>
                     </tr>
                   )}
+                  {product.specs && typeof product.specs === 'object' && Object.entries(product.specs).map(([key, val]) => {
+                    if (key === 'brand' || key === 'model') return null;
+                    return (
+                      <tr key={key} className="group mt-2">
+                        <td className="py-1 text-text-muted w-1/3 uppercase">{key.replace('_', ' ')}</td>
+                        <td className="py-1 text-white text-right">{val}</td>
+                      </tr>
+                    );
+                  })}
                   <tr className="group mt-2">
                     <td className="py-1 text-text-muted w-1/3">COMPATIBILITY</td>
                     <td className="py-1 text-primary-container text-right">UNIVERSAL</td>
@@ -202,22 +211,23 @@ export default function ProductDetail({ onCartUpdate }) {
               {related.map(r => (
                 <LiquidCard
                   key={r.id}
+                  href={`/products/${r.id}`}
+                  expandData={r}
                   category={`// ${(r.category || 'HARDWARE').toUpperCase()}`}
                   title={r.name}
                   price={`$${Number(r.price).toFixed(2)}`}
                   imageSrc={r.image_url}
                   imageAlt={r.name}
                   stock={r.stock > 0 ? (r.stock < 5 ? 'low_stock' : 'in_stock') : 'out_stock'}
-                  onAdd={async () => {
+                  onAdd={async (qty = 1) => {
                      try {
-                        const updated = await addToCart(r.id, 1);
+                        const updated = await addToCart(r.id, qty);
                         onCartUpdate?.(updated);
                         navigate('/cart');
                      } catch(e) {
                         alert('Could not add to cart');
                      }
                   }}
-                  className="cursor-pointer"
                 />
               ))}
             </div>

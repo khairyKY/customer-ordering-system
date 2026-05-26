@@ -82,9 +82,9 @@ export default function ProductListing({ onCartUpdate }) {
     );
   }
 
-  async function handleAdd(product) {
+  async function handleAdd(product, qty = 1) {
     try {
-      const updated = await addToCart(product.id, 1);
+      const updated = await addToCart(product.id, qty);
       onCartUpdate?.(updated);
     } catch (err) {
       console.error('[ProductListing] addToCart failed', err);
@@ -174,13 +174,15 @@ export default function ProductListing({ onCartUpdate }) {
             {visible.map((p) => (
               <div key={p.id} data-testid="product-card" data-product-id={p.id}>
                 <LiquidCard
+                  href={`/products/${p.id}`}
+                  expandData={p}
                   category={p.category || '// COMPONENT'}
                   title={p.name}
                   subtitle={p.description}
                   price={`$${Number(p.price).toFixed(2)}`}
                   imageSrc={p.image_url}
                   stock={stockBucket(p.stock)}
-                  onAdd={() => handleAdd(p)}
+                  onAdd={(qty) => handleAdd(p, qty)}
                 />
                 <div className="mt-2">
                   <NeonButton variant="secondary" fullWidth onClick={() => navigate(`/products/${p.id}`)}>
