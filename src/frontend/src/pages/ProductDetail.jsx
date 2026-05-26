@@ -99,7 +99,7 @@ export default function ProductDetail({ onCartUpdate }) {
               <img 
                 src={product.image_url} 
                 alt={product.name} 
-                className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 ease-in-out" 
+                className="w-full h-full object-contain p-8 grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 ease-in-out" 
               />
             ) : (
               <span className="font-mono text-[13px] text-text-muted">// ASSET_MISSING</span>
