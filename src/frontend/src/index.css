@@ -68,6 +68,7 @@
     justify-content: center;
     padding: 11px 24px;
     transition: none;
+    white-space: nowrap;
   }
   .btn-neon-primary:hover {
     background-color: #00bfff;
@@ -93,6 +94,7 @@
     justify-content: center;
     padding: 11px 24px;
     transition: none;
+    white-space: nowrap;
   }
   .btn-neon-secondary:hover {
     background-color: #242424;
@@ -117,6 +119,7 @@
     justify-content: center;
     padding: 4px 8px;
     transition: none;
+    white-space: nowrap;
   }
   .btn-neon-destructive:hover {
     background-color: #ffb4ab;
@@ -187,7 +190,11 @@
     object-fit: contain;
     padding: 16px;
     opacity: 0.8;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .liquid-card:hover .liquid-card__img {
+    opacity: 1;
+    transform: scale(1.05);
   }
 
   /* CosmicCanvas */

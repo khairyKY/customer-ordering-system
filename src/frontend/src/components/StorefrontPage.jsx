@@ -77,11 +77,13 @@ export default function StorefrontPage({ onCartUpdate }) {
   }, []);
 
   // ── Add to cart handler ────────────────────────────────────
-  const handleAdd = async (product) => {
+  // qty defaults to 1 (used by the hero button); LiquidCard now passes
+  // the user-typed bulk quantity from its qty input.
+  const handleAdd = async (product, qty = 1) => {
     const id = product.id;
     setAddingId(id);
     try {
-      const updated = await addToCart(id);
+      const updated = await addToCart(id, qty);
       onCartUpdate(updated);
     } catch (err) {
       console.error('[StorefrontPage] addToCart error:', err);
@@ -154,7 +156,7 @@ export default function StorefrontPage({ onCartUpdate }) {
               id="hero-add-btn"
               className="font-mono border border-accent-blue text-accent-blue
                          px-[24px] py-[11px] text-label-md hover:bg-accent-blue
-                         hover:text-background transition-none uppercase"
+                         hover:text-background transition-none uppercase whitespace-nowrap"
               onClick={() => handleAdd(heroProduct)}
             >
               { addingId === heroProduct.id ? '[ ADDING... ]' : '[ ADD TO CART ]' }
@@ -162,7 +164,7 @@ export default function StorefrontPage({ onCartUpdate }) {
             <button
               className="font-mono border border-border-dark text-text-muted
                          px-[24px] py-[11px] text-label-md hover:bg-on-background
-                         hover:text-background transition-none uppercase"
+                         hover:text-background transition-none uppercase whitespace-nowrap"
               onClick={() => setSearch(heroProduct.name)}
             >
               [ VIEW SPECS ]
@@ -252,21 +254,21 @@ export default function StorefrontPage({ onCartUpdate }) {
         <div className="flex flex-wrap gap-unit-2 border-b border-outline-variant pb-unit-4 mb-unit-6">
           <span className="font-mono text-label-md text-outline self-center mr-unit-2">SORT BY:</span>
           <button className={`border bg-transparent font-mono text-label-md
-                             uppercase px-unit-2 py-1 transition-none ${
+                             uppercase px-unit-2 py-1 transition-none whitespace-nowrap ${
                                sortMode === 'price_asc' ? 'border-primary-container text-primary-container' : 'border-outline-variant text-text-muted hover:bg-on-background hover:text-background'
                              }`}
                   onClick={() => setSortMode('price_asc')}>
             [ PRICE ↑ ]
           </button>
           <button className={`border bg-transparent font-mono text-label-md
-                             uppercase px-unit-2 py-1 transition-none ${
+                             uppercase px-unit-2 py-1 transition-none whitespace-nowrap ${
                                sortMode === 'price_desc' ? 'border-primary-container text-primary-container' : 'border-outline-variant text-text-muted hover:bg-on-background hover:text-background'
                              }`}
                   onClick={() => setSortMode('price_desc')}>
             [ PRICE ↓ ]
           </button>
           <button className={`border bg-transparent font-mono text-label-md
-                             uppercase px-unit-2 py-1 transition-none ${
+                             uppercase px-unit-2 py-1 transition-none whitespace-nowrap ${
                                sortMode === 'newest' ? 'border-primary-container text-primary-container' : 'border-outline-variant text-text-muted hover:bg-on-background hover:text-background'
                              }`}
                   onClick={() => setSortMode('newest')}>
@@ -274,7 +276,7 @@ export default function StorefrontPage({ onCartUpdate }) {
           </button>
           {categoryFilter && (
             <button className="border border-error text-error bg-transparent font-mono text-label-md
-                               uppercase px-unit-2 py-1 transition-none ml-auto"
+                               uppercase px-unit-2 py-1 transition-none ml-auto whitespace-nowrap"
                     onClick={() => setCategoryFilter('')}>
               [ CLEAR FILTER: {categoryFilter.toUpperCase()} ]
             </button>
@@ -301,6 +303,8 @@ export default function StorefrontPage({ onCartUpdate }) {
             {sorted.map(p => (
               <LiquidCard
                 key={p.id}
+                href={`/products/${p.id}`}
+                expandData={p}
                 category={`// ${(p.category ?? 'HARDWARE').toUpperCase()}`}
                 title={p.name}
                 subtitle={p.spec_snippet ?? undefined}
@@ -308,7 +312,7 @@ export default function StorefrontPage({ onCartUpdate }) {
                 imageSrc={p.image_url ?? undefined}
                 imageAlt={p.name}
                 stock={getStockStatus(p)}
-                onAdd={() => handleAdd(p)}
+                onAdd={(qty) => handleAdd(p, qty)}
                 className={addingId === p.id ? 'opacity-60 pointer-events-none' : ''}
               />
             ))}
